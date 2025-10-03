@@ -1,9 +1,8 @@
 <?php
 
-use App\Livewire\Welcome;
-use Illuminate\Support\Facades\Route;
+declare(strict_types=1);
 
-// Route::get('/', Welcome::class);
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('index');
