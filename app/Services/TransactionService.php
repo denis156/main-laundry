@@ -24,17 +24,23 @@ class TransactionService
     /**
      * Buat transaksi baru dengan detail
      *
-     * @param array $data Data transaksi
+     * @param Customer $customer Customer yang melakukan transaksi
+     * @param User $user Kasir yang melayani
      * @param array $items Array items [['service_id' => 1, 'weight' => 2.5], ...]
+     * @param Member|null $member Member jika ada
+     * @param Promo|null $promo Promo yang digunakan
+     * @param string|null $notes Catatan transaksi
+     * @return Transaction
      */
     public function createTransaction(
         Customer $customer,
         User $user,
         array $items,
         ?Member $member = null,
+        ?\App\Models\Promo $promo = null,
         ?string $notes = null
     ): Transaction {
-        return DB::transaction(function () use ($customer, $user, $items, $member, $notes) {
+        return DB::transaction(function () use ($customer, $user, $items, $member, $promo, $notes) {
             // Hitung subtotal dari items
             $subtotal = 0;
             $totalWeight = 0;
@@ -56,17 +62,26 @@ class TransactionService
                 ];
             }
 
-            // Hitung diskon jika member
-            $discountPercentage = 0;
-            $discountAmount = 0;
+            // Hitung diskon member
+            $memberDiscountPercentage = 0;
+            $memberDiscountAmount = 0;
 
             if ($member && $this->memberService->isActive($member)) {
-                $discountPercentage = $this->memberService->getDiscountPercentage($member);
-                $discountAmount = ($subtotal * $discountPercentage) / 100;
+                $memberDiscountPercentage = $this->memberService->getDiscountPercentage($member);
+                $memberDiscountAmount = ($subtotal * $memberDiscountPercentage) / 100;
             }
 
+            // Hitung diskon promo
+            $promoDiscountAmount = 0;
+            if ($promo && $promo->canBeUsedFor($subtotal)) {
+                $promoDiscountAmount = $promo->calculateDiscount($subtotal);
+            }
+
+            // Total diskon
+            $totalDiscountAmount = $memberDiscountAmount + $promoDiscountAmount;
+
             // Hitung harga final
-            $totalPrice = $subtotal - $discountAmount;
+            $totalPrice = $subtotal - $totalDiscountAmount;
 
             // Hitung poin yang didapat (hanya dari harga final)
             $pointsEarned = 0;
@@ -84,11 +99,14 @@ class TransactionService
                 'invoice_number' => $this->invoiceService->generateInvoiceNumber(),
                 'customer_id' => $customer->id,
                 'member_id' => $member?->id,
+                'promo_id' => $promo?->id,
                 'user_id' => $user->id,
                 'total_weight' => $totalWeight,
                 'subtotal' => $subtotal,
-                'discount_amount' => $discountAmount,
-                'discount_percentage' => $discountPercentage,
+                'member_discount_amount' => $memberDiscountAmount,
+                'member_discount_percentage' => $memberDiscountPercentage,
+                'promo_discount_amount' => $promoDiscountAmount,
+                'total_discount_amount' => $totalDiscountAmount,
                 'total_price' => $totalPrice,
                 'points_earned' => $pointsEarned,
                 'status' => 'pending',
@@ -98,6 +116,11 @@ class TransactionService
                 'order_date' => $orderDate,
                 'estimated_finish_date' => $estimatedFinishDate,
             ]);
+
+            // Increment usage promo jika dipakai
+            if ($promo) {
+                $promo->incrementUsage();
+            }
 
             // Buat detail transaksi
             foreach ($itemsData as $itemData) {
@@ -110,12 +133,12 @@ class TransactionService
                 ]);
             }
 
-            return $transaction->fresh(['customer', 'member', 'user', 'transactionDetails.service']);
+            return $transaction->fresh(['customer', 'member', 'promo', 'user', 'transactionDetails.service']);
         });
     }
 
     /**
-     * Update status transaksi
+     * Update status transaksi (pending, process, ready, completed, cancelled)
      */
     public function updateStatus(Transaction $transaction, string $status): void
     {
