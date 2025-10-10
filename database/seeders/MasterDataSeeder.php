@@ -24,7 +24,7 @@ class MasterDataSeeder extends Seeder
         ]);
 
         // Buat staff users
-        User::factory()->count(3)->create();
+        User::factory()->count(13)->create();
 
         // Buat membership tiers dengan urutan yang benar
         MembershipTier::factory()->create([
