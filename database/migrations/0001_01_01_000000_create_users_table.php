@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->boolean('super_admin')->default(false);
-            $table->string('phone')->nullable();
-            $table->string('avatar_url')->nullable();
+            $table->id()->comment('ID unik pengguna');
+            $table->string('name')->comment('Nama lengkap pengguna');
+            $table->string('email')->unique()->comment('Email pengguna (unik)');
+            $table->timestamp('email_verified_at')->nullable()->comment('Waktu verifikasi email');
+            $table->string('password')->comment('Password terenkripsi');
+            $table->boolean('super_admin')->default(false)->comment('Status super admin (true/false)');
+            $table->string('phone')->nullable()->comment('Nomor telepon pengguna');
+            $table->string('avatar_url')->nullable()->comment('URL foto profil pengguna');
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

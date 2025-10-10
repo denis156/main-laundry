@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transaction_details', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('transaction_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('service_id')->constrained()->cascadeOnDelete();
-            $table->decimal('weight', 10, 2);
-            $table->decimal('price', 10, 2);
-            $table->decimal('subtotal', 10, 2);
+            $table->id()->comment('ID unik detail transaksi');
+            $table->foreignId('transaction_id')->constrained()->cascadeOnDelete()->comment('ID transaksi (cascade on delete)');
+            $table->foreignId('service_id')->constrained()->cascadeOnDelete()->comment('ID layanan yang dipilih (cascade on delete)');
+            $table->decimal('weight', 10, 2)->comment('Berat cucian untuk service ini (kg)');
+            $table->decimal('price', 10, 2)->comment('Harga per kg saat transaksi (Rp)');
+            $table->decimal('subtotal', 10, 2)->comment('Subtotal item (weight × price)');
             $table->timestamps();
         });
     }

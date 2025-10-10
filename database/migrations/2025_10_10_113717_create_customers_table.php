@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('customers', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('phone')->unique();
-            $table->string('email')->nullable();
-            $table->text('address')->nullable();
+            $table->id()->comment('ID unik customer');
+            $table->string('name')->comment('Nama lengkap customer');
+            $table->string('phone')->unique()->comment('Nomor telepon customer (unik)');
+            $table->string('email')->nullable()->comment('Email customer');
+            $table->text('address')->nullable()->comment('Alamat lengkap customer');
             $table->timestamps();
             $table->softDeletes();
         });

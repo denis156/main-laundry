@@ -12,20 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('promos', function (Blueprint $table) {
-            $table->id();
-            $table->string('code')->unique();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->enum('type', ['percentage', 'fixed']); // percentage or fixed amount
-            $table->decimal('value', 10, 2); // percentage value or fixed amount
-            $table->decimal('min_transaction', 10, 2)->default(0); // minimum transaction to use promo
-            $table->decimal('max_discount', 10, 2)->nullable(); // max discount for percentage type
-            $table->integer('usage_limit')->nullable(); // total usage limit
-            $table->integer('usage_count')->default(0); // current usage count
-            $table->integer('usage_per_user')->nullable(); // limit per user/customer
-            $table->datetime('valid_from');
-            $table->datetime('valid_until');
-            $table->boolean('is_active')->default(true);
+            $table->id()->comment('ID unik promo');
+            $table->string('code')->unique()->comment('Kode promo (unik)');
+            $table->string('name')->comment('Nama promo');
+            $table->text('description')->nullable()->comment('Deskripsi promo');
+            $table->enum('type', ['percentage', 'fixed'])->comment('Tipe promo (percentage/fixed)');
+            $table->decimal('value', 10, 2)->comment('Nilai diskon (% atau Rp)');
+            $table->decimal('min_transaction', 10, 2)->default(0)->comment('Minimum transaksi untuk pakai promo (Rp)');
+            $table->decimal('max_discount', 10, 2)->nullable()->comment('Maksimal diskon untuk tipe percentage (Rp)');
+            $table->integer('usage_limit')->nullable()->comment('Batas total penggunaan promo');
+            $table->integer('usage_count')->default(0)->comment('Jumlah promo yang sudah digunakan');
+            $table->integer('usage_per_user')->nullable()->comment('Batas penggunaan per user/customer');
+            $table->datetime('valid_from')->comment('Tanggal mulai berlaku promo');
+            $table->datetime('valid_until')->comment('Tanggal berakhir promo');
+            $table->boolean('is_active')->default(true)->comment('Status aktif promo (true/false)');
             $table->timestamps();
             $table->softDeletes();
         });

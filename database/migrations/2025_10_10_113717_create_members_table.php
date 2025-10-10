@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('members', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('customer_id')->unique()->constrained()->cascadeOnDelete();
-            $table->foreignId('membership_tier_id')->nullable()->constrained()->nullOnDelete();
-            $table->string('member_number')->unique();
-            $table->date('member_since');
-            $table->integer('total_points')->default(0);
-            $table->boolean('is_active')->default(true);
+            $table->id()->comment('ID unik member');
+            $table->foreignId('customer_id')->unique()->constrained()->cascadeOnDelete()->comment('ID customer (unik, cascade on delete)');
+            $table->foreignId('membership_tier_id')->nullable()->constrained()->nullOnDelete()->comment('ID tier membership (null on delete)');
+            $table->string('member_number')->unique()->comment('Nomor member (unik, format: MBR-YYYYMMDD-XXXX)');
+            $table->date('member_since')->comment('Tanggal bergabung sebagai member');
+            $table->integer('total_points')->default(0)->comment('Total poin yang dimiliki member');
+            $table->boolean('is_active')->default(true)->comment('Status aktif member (true/false)');
             $table->timestamps();
             $table->softDeletes();
         });

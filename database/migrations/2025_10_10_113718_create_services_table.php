@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('services', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->decimal('price_per_kg', 10, 2);
-            $table->integer('duration_days');
-            $table->boolean('is_active')->default(true);
+            $table->id()->comment('ID unik service');
+            $table->string('name')->comment('Nama layanan (Cuci Kering, Cuci Setrika, dll)');
+            $table->decimal('price_per_kg', 10, 2)->comment('Harga per kilogram (Rp)');
+            $table->integer('duration_days')->comment('Durasi pengerjaan (hari)');
+            $table->boolean('is_active')->default(true)->comment('Status aktif service (true/false)');
             $table->timestamps();
             $table->softDeletes();
         });
