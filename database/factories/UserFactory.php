@@ -32,7 +32,6 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'super_admin' => false,
             'phone' => fake()->phoneNumber(),
-            'avatar_url' => fake()->optional()->imageUrl(200, 200, 'people'),
             'remember_token' => Str::random(10),
         ];
     }
