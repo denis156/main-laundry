@@ -34,6 +34,7 @@ return new class extends Migration
             $table->datetime('estimated_finish_date');
             $table->datetime('actual_finish_date')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
