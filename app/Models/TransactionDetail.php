@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class TransactionDetail extends Model
 {
     use HasFactory;
+    
     protected $fillable = [
         'transaction_id',
         'service_id',

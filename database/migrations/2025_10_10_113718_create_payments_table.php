@@ -20,6 +20,7 @@ return new class extends Migration
             $table->datetime('payment_date');
             $table->text('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
