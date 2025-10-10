@@ -2,22 +2,21 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\AuthenticateSession;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
+use Filament\Pages\Dashboard;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-use Illuminate\Routing\Middleware\SubstituteBindings;
+use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Filament\Http\Middleware\AuthenticateSession;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -28,6 +27,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->loginRouteSlug('masuk')
+            ->spa()
+            ->font('Poppins')
+            ->sidebarFullyCollapsibleOnDesktop()
             ->colors([
                 'primary' => [
                     50 => 'oklch(0.95 0.04 264.41)',
@@ -55,7 +58,19 @@ class AdminPanelProvider extends PanelProvider
                     900 => 'oklch(0.35 0.13 13.428)',
                     950 => 'oklch(0.27 0.105 12.094)',
                 ],
-                'gray' => Color::Zinc,
+                'gray' => [
+                    50 => 'oklch(0.99 0.005 60)',
+                    100 => 'oklch(0.98 0.01 60)',
+                    200 => 'oklch(0.96 0.015 60)',
+                    300 => 'oklch(0.93 0.02 60)',
+                    400 => 'oklch(0.88 0.025 60)',
+                    500 => 'oklch(0.75 0.02 60)',
+                    600 => 'oklch(0.60 0.015 60)',
+                    700 => 'oklch(0.45 0.012 60)',
+                    800 => 'oklch(0.30 0.010 60)',
+                    900 => 'oklch(0.21 0.006 285.885)',
+                    950 => 'oklch(0.14 0.005 285.823)',
+                ],
                 'info' => [
                     50 => 'oklch(0.95 0.03 232.661)',
                     100 => 'oklch(0.90 0.06 232.661)',
