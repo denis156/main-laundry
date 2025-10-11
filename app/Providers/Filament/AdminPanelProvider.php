@@ -35,6 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->breadcrumbs(false)
             ->sidebarFullyCollapsibleOnDesktop()
             ->collapsibleNavigationGroups(false)
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
                 'primary' => [
                     50 => 'oklch(0.95 0.04 264.41)',
