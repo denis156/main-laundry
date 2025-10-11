@@ -10,6 +10,10 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class StatsOverviewCustomer extends StatsOverviewWidget
 {
+    protected ?string $heading = 'Statistik Pelanggan';
+
+    protected ?string $description = 'Ringkasan data pelanggan dan tren 6 bulan terakhir.';
+
     protected function getStats(): array
     {
         $totalCustomers = Customer::count();

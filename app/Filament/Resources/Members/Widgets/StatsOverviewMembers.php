@@ -10,6 +10,10 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class StatsOverviewMembers extends StatsOverviewWidget
 {
+    protected ?string $heading = 'Statistik Member';
+
+    protected ?string $description = 'Ringkasan data keanggotaan dan tren 6 bulan terakhir.';
+
     protected function getStats(): array
     {
         $totalMembers = Member::count();

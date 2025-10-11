@@ -10,6 +10,10 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class StatsOverviewUsers extends StatsOverviewWidget
 {
+    protected ?string $heading = 'Statistik Pengguna';
+
+    protected ?string $description = 'Ringkasan data pengguna dan tren 6 bulan terakhir.';
+
     protected function getStats(): array
     {
         $totalUsers = User::count();
