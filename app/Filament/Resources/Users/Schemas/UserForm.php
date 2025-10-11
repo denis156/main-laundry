@@ -43,6 +43,7 @@ class UserForm
                                         'max' => 'Ukuran foto profil tidak boleh lebih dari 2MB.',
                                         'mimes' => 'Foto profil harus berformat JPEG, PNG, GIF, atau WebP.',
                                     ])
+                                    ->hint('Opsional')
                                     ->columnSpan(['default' => 1, 'sm' => 1]),
 
                                 Fieldset::make('Akun Pengguna')
@@ -87,6 +88,7 @@ class UserForm
                                                 'min' => 'telepon minimal 10 karakter.',
                                                 'regex' => 'Format telepon tidak valid. Gunakan format Indonesia yang benar.',
                                             ])
+                                            ->hint('Opsional')
                                             ->placeholder('Contoh: 08123456789'),
 
                                         ToggleButtons::make('super_admin')
@@ -113,6 +115,7 @@ class UserForm
                                                 'confirmed' => 'Konfirmasi password tidak cocok.',
                                                 'regex' => 'Password harus mengandung minimal 1 huruf kecil, 1 huruf besar, 1 angka, dan 1 karakter khusus.',
                                             ])
+                                            ->hint(fn(string $operation): string => $operation === 'edit' ? 'Opsional' : '')
                                             ->columnSpanFull(),
 
                                         TextInput::make('password_confirmation')
@@ -129,6 +132,7 @@ class UserForm
                                                 'min' => 'Konfirmasi password minimal 8 karakter.',
                                                 'max' => 'Konfirmasi password tidak boleh lebih dari 255 karakter.',
                                             ])
+                                            ->hint(fn(string $operation): string => $operation === 'edit' ? 'Opsional' : '')
                                             ->columnSpanFull(),
                                     ])
                                     ->columnSpan(['default' => 1, 'sm' => 2]),

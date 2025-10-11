@@ -64,6 +64,7 @@ class CustomerForm
                                         'email' => 'Format email tidak valid.',
                                         'max' => 'Email tidak boleh lebih dari 255 karakter.',
                                     ])
+                                    ->hint('Opsional')
                                     ->placeholder('Contoh: customer@email.com'),
 
                                 Textarea::make('address')
@@ -74,6 +75,7 @@ class CustomerForm
                                     ->validationMessages([
                                         'max' => 'Alamat tidak boleh lebih dari 500 karakter.',
                                     ])
+                                    ->hint('Opsional')
                                     ->placeholder('Masukkan alamat lengkap pelanggan')
                                     ->columnSpanFull(),
                             ])
