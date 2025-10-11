@@ -15,6 +15,7 @@ use Filament\Actions\RestoreAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ColumnGroup;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 
 class CustomersTable
@@ -69,6 +70,18 @@ class CustomersTable
                 TrashedFilter::make()
                     ->label('Status Data')
                     ->native(false),
+                TernaryFilter::make('has_membership')
+                    ->label('Status Membership')
+                    ->native(false)
+                    ->nullable()
+                    ->placeholder('Semua pelanggan')
+                    ->trueLabel('Pelanggan member')
+                    ->falseLabel('Pelanggan reguler')
+                    ->queries(
+                        true: fn($query) => $query->whereHas('member'),
+                        false: fn($query) => $query->whereDoesntHave('member'),
+                        blank: fn($query) => $query,
+                    )
             ])
             ->filtersTriggerAction(
                 fn(Action $action) => $action
