@@ -1,4 +1,21 @@
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
+/* @import '../../daisyui.css'; */
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
+
+/* .fi-body {
+    @apply bg-base-100 ;
+}
+
+.fi-sidebar {
+    @apply bg-base-200 ;
+}
+
+.fi-topbar {
+    @apply bg-base-200 ;
+}
+
+.fi-wi-stats-overview-stat {
+    @apply bg-base-300 shadow-lg card ;
+} */
