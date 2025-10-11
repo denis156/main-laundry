@@ -32,6 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->loginRouteSlug('masuk')
             ->spa()
             ->font('Poppins')
+            ->breadcrumbs(false)
             ->sidebarFullyCollapsibleOnDesktop()
             ->colors([
                 'primary' => [
