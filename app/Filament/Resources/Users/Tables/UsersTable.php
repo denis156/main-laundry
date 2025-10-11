@@ -62,6 +62,7 @@ class UsersTable
                     TextColumn::make('email_verified_at')
                         ->label('Terverifikasi Sejak')
                         ->since()
+                        ->badge()
                         ->placeholder('Belum Diverifikasi')
                         ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('created_at')
