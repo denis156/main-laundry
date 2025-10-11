@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Users\Pages;
 
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ForceDeleteAction;
@@ -17,6 +18,15 @@ class EditUser extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('back')
+                ->label('Kembali')
+                ->icon('solar-reply-2-linear')
+                ->tooltip('Kembali ke daftar pengguna')
+                ->color('gray')
+                ->url($this->getResource()::getUrl('index'))
+                ->extraAttributes([
+                    'class' => 'order-first'
+                ]),
             DeleteAction::make()
                 ->color('warning')
                 ->icon('solar-trash-bin-minimalistic-linear')
