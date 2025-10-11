@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Members;
 
+use UnitEnum;
 use BackedEnum;
 use App\Models\Member;
 use Filament\Tables\Table;
@@ -25,9 +26,11 @@ class MemberResource extends Resource
     protected static ?string $slug = 'member';
     protected static ?string $modelLabel = 'Member';
     protected static int $globalSearchResultsLimit = 5;
-    protected static ?string $navigationLabel = 'Manajemen Member';
+    protected static ?string $navigationLabel = 'Member';
     protected static ?string $recordTitleAttribute = 'member_number';
+    protected static string|UnitEnum|null $navigationGroup = 'Menu Master Data';
     protected static string |BackedEnum | null $navigationIcon = 'solar-medal-star-linear';
+    protected static string |BackedEnum | null $activeNavigationIcon = 'solar-medal-star-bold';
 
     public static function form(Schema $schema): Schema
     {

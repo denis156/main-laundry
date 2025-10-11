@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Transactions;
 
+use UnitEnum;
 use BackedEnum;
 use App\Models\Transaction;
 use Filament\Tables\Table;
@@ -26,8 +27,10 @@ class TransactionResource extends Resource
     protected static ?string $modelLabel = 'Transaksi';
     protected static int $globalSearchResultsLimit = 10;
     protected static ?string $recordTitleAttribute = 'invoice_number';
-    protected static ?string $navigationLabel = 'Manajemen Transaksi';
+    protected static ?string $navigationLabel = 'Transaksi';
+    protected static string|UnitEnum|null $navigationGroup = 'Menu Transaksi';
     protected static string |BackedEnum | null $navigationIcon = 'solar-bill-list-linear';
+    protected static string |BackedEnum | null $activeNavigationIcon = 'solar-bill-list-bold';
 
     public static function form(Schema $schema): Schema
     {

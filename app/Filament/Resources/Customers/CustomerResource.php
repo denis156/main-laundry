@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Customers;
 
+use UnitEnum;
 use BackedEnum;
 use App\Models\Customer;
 use Filament\Tables\Table;
@@ -26,8 +27,10 @@ class CustomerResource extends Resource
     protected static ?string $modelLabel = 'Pelanggan';
     protected static int $globalSearchResultsLimit = 5;
     protected static ?string $recordTitleAttribute = 'name';
-    protected static ?string $navigationLabel = 'Manajemen Pelanggan';
+    protected static ?string $navigationLabel = 'Pelanggan';
+    protected static string|UnitEnum|null $navigationGroup = 'Menu Master Data';
     protected static string |BackedEnum | null $navigationIcon = 'solar-users-group-rounded-linear';
+    protected static string |BackedEnum | null $activeNavigationIcon = 'solar-users-group-rounded-bold';
 
     public static function form(Schema $schema): Schema
     {

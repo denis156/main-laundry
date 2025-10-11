@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Services;
 
+use UnitEnum;
 use BackedEnum;
 use App\Models\Service;
 use Filament\Tables\Table;
@@ -26,8 +27,10 @@ class ServiceResource extends Resource
     protected static ?string $modelLabel = 'Layanan';
     protected static int $globalSearchResultsLimit = 5;
     protected static ?string $recordTitleAttribute = 'name';
-    protected static ?string $navigationLabel = 'Manajemen Layanan';
+    protected static ?string $navigationLabel = 'Layanan';
+    protected static string|UnitEnum|null $navigationGroup = 'Menu Master Data';
     protected static string |BackedEnum | null $navigationIcon = 'solar-washing-machine-minimalistic-linear';
+    protected static string |BackedEnum | null $activeNavigationIcon = 'solar-washing-machine-minimalistic-bold';
 
     public static function form(Schema $schema): Schema
     {
