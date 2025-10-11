@@ -24,8 +24,9 @@ class UserResource extends Resource
     protected static ?string $slug = 'pengguna';
     protected static ?string $modelLabel = 'Pengguna';
     protected static int $globalSearchResultsLimit = 5;
+    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $navigationLabel = 'Manajemen Pengguna';
     protected static string |BackedEnum | null $navigationIcon = 'solar-users-group-two-rounded-linear';
-    protected static ?string $recordTitleAttribute = 'name';protected static ?string $navigationLabel = 'Manajemen Pengguna';
 
     public static function form(Schema $schema): Schema
     {
