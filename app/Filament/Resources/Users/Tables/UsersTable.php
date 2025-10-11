@@ -157,7 +157,7 @@ class UsersTable
                     ->label('Buat')
                     ->button()
                     ->size(Size::Medium)
-                    ->icon('solar-menu-dots-circle-linear')
+                    ->icon('solar-add-circle-linear')
                     ->tooltip('Buat pengguna baru'),
             ])
             ->striped()
