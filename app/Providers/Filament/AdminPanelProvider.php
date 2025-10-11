@@ -34,6 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->font('Poppins')
             ->breadcrumbs(false)
             ->sidebarFullyCollapsibleOnDesktop()
+            ->collapsibleNavigationGroups(false)
             ->colors([
                 'primary' => [
                     50 => 'oklch(0.95 0.04 264.41)',
