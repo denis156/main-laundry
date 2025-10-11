@@ -290,12 +290,14 @@ class TransactionsTable
                     ->size(Size::Small),
             ])
             ->toolbarActions([
-                // CreateAction::make()
-                //     ->label('Buat')
-                //     ->button()
-                //     ->size(Size::Medium)
-                //     ->icon('solar-menu-dots-circle-linear')
-                //     ->tooltip('Buat transaksi baru'),
+                Action::make('create')
+                    ->label('Buat')
+                    ->button()
+                    ->size(Size::Medium)
+                    ->color('primary')
+                    ->icon('solar-add-circle-linear')
+                    ->url(fn() => route('filament.admin.pages.kasir'))
+                    ->tooltip('Buat transaksi baru di halaman kasir'),
             ])
             ->striped()
             ->defaultSort('order_date', direction: 'desc');
