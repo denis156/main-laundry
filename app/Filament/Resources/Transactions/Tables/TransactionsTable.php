@@ -290,14 +290,14 @@ class TransactionsTable
                     ->size(Size::Small),
             ])
             ->toolbarActions([
-                Action::make('create')
-                    ->label('Buat')
-                    ->button()
-                    ->size(Size::Medium)
-                    ->color('primary')
-                    ->icon('solar-add-circle-linear')
-                    ->url(fn() => route('filament.admin.pages.kasir'))
-                    ->tooltip('Buat transaksi baru di halaman kasir'),
+                // Action::make('create')
+                //     ->label('Buat')
+                //     ->button()
+                //     ->size(Size::Medium)
+                //     ->color('primary')
+                //     ->icon('solar-add-circle-linear')
+                //     ->url(fn() => route('filament.admin.pages.kasir'))
+                //     ->tooltip('Buat transaksi baru di halaman kasir'),
             ])
             ->striped()
             ->defaultSort('order_date', direction: 'desc');
