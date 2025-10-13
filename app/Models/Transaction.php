@@ -18,17 +18,13 @@ class Transaction extends Model
     protected $fillable = [
         'invoice_number',
         'customer_id',
-        'member_id',
         'promo_id',
         'user_id',
         'total_weight',
         'subtotal',
-        'member_discount_amount',
-        'member_discount_percentage',
         'promo_discount_amount',
         'total_discount_amount',
         'total_price',
-        'points_earned',
         'status',
         'payment_status',
         'paid_amount',
@@ -43,12 +39,9 @@ class Transaction extends Model
         return [
             'total_weight' => 'decimal:2',
             'subtotal' => 'decimal:2',
-            'member_discount_amount' => 'decimal:2',
-            'member_discount_percentage' => 'decimal:2',
             'promo_discount_amount' => 'decimal:2',
             'total_discount_amount' => 'decimal:2',
             'total_price' => 'decimal:2',
-            'points_earned' => 'integer',
             'paid_amount' => 'decimal:2',
             'order_date' => 'datetime',
             'estimated_finish_date' => 'datetime',
@@ -62,14 +55,6 @@ class Transaction extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
-    }
-
-    /**
-     * Relasi many-to-one dengan Member
-     */
-    public function member(): BelongsTo
-    {
-        return $this->belongsTo(Member::class);
     }
 
     /**

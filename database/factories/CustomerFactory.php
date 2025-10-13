@@ -23,6 +23,7 @@ class CustomerFactory extends Factory
             'phone' => fake()->unique()->phoneNumber(),
             'email' => fake()->optional()->safeEmail(),
             'address' => fake()->optional()->address(),
+            'member' => fake()->boolean(40), // 40% kemungkinan member
         ];
     }
 }

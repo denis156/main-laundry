@@ -159,7 +159,7 @@ class TransactionForm
                     ->columnSpanFull(),
 
                 Section::make('Diskon & Promo')
-                    ->description('Informasi member, promo, diskon, dan poin yang didapat')
+                    ->description('Informasi promo dan diskon yang digunakan')
                     ->collapsible()
                     ->collapsed()
                     ->schema([
@@ -168,16 +168,6 @@ class TransactionForm
                             'sm' => 2,
                         ])
                             ->schema([
-                                Select::make('member_id')
-                                    ->label('Member')
-                                    ->relationship('member', 'member_number')
-                                    ->searchable()
-                                    ->preload()
-                                    ->validationAttribute('member')
-                                    ->placeholder('Pilih member (jika ada)')
-                                    ->hint('Opsional')
-                                    ->helperText('Kosongkan jika pelanggan reguler'),
-
                                 Select::make('promo_id')
                                     ->label('Promo')
                                     ->relationship('promo', 'name')
@@ -187,38 +177,6 @@ class TransactionForm
                                     ->placeholder('Pilih promo (jika ada)')
                                     ->hint('Opsional')
                                     ->helperText('Promo yang sedang berlaku'),
-
-                                TextInput::make('member_discount_percentage')
-                                    ->label('Diskon Member (%)')
-                                    ->numeric()
-                                    ->suffix('%')
-                                    ->minValue(0)
-                                    ->maxValue(100)
-                                    ->default(0)
-                                    ->validationAttribute('diskon member')
-                                    ->validationMessages([
-                                        'numeric' => 'Diskon member harus berupa angka.',
-                                        'min' => 'Diskon member minimal 0%.',
-                                        'max' => 'Diskon member maksimal 100%.',
-                                    ])
-                                    ->placeholder('10')
-                                    ->hint('Opsional')
-                                    ->helperText('Persentase diskon member'),
-
-                                TextInput::make('member_discount_amount')
-                                    ->label('Nominal Diskon Member')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->minValue(0)
-                                    ->default(0)
-                                    ->validationAttribute('nominal diskon member')
-                                    ->validationMessages([
-                                        'numeric' => 'Nominal diskon member harus berupa angka.',
-                                        'min' => 'Nominal diskon member minimal Rp 0.',
-                                    ])
-                                    ->placeholder('5000')
-                                    ->hint('Opsional')
-                                    ->helperText('Nominal diskon dari member'),
 
                                 TextInput::make('promo_discount_amount')
                                     ->label('Nominal Diskon Promo')
@@ -249,21 +207,6 @@ class TransactionForm
                                     ->placeholder('10000')
                                     ->hint('Opsional')
                                     ->helperText('Total semua diskon'),
-
-                                TextInput::make('points_earned')
-                                    ->label('Poin Didapat')
-                                    ->numeric()
-                                    ->suffix('Poin')
-                                    ->minValue(0)
-                                    ->default(0)
-                                    ->validationAttribute('poin didapat')
-                                    ->validationMessages([
-                                        'numeric' => 'Poin didapat harus berupa angka.',
-                                        'min' => 'Poin didapat minimal 0.',
-                                    ])
-                                    ->placeholder('100')
-                                    ->hint('Opsional')
-                                    ->helperText('Poin yang didapat member'),
                             ])
                     ])
                     ->aside()

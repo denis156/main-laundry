@@ -36,7 +36,6 @@ class TransactionSeeder extends Seeder
             // Buat transaction
             $transaction = Transaction::factory()->create([
                 'customer_id' => $customer->id,
-                'member_id' => $customer->member?->id,
                 'promo_id' => $promo?->id ?? null,
                 'user_id' => $user->id,
             ]);

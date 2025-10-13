@@ -15,17 +15,13 @@ return new class extends Migration
             $table->id()->comment('ID unik transaksi');
             $table->string('invoice_number')->unique()->comment('Nomor invoice (unik, format: INV/YYYYMMDD/XXXX)');
             $table->foreignId('customer_id')->constrained()->cascadeOnDelete()->comment('ID customer (cascade on delete)');
-            $table->foreignId('member_id')->nullable()->constrained()->nullOnDelete()->comment('ID member jika ada (null on delete)');
             $table->foreignId('promo_id')->nullable()->constrained()->nullOnDelete()->comment('ID promo yang digunakan (null on delete)');
             $table->foreignId('user_id')->constrained()->cascadeOnDelete()->comment('ID kasir yang input (cascade on delete)');
             $table->decimal('total_weight', 10, 2)->comment('Total berat cucian (kg)');
             $table->decimal('subtotal', 10, 2)->comment('Subtotal sebelum diskon (Rp)');
-            $table->decimal('member_discount_amount', 10, 2)->default(0)->comment('Nominal diskon member (Rp)');
-            $table->decimal('member_discount_percentage', 5, 2)->default(0)->comment('Persentase diskon member (%)');
             $table->decimal('promo_discount_amount', 10, 2)->default(0)->comment('Nominal diskon promo (Rp)');
             $table->decimal('total_discount_amount', 10, 2)->default(0)->comment('Total semua diskon (Rp)');
             $table->decimal('total_price', 10, 2)->comment('Total harga akhir setelah diskon (Rp)');
-            $table->integer('points_earned')->default(0)->comment('Poin yang didapat dari transaksi');
             $table->enum('status', ['pending', 'process', 'ready', 'completed', 'cancelled'])->default('pending')->comment('Status proses cucian');
             $table->enum('payment_status', ['unpaid', 'partial', 'paid'])->default('unpaid')->comment('Status pembayaran');
             $table->decimal('paid_amount', 10, 2)->default(0)->comment('Jumlah yang sudah dibayar (Rp)');

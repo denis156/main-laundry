@@ -128,28 +128,7 @@ class TransactionsTable
                         ->fontFamily('mono')
                         ->toggleable(isToggledHiddenByDefault: true),
                 ]),
-                ColumnGroup::make('Diskon & Poin', [
-                    TextColumn::make('member.customer.name')
-                        ->label('Member')
-                        ->placeholder('Non-Member')
-                        ->searchable()
-                        ->toggleable(isToggledHiddenByDefault: true),
-                    TextColumn::make('member_discount_percentage')
-                        ->label('Diskon Member (%)')
-                        ->numeric(decimalPlaces: 0)
-                        ->suffix('%')
-                        ->placeholder('-')
-                        ->sortable()
-                        ->alignCenter()
-                        ->toggleable(isToggledHiddenByDefault: true),
-                    TextColumn::make('member_discount_amount')
-                        ->label('Diskon Member (Rp)')
-                        ->money('IDR')
-                        ->placeholder('-')
-                        ->sortable()
-                        ->alignEnd()
-                        ->fontFamily('mono')
-                        ->toggleable(isToggledHiddenByDefault: true),
+                ColumnGroup::make('Promo & Diskon', [
                     TextColumn::make('promo.name')
                         ->label('Promo')
                         ->placeholder('Tanpa Promo')
@@ -162,14 +141,6 @@ class TransactionsTable
                         ->sortable()
                         ->alignEnd()
                         ->fontFamily('mono')
-                        ->toggleable(isToggledHiddenByDefault: true),
-                    TextColumn::make('points_earned')
-                        ->label('Poin Didapat')
-                        ->numeric()
-                        ->suffix(' Poin')
-                        ->placeholder('-')
-                        ->sortable()
-                        ->alignCenter()
                         ->toggleable(isToggledHiddenByDefault: true),
                 ]),
                 ColumnGroup::make('Tanggal & Waktu', [
