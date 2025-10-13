@@ -13,6 +13,7 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ForceDeleteAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ColumnGroup;
 use Filament\Tables\Filters\TernaryFilter;
@@ -46,6 +47,11 @@ class CustomersTable
                         ->placeholder('Tidak ada email')
                         ->fontFamily('mono')
                         ->toggleable(isToggledHiddenByDefault: false),
+                    IconColumn::make('member')
+                        ->label('Member')
+                        ->boolean()
+                        ->alignCenter()
+                        ->toggleable(isToggledHiddenByDefault: false),
                 ]),
                 ColumnGroup::make('Tanggal & Waktu', [
                     TextColumn::make('created_at')
@@ -70,16 +76,16 @@ class CustomersTable
                 TrashedFilter::make()
                     ->label('Status Data')
                     ->native(false),
-                TernaryFilter::make('has_membership')
-                    ->label('Status Membership')
+                TernaryFilter::make('member')
+                    ->label('Status Member')
                     ->native(false)
                     ->nullable()
                     ->placeholder('Semua pelanggan')
                     ->trueLabel('Pelanggan member')
                     ->falseLabel('Pelanggan reguler')
                     ->queries(
-                        true: fn($query) => $query->whereHas('member'),
-                        false: fn($query) => $query->whereDoesntHave('member'),
+                        true: fn($query) => $query->where('member', true),
+                        false: fn($query) => $query->where('member', false),
                         blank: fn($query) => $query,
                     )
             ])

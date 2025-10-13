@@ -17,12 +17,13 @@ class StatsOverviewCustomer extends StatsOverviewWidget
     protected function getStats(): array
     {
         $totalCustomers = Customer::count();
-        $activeCustomers = Customer::has('transactions')->count();
-        $inactiveCustomers = Customer::doesntHave('transactions')->count();
+        $memberCustomers = Customer::where('member', true)->count();
+        $nonMemberCustomers = Customer::where('member', false)->count();
 
         // Ambil data 6 bulan terakhir
         $totalCustomersChart = $this->getCustomersChartData(6);
-        $activeCustomersChart = $this->getActiveCustomersChartData(6);
+        $memberCustomersChart = $this->getMemberCustomersChartData(6);
+        $nonMemberCustomersChart = $this->getNonMemberCustomersChartData(6);
 
         return [
             Stat::make('Total Pelanggan', $totalCustomers . ' Pelanggan')
@@ -30,15 +31,16 @@ class StatsOverviewCustomer extends StatsOverviewWidget
                 ->descriptionIcon('solar-users-group-rounded-bold-duotone')
                 ->color('primary')
                 ->chart($totalCustomersChart),
-            Stat::make('Pelanggan Aktif', $activeCustomers . ' Pelanggan')
-                ->description('Pernah Transaksi')
-                ->descriptionIcon('solar-user-check-rounded-bold-duotone')
+            Stat::make('Pelanggan Member', $memberCustomers . ' Pelanggan')
+                ->description('Status Member')
+                ->descriptionIcon('solar-medal-star-bold-duotone')
                 ->color('success')
-                ->chart($activeCustomersChart),
-            Stat::make('Pelanggan Baru', $inactiveCustomers . ' Pelanggan')
-                ->description('Belum Transaksi')
+                ->chart($memberCustomersChart),
+            Stat::make('Pelanggan Reguler', $nonMemberCustomers . ' Pelanggan')
+                ->description('Belum Member')
                 ->descriptionIcon('solar-user-bold-duotone')
-                ->color('warning'),
+                ->color('warning')
+                ->chart($nonMemberCustomersChart),
         ];
     }
 
@@ -59,16 +61,33 @@ class StatsOverviewCustomer extends StatsOverviewWidget
     }
 
     /**
-     * Ambil data active customers per bulan untuk 6 bulan terakhir
+     * Ambil data member customers per bulan untuk 6 bulan terakhir
      */
-    private function getActiveCustomersChartData(int $months): array
+    private function getMemberCustomersChartData(int $months): array
     {
         $data = [];
         for ($i = $months - 1; $i >= 0; $i--) {
             $date = now()->subMonths($i);
-            $count = Customer::whereYear('created_at', '<=', $date->year)
-                ->whereMonth('created_at', '<=', $date->month)
-                ->has('transactions')
+            $count = Customer::whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->where('member', true)
+                ->count();
+            $data[] = $count;
+        }
+        return $data;
+    }
+
+    /**
+     * Ambil data non-member customers per bulan untuk 6 bulan terakhir
+     */
+    private function getNonMemberCustomersChartData(int $months): array
+    {
+        $data = [];
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $count = Customer::whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->where('member', false)
                 ->count();
             $data[] = $count;
         }

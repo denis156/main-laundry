@@ -9,6 +9,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Components\DateTimePicker;
 
 class CustomerForm
@@ -77,6 +78,22 @@ class CustomerForm
                                     ])
                                     ->hint('Opsional')
                                     ->placeholder('Masukkan alamat lengkap pelanggan')
+                                    ->columnSpanFull(),
+
+                                ToggleButtons::make('member')
+                                    ->label('Status Member')
+                                    ->boolean()
+                                    ->default(false)
+                                    ->grouped()
+                                    ->icons([
+                                        true => 'solar-medal-star-bold',
+                                        false => 'solar-user-bold',
+                                    ])
+                                    ->colors([
+                                        true => 'success',
+                                        false => 'gray',
+                                    ])
+                                    ->helperText('Apakah pelanggan ini member?')
                                     ->columnSpanFull(),
                             ])
                     ])
