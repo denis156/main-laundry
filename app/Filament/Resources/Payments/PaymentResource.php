@@ -25,7 +25,7 @@ class PaymentResource extends Resource
     protected static ?string $slug = 'pembayaran';
     protected static ?string $modelLabel = 'Pembayaran';
     protected static ?string $navigationLabel = 'Pembayaran';
-    protected static string|UnitEnum|null $navigationGroup = 'Transaksi & Keuangan';
+    protected static string|UnitEnum|null $navigationGroup = 'Keuangan';
     protected static string |BackedEnum | null $navigationIcon = 'solar-wallet-money-linear';
     protected static string |BackedEnum | null $activeNavigationIcon = 'solar-wallet-money-bold';
 
