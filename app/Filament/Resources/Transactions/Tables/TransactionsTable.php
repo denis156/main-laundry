@@ -9,7 +9,6 @@ use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Support\Enums\Size;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ForceDeleteAction;
@@ -42,26 +41,46 @@ class TransactionsTable
                         ->label('Pelanggan')
                         ->searchable()
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('user.name')
-                        ->label('Kasir')
+                    TextColumn::make('service.name')
+                        ->label('Layanan')
                         ->searchable()
+                        ->badge()
+                        ->color('info')
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('status')
-                        ->label('Status Order')
+                    TextColumn::make('courierMotorcycle.name')
+                        ->label('Kurir Motor')
+                        ->searchable()
+                        ->placeholder('Belum ditugaskan')
+                        ->toggleable(isToggledHiddenByDefault: false),
+                    TextColumn::make('resort.name')
+                        ->label('Resort')
+                        ->searchable()
+                        ->placeholder('Belum di resort')
+                        ->toggleable(isToggledHiddenByDefault: true),
+                    TextColumn::make('workflow_status')
+                        ->label('Status Workflow')
                         ->badge()
                         ->color(fn(string $state): string => match ($state) {
-                            'pending' => 'warning',
-                            'processing' => 'info',
-                            'ready' => 'success',
-                            'completed' => 'success',
+                            'pending_confirmation' => 'gray',
+                            'confirmed' => 'info',
+                            'picked_up' => 'warning',
+                            'at_loading_post' => 'warning',
+                            'in_washing' => 'primary',
+                            'washing_completed' => 'success',
+                            'out_for_delivery' => 'warning',
+                            'delivered' => 'success',
                             'cancelled' => 'danger',
                             default => 'gray',
                         })
                         ->formatStateUsing(fn(string $state): string => match ($state) {
-                            'pending' => 'Menunggu',
-                            'processing' => 'Diproses',
-                            'ready' => 'Siap',
-                            'completed' => 'Selesai',
+                            'pending_confirmation' => 'Menunggu Konfirmasi',
+                            'confirmed' => 'Terkonfirmasi',
+                            'picked_up' => 'Sudah Dijemput',
+                            'at_loading_post' => 'Di Resort',
+                            'in_washing' => 'Sedang Dicuci',
+                            'washing_completed' => 'Cucian Selesai',
+                            'out_for_delivery' => 'Dalam Pengiriman',
+                            'delivered' => 'Terkirim',
                             'cancelled' => 'Dibatalkan',
                             default => $state,
                         })
@@ -74,13 +93,11 @@ class TransactionsTable
                         ->badge()
                         ->color(fn(string $state): string => match ($state) {
                             'unpaid' => 'danger',
-                            'partial' => 'warning',
                             'paid' => 'success',
                             default => 'gray',
                         })
                         ->formatStateUsing(fn(string $state): string => match ($state) {
                             'unpaid' => 'Belum Bayar',
-                            'partial' => 'Cicilan',
                             'paid' => 'Lunas',
                             default => $state,
                         })
@@ -88,29 +105,37 @@ class TransactionsTable
                         ->searchable()
                         ->sortable()
                         ->toggleable(isToggledHiddenByDefault: false),
+                    TextColumn::make('payment_timing')
+                        ->label('Waktu Bayar')
+                        ->badge()
+                        ->color(fn(string $state): string => match ($state) {
+                            'on_pickup' => 'warning',
+                            'on_delivery' => 'info',
+                            default => 'gray',
+                        })
+                        ->formatStateUsing(fn(string $state): string => match ($state) {
+                            'on_pickup' => 'Saat Jemput',
+                            'on_delivery' => 'Saat Antar',
+                            default => $state,
+                        })
+                        ->alignCenter()
+                        ->toggleable(isToggledHiddenByDefault: true),
                 ]),
                 ColumnGroup::make('Detail Order', [
-                    TextColumn::make('total_weight')
-                        ->label('Total Berat')
+                    TextColumn::make('weight')
+                        ->label('Berat')
                         ->numeric(decimalPlaces: 2)
                         ->suffix(' Kg')
                         ->sortable()
                         ->alignCenter()
+                        ->placeholder('Belum ditimbang')
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('subtotal')
-                        ->label('Subtotal')
+                    TextColumn::make('price_per_kg')
+                        ->label('Harga/Kg')
                         ->money('IDR')
                         ->sortable()
                         ->alignEnd()
                         ->fontFamily('mono')
-                        ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('total_discount_amount')
-                        ->label('Total Diskon')
-                        ->money('IDR')
-                        ->sortable()
-                        ->alignEnd()
-                        ->fontFamily('mono')
-                        ->color('success')
                         ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('total_price')
                         ->label('Total Bayar')
@@ -120,12 +145,20 @@ class TransactionsTable
                         ->fontFamily('mono')
                         ->weight('semibold')
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('paid_amount')
-                        ->label('Terbayar')
-                        ->money('IDR')
+                ]),
+                ColumnGroup::make('Pembayaran', [
+                    TextColumn::make('paid_at')
+                        ->label('Dibayar Pada')
+                        ->dateTime('d M Y H:i')
+                        ->placeholder('Belum dibayar')
                         ->sortable()
-                        ->alignEnd()
-                        ->fontFamily('mono')
+                        ->toggleable(isToggledHiddenByDefault: true),
+                    TextColumn::make('payment_proof_url')
+                        ->label('Bukti Bayar')
+                        ->placeholder('Tidak ada')
+                        ->formatStateUsing(fn($state) => $state ? 'Ada' : 'Tidak ada')
+                        ->badge()
+                        ->color(fn($state) => $state ? 'success' : 'gray')
                         ->toggleable(isToggledHiddenByDefault: true),
                 ]),
                 ColumnGroup::make('Tanggal & Waktu', [
@@ -167,26 +200,37 @@ class TransactionsTable
                 TrashedFilter::make()
                     ->label('Status Data')
                     ->native(false),
-                SelectFilter::make('status')
-                    ->label('Status Order')
+                SelectFilter::make('workflow_status')
+                    ->label('Status Workflow')
                     ->native(false)
                     ->options([
-                        'pending' => 'Menunggu',
-                        'processing' => 'Diproses',
-                        'ready' => 'Siap',
-                        'completed' => 'Selesai',
+                        'pending_confirmation' => 'Menunggu Konfirmasi',
+                        'confirmed' => 'Terkonfirmasi',
+                        'picked_up' => 'Sudah Dijemput',
+                        'at_loading_post' => 'Di Resort',
+                        'in_washing' => 'Sedang Dicuci',
+                        'washing_completed' => 'Cucian Selesai',
+                        'out_for_delivery' => 'Dalam Pengiriman',
+                        'delivered' => 'Terkirim',
                         'cancelled' => 'Dibatalkan',
                     ])
-                    ->placeholder('Semua status order'),
+                    ->placeholder('Semua status workflow'),
                 SelectFilter::make('payment_status')
                     ->label('Status Pembayaran')
                     ->native(false)
                     ->options([
                         'unpaid' => 'Belum Bayar',
-                        'partial' => 'Cicilan',
                         'paid' => 'Lunas',
                     ])
                     ->placeholder('Semua status bayar'),
+                SelectFilter::make('payment_timing')
+                    ->label('Waktu Pembayaran')
+                    ->native(false)
+                    ->options([
+                        'on_pickup' => 'Saat Jemput',
+                        'on_delivery' => 'Saat Antar',
+                    ])
+                    ->placeholder('Semua waktu bayar'),
             ])
             ->filtersTriggerAction(
                 fn(Action $action) => $action
@@ -246,14 +290,7 @@ class TransactionsTable
                     ->size(Size::Small),
             ])
             ->toolbarActions([
-                // Action::make('create')
-                //     ->label('Buat')
-                //     ->button()
-                //     ->size(Size::Medium)
-                //     ->color('primary')
-                //     ->icon('solar-add-circle-linear')
-                //     ->url(fn() => route('filament.admin.pages.kasir'))
-                //     ->tooltip('Buat transaksi baru di halaman kasir'),
+                // Tidak ada create action karena transaksi dibuat dari landing page
             ])
             ->striped()
             ->defaultSort('order_date', direction: 'desc');

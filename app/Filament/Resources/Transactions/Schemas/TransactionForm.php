@@ -6,11 +6,11 @@ namespace App\Filament\Resources\Transactions\Schemas;
 
 use Filament\Schemas\Schema;
 use App\Services\InvoiceService;
-use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Components\DateTimePicker;
@@ -22,7 +22,7 @@ class TransactionForm
         return $schema
             ->components([
                 Section::make('Informasi Transaksi')
-                    ->description('Data dasar transaksi termasuk nomor invoice, pelanggan, dan kasir')
+                    ->description('Data dasar transaksi termasuk nomor invoice, pelanggan, layanan, dan kurir')
                     ->collapsible()
                     ->schema([
                         Grid::make([
@@ -62,66 +62,81 @@ class TransactionForm
                                     ->placeholder('Pilih pelanggan')
                                     ->helperText('Pelanggan yang melakukan transaksi'),
 
-                                Select::make('user_id')
-                                    ->label('Kasir')
-                                    ->relationship('user', 'name')
+                                Select::make('service_id')
+                                    ->label('Layanan')
+                                    ->relationship('service', 'name')
                                     ->searchable()
                                     ->preload()
                                     ->required()
-                                    ->default(fn() => Auth::id())
-                                    ->validationAttribute('kasir')
+                                    ->validationAttribute('layanan')
                                     ->validationMessages([
-                                        'required' => 'Kasir wajib dipilih.',
+                                        'required' => 'Layanan wajib dipilih.',
                                     ])
-                                    ->placeholder('Pilih kasir')
-                                    ->helperText('Kasir yang melayani transaksi'),
+                                    ->placeholder('Pilih layanan')
+                                    ->helperText('Jenis layanan yang dipilih'),
+
+                                Select::make('courier_motorcycle_id')
+                                    ->label('Kurir Motor')
+                                    ->relationship('courierMotorcycle', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->placeholder('Pilih kurir motor')
+                                    ->hint('Opsional')
+                                    ->helperText('Kurir motor yang menangani transaksi'),
+
+                                Select::make('resort_id')
+                                    ->label('Resort')
+                                    ->relationship('resort', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->placeholder('Pilih resort')
+                                    ->hint('Opsional')
+                                    ->helperText('Resort transit cucian'),
                             ])
                     ])
                     ->aside()
                     ->columnSpanFull(),
 
                 Section::make('Detail Order')
-                    ->description('Informasi detail order termasuk berat, subtotal, dan total bayar')
+                    ->description('Informasi detail order termasuk berat, harga, dan total bayar')
                     ->collapsible()
                     ->schema([
                         Grid::make([
                             'default' => 1,
-                            'sm' => 2,
-                            'lg' => 3,
+                            'sm' => 3,
                         ])
                             ->schema([
-                                TextInput::make('total_weight')
-                                    ->label('Total Berat')
-                                    ->required()
+                                TextInput::make('weight')
+                                    ->label('Berat')
                                     ->numeric()
                                     ->suffix('Kg')
                                     ->minValue(0.1)
                                     ->maxValue(1000)
                                     ->step(0.1)
-                                    ->validationAttribute('total berat')
+                                    ->validationAttribute('berat')
                                     ->validationMessages([
-                                        'required' => 'Total berat wajib diisi.',
-                                        'numeric' => 'Total berat harus berupa angka.',
-                                        'min' => 'Total berat minimal 0.1 kg.',
-                                        'max' => 'Total berat maksimal 1000 kg.',
+                                        'numeric' => 'Berat harus berupa angka.',
+                                        'min' => 'Berat minimal 0.1 kg.',
+                                        'max' => 'Berat maksimal 1000 kg.',
                                     ])
                                     ->placeholder('5.0')
-                                    ->helperText('Total berat cucian dalam kg'),
+                                    ->hint('Opsional')
+                                    ->helperText('Berat cucian ditimbang kurir (kg)'),
 
-                                TextInput::make('subtotal')
-                                    ->label('Subtotal')
+                                TextInput::make('price_per_kg')
+                                    ->label('Harga per Kg')
                                     ->required()
                                     ->numeric()
                                     ->prefix('Rp')
                                     ->minValue(0)
-                                    ->validationAttribute('subtotal')
+                                    ->validationAttribute('harga per kg')
                                     ->validationMessages([
-                                        'required' => 'Subtotal wajib diisi.',
-                                        'numeric' => 'Subtotal harus berupa angka.',
-                                        'min' => 'Subtotal minimal Rp 0.',
+                                        'required' => 'Harga per kg wajib diisi.',
+                                        'numeric' => 'Harga per kg harus berupa angka.',
+                                        'min' => 'Harga per kg minimal Rp 0.',
                                     ])
-                                    ->placeholder('50000')
-                                    ->helperText('Subtotal sebelum diskon'),
+                                    ->placeholder('7000')
+                                    ->helperText('Harga per kilogram saat transaksi'),
 
                                 TextInput::make('total_price')
                                     ->label('Total Bayar')
@@ -129,60 +144,22 @@ class TransactionForm
                                     ->numeric()
                                     ->prefix('Rp')
                                     ->minValue(0)
+                                    ->default(0)
                                     ->validationAttribute('total bayar')
                                     ->validationMessages([
                                         'required' => 'Total bayar wajib diisi.',
                                         'numeric' => 'Total bayar harus berupa angka.',
                                         'min' => 'Total bayar minimal Rp 0.',
                                     ])
-                                    ->placeholder('45000')
-                                    ->helperText('Total setelah diskon'),
-
-                                TextInput::make('paid_amount')
-                                    ->label('Jumlah Terbayar')
-                                    ->required()
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->minValue(0)
-                                    ->default(0)
-                                    ->validationAttribute('jumlah terbayar')
-                                    ->validationMessages([
-                                        'required' => 'Jumlah terbayar wajib diisi.',
-                                        'numeric' => 'Jumlah terbayar harus berupa angka.',
-                                        'min' => 'Jumlah terbayar minimal Rp 0.',
-                                    ])
-                                    ->placeholder('45000')
-                                    ->helperText('Jumlah yang sudah dibayar'),
+                                    ->placeholder('35000')
+                                    ->helperText('Total harga (weight × price_per_kg)'),
                             ])
                     ])
                     ->aside()
                     ->columnSpanFull(),
 
-                Section::make('Diskon')
-                    ->description('Informasi diskon yang digunakan')
-                    ->collapsible()
-                    ->collapsed()
-                    ->schema([
-                        TextInput::make('total_discount_amount')
-                            ->label('Total Diskon')
-                            ->numeric()
-                            ->prefix('Rp')
-                            ->minValue(0)
-                            ->default(0)
-                            ->validationAttribute('total diskon')
-                            ->validationMessages([
-                                'numeric' => 'Total diskon harus berupa angka.',
-                                'min' => 'Total diskon minimal Rp 0.',
-                            ])
-                            ->placeholder('10000')
-                            ->hint('Opsional')
-                            ->helperText('Total semua diskon'),
-                    ])
-                    ->aside()
-                    ->columnSpanFull(),
-
-                Section::make('Status & Jadwal')
-                    ->description('Status order, pembayaran, dan jadwal pengerjaan')
+                Section::make('Status Workflow & Pembayaran')
+                    ->description('Status workflow transaksi dan informasi pembayaran')
                     ->collapsible()
                     ->schema([
                         Grid::make([
@@ -190,38 +167,72 @@ class TransactionForm
                             'sm' => 2,
                         ])
                             ->schema([
-                                ToggleButtons::make('status')
-                                    ->label('Status Order')
+                                ToggleButtons::make('workflow_status')
+                                    ->label('Status Workflow')
                                     ->required()
                                     ->grouped()
-                                    ->default('pending')
+                                    ->default('pending_confirmation')
                                     ->options([
-                                        'pending' => 'Menunggu',
-                                        'processing' => 'Diproses',
-                                        'ready' => 'Siap',
-                                        'completed' => 'Selesai',
+                                        'pending_confirmation' => 'Menunggu Konfirmasi',
+                                        'confirmed' => 'Terkonfirmasi',
+                                        'picked_up' => 'Sudah Dijemput',
+                                        'at_loading_post' => 'Di Resort',
+                                        'in_washing' => 'Sedang Dicuci',
+                                        'washing_completed' => 'Cucian Selesai',
+                                        'out_for_delivery' => 'Dalam Pengiriman',
+                                        'delivered' => 'Terkirim',
                                         'cancelled' => 'Dibatalkan',
                                     ])
                                     ->colors([
-                                        'pending' => 'warning',
-                                        'processing' => 'info',
-                                        'ready' => 'success',
-                                        'completed' => 'success',
+                                        'pending_confirmation' => 'gray',
+                                        'confirmed' => 'info',
+                                        'picked_up' => 'warning',
+                                        'at_loading_post' => 'warning',
+                                        'in_washing' => 'primary',
+                                        'washing_completed' => 'success',
+                                        'out_for_delivery' => 'warning',
+                                        'delivered' => 'success',
                                         'cancelled' => 'danger',
                                     ])
                                     ->icons([
-                                        'pending' => 'solar-clock-circle-bold',
-                                        'processing' => 'solar-refresh-circle-bold',
-                                        'ready' => 'solar-check-circle-bold',
-                                        'completed' => 'solar-verified-check-bold',
+                                        'pending_confirmation' => 'solar-clock-circle-bold',
+                                        'confirmed' => 'solar-check-circle-bold',
+                                        'picked_up' => 'solar-box-bold',
+                                        'at_loading_post' => 'solar-home-bold',
+                                        'in_washing' => 'solar-washing-machine-bold',
+                                        'washing_completed' => 'solar-verified-check-bold',
+                                        'out_for_delivery' => 'solar-delivery-bold',
+                                        'delivered' => 'solar-star-bold',
                                         'cancelled' => 'solar-close-circle-bold',
                                     ])
-                                    ->validationAttribute('status order')
+                                    ->validationAttribute('status workflow')
                                     ->validationMessages([
-                                        'required' => 'Status order wajib dipilih.',
+                                        'required' => 'Status workflow wajib dipilih.',
                                     ])
                                     ->helperText('Status pengerjaan order')
                                     ->columnSpanFull(),
+
+                                ToggleButtons::make('payment_timing')
+                                    ->label('Waktu Pembayaran')
+                                    ->required()
+                                    ->grouped()
+                                    ->options([
+                                        'on_pickup' => 'Saat Jemput',
+                                        'on_delivery' => 'Saat Antar',
+                                    ])
+                                    ->colors([
+                                        'on_pickup' => 'warning',
+                                        'on_delivery' => 'info',
+                                    ])
+                                    ->icons([
+                                        'on_pickup' => 'solar-box-bold',
+                                        'on_delivery' => 'solar-delivery-bold',
+                                    ])
+                                    ->validationAttribute('waktu pembayaran')
+                                    ->validationMessages([
+                                        'required' => 'Waktu pembayaran wajib dipilih.',
+                                    ])
+                                    ->helperText('Kapan customer melakukan pembayaran'),
 
                                 ToggleButtons::make('payment_status')
                                     ->label('Status Pembayaran')
@@ -230,26 +241,54 @@ class TransactionForm
                                     ->default('unpaid')
                                     ->options([
                                         'unpaid' => 'Belum Bayar',
-                                        'partial' => 'Cicilan',
                                         'paid' => 'Lunas',
                                     ])
                                     ->colors([
                                         'unpaid' => 'danger',
-                                        'partial' => 'warning',
                                         'paid' => 'success',
                                     ])
                                     ->icons([
                                         'unpaid' => 'solar-close-circle-bold',
-                                        'partial' => 'solar-clock-circle-bold',
                                         'paid' => 'solar-check-circle-bold',
                                     ])
                                     ->validationAttribute('status pembayaran')
                                     ->validationMessages([
                                         'required' => 'Status pembayaran wajib dipilih.',
                                     ])
-                                    ->helperText('Status pembayaran transaksi')
+                                    ->helperText('Status pembayaran transaksi'),
+
+                                FileUpload::make('payment_proof_url')
+                                    ->label('Bukti Pembayaran')
+                                    ->image()
+                                    ->imageEditor()
+                                    ->maxSize(2048)
+                                    ->directory('payment-proofs')
+                                    ->visibility('public')
+                                    ->hint('Opsional')
+                                    ->helperText('Upload screenshot bukti pembayaran QRIS')
                                     ->columnSpanFull(),
 
+                                DateTimePicker::make('paid_at')
+                                    ->label('Dibayar Pada')
+                                    ->native(false)
+                                    ->placeholder('Belum dibayar')
+                                    ->hint('Opsional')
+                                    ->helperText('Waktu pembayaran dilakukan')
+                                    ->columnSpanFull(),
+                            ])
+                    ])
+                    ->aside()
+                    ->columnSpanFull(),
+
+                Section::make('Jadwal')
+                    ->description('Tanggal order dan estimasi penyelesaian')
+                    ->collapsible()
+                    ->schema([
+                        Grid::make([
+                            'default' => 1,
+                            'sm' => 3,
+                        ])
+                            ->schema([
                                 DateTimePicker::make('order_date')
                                     ->label('Tanggal Order')
                                     ->required()
@@ -263,22 +302,17 @@ class TransactionForm
 
                                 DateTimePicker::make('estimated_finish_date')
                                     ->label('Estimasi Selesai')
-                                    ->required()
                                     ->native(false)
-                                    ->validationAttribute('estimasi selesai')
-                                    ->validationMessages([
-                                        'required' => 'Estimasi selesai wajib diisi.',
-                                    ])
+                                    ->placeholder('Belum ada estimasi')
+                                    ->hint('Opsional')
                                     ->helperText('Perkiraan tanggal selesai'),
 
                                 DateTimePicker::make('actual_finish_date')
                                     ->label('Selesai Aktual')
                                     ->native(false)
-                                    ->validationAttribute('selesai aktual')
                                     ->placeholder('Belum selesai')
                                     ->hint('Opsional')
-                                    ->helperText('Tanggal selesai sebenarnya')
-                                    ->columnSpanFull(),
+                                    ->helperText('Tanggal selesai sebenarnya'),
                             ])
                     ])
                     ->aside()
