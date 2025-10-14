@@ -27,7 +27,7 @@ class CourierCarScheduleResource extends Resource
     protected static ?string $modelLabel = 'Jadwal Kurir Mobil';
     protected static ?string $navigationLabel = 'Jadwal Kurir Mobil';
     protected static string|UnitEnum|null $navigationGroup = 'Menu Master Data';
-    protected static string |BackedEnum | null $navigationIcon = 'solar-calendar-mark-bold-duotone';
+    protected static string |BackedEnum | null $navigationIcon = 'solar-calendar-mark-linear';
     protected static string |BackedEnum | null $activeNavigationIcon = 'solar-calendar-mark-bold';
 
     public static function form(Schema $schema): Schema

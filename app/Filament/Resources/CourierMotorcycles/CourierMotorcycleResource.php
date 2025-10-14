@@ -29,7 +29,7 @@ class CourierMotorcycleResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
     protected static ?string $navigationLabel = 'Kurir Motor';
     protected static string|UnitEnum|null $navigationGroup = 'Menu Master Data';
-    protected static string |BackedEnum | null $navigationIcon = 'solar-delivery-bold-duotone';
+    protected static string |BackedEnum | null $navigationIcon = 'solar-delivery-linear';
     protected static string |BackedEnum | null $activeNavigationIcon = 'solar-delivery-bold';
 
     public static function form(Schema $schema): Schema
