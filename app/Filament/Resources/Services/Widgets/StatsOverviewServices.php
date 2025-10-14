@@ -16,9 +16,9 @@ class StatsOverviewServices extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        // Ambil top 3 layanan berdasarkan jumlah penggunaan di transaction_details
-        $topServices = Service::withCount('transactionDetails')
-            ->orderBy('transaction_details_count', 'desc')
+        // Ambil top 3 layanan berdasarkan jumlah penggunaan di transactions
+        $topServices = Service::withCount('transactions')
+            ->orderBy('transactions_count', 'desc')
             ->take(3)
             ->get();
 
@@ -38,7 +38,7 @@ class StatsOverviewServices extends StatsOverviewWidget
         if (isset($topServices[0])) {
             $service = $topServices[0];
             $chartData = $this->getServiceChartData($service->id, 6);
-            $stats[] = Stat::make('Top 1: ' . $service->name, $service->transaction_details_count . ' Transaksi')
+            $stats[] = Stat::make('Top 1: ' . $service->name, $service->transactions_count . ' Transaksi')
                 ->description('Layanan Terpopuler')
                 ->descriptionIcon('solar-crown-bold-duotone')
                 ->color('warning')
@@ -49,7 +49,7 @@ class StatsOverviewServices extends StatsOverviewWidget
         if (isset($topServices[1])) {
             $service = $topServices[1];
             $chartData = $this->getServiceChartData($service->id, 6);
-            $stats[] = Stat::make('Top 2: ' . $service->name, $service->transaction_details_count . ' Transaksi')
+            $stats[] = Stat::make('Top 2: ' . $service->name, $service->transactions_count . ' Transaksi')
                 ->description('Layanan Populer')
                 ->descriptionIcon('solar-star-bold-duotone')
                 ->color('success')
@@ -60,7 +60,7 @@ class StatsOverviewServices extends StatsOverviewWidget
         if (isset($topServices[2])) {
             $service = $topServices[2];
             $chartData = $this->getServiceChartData($service->id, 6);
-            $stats[] = Stat::make('Top 3: ' . $service->name, $service->transaction_details_count . ' Transaksi')
+            $stats[] = Stat::make('Top 3: ' . $service->name, $service->transactions_count . ' Transaksi')
                 ->description('Layanan Favorit')
                 ->descriptionIcon('solar-medal-star-bold-duotone')
                 ->color('primary')
@@ -80,15 +80,13 @@ class StatsOverviewServices extends StatsOverviewWidget
             $date = now()->subMonths($i);
             $count = Service::where('id', $serviceId)
                 ->withCount([
-                    'transactionDetails' => function ($query) use ($date) {
-                        $query->whereHas('transaction', function ($q) use ($date) {
-                            $q->whereYear('created_at', $date->year)
-                                ->whereMonth('created_at', $date->month);
-                        });
+                    'transactions' => function ($query) use ($date) {
+                        $query->whereYear('created_at', $date->year)
+                            ->whereMonth('created_at', $date->month);
                     }
                 ])
                 ->first()
-                ->transaction_details_count ?? 0;
+                ->transactions_count ?? 0;
             $data[] = $count;
         }
         return $data;
