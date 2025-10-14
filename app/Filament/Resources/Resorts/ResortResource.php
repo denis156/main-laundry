@@ -22,13 +22,13 @@ class ResortResource extends Resource
 {
     protected static ?string $model = Resort::class;
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 2;
     protected static ?string $slug = 'resort';
     protected static ?string $modelLabel = 'Resort';
     protected static int $globalSearchResultsLimit = 5;
     protected static ?string $recordTitleAttribute = 'name';
     protected static ?string $navigationLabel = 'Resort';
-    protected static string|UnitEnum|null $navigationGroup = 'Menu Master Data';
+    protected static string|UnitEnum|null $navigationGroup = 'Data Master';
     protected static string |BackedEnum | null $navigationIcon = 'solar-buildings-2-linear';
     protected static string |BackedEnum | null $activeNavigationIcon = 'solar-buildings-2-bold';
 

@@ -28,7 +28,7 @@ class UserResource extends Resource
     protected static int $globalSearchResultsLimit = 5;
     protected static ?string $recordTitleAttribute = 'name';
     protected static ?string $navigationLabel = 'Pengguna';
-    protected static string|UnitEnum|null $navigationGroup = 'Menu Master Data';
+    protected static string|UnitEnum|null $navigationGroup = 'Pengguna & Pelanggan';
     protected static string |BackedEnum | null $navigationIcon = 'solar-users-group-two-rounded-linear';
     protected static string |BackedEnum | null $activeNavigationIcon = 'solar-users-group-two-rounded-bold';
 
