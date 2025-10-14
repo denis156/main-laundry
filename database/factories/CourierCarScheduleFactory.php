@@ -26,7 +26,7 @@ class CourierCarScheduleFactory extends Factory
             'trip_date' => fake()->dateTimeBetween('-1 month', '+1 month'),
             'departure_time' => fake()->time('H:i:s'),
             'trip_type' => fake()->randomElement(['pickup', 'delivery']),
-            'loading_post_ids' => $selectedResorts,
+            'resort_ids' => $selectedResorts,
             'status' => fake()->randomElement(['scheduled', 'in_progress', 'completed', 'cancelled']),
             'notes' => fake()->optional()->sentence(),
         ];

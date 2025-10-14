@@ -62,22 +62,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     }
 
     /**
-     * Relasi one-to-many dengan Transaction (sebagai kasir)
-     */
-    public function transactions(): HasMany
-    {
-        return $this->hasMany(Transaction::class);
-    }
-
-    /**
-     * Relasi one-to-many dengan Payment (sebagai kasir)
-     */
-    public function payments(): HasMany
-    {
-        return $this->hasMany(Payment::class);
-    }
-
-    /**
      * Cek apakah user bisa mengakses panel Filament
      */
     public function canAccessPanel(Panel $panel): bool

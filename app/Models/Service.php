@@ -30,10 +30,10 @@ class Service extends Model
     }
 
     /**
-     * Relasi one-to-many dengan TransactionDetail
+     * Relasi one-to-many dengan Transaction
      */
-    public function transactionDetails(): HasMany
+    public function transactions(): HasMany
     {
-        return $this->hasMany(TransactionDetail::class);
+        return $this->hasMany(Transaction::class);
     }
 }
