@@ -35,6 +35,7 @@ class ResortFactory extends Factory
             'pic_name' => fake()->name(),
             'area_coverage' => $areas[$area],
             'is_active' => fake()->boolean(90),
+            'is_main_post' => false,
         ];
     }
 }

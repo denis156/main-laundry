@@ -20,6 +20,7 @@ class Resort extends Model
         'pic_name',
         'area_coverage',
         'is_active',
+        'is_main_post',
     ];
 
     protected function casts(): array
@@ -27,6 +28,7 @@ class Resort extends Model
         return [
             'area_coverage' => 'array',
             'is_active' => 'boolean',
+            'is_main_post' => 'boolean',
         ];
     }
 
