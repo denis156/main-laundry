@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('phone')->unique()->comment('Nomor telepon/WhatsApp customer (unik)');
             $table->string('email')->nullable()->comment('Email customer');
             $table->text('address')->nullable()->comment('Alamat lengkap customer');
-            $table->text('default_address')->nullable()->comment('Alamat utama yang sering digunakan');
             $table->boolean('member')->default(false)->comment('Status member customer (true/false)');
             $table->timestamps();
             $table->softDeletes();

@@ -18,7 +18,6 @@ class Customer extends Model
         'phone',
         'email',
         'address',
-        'default_address',
         'member',
     ];
 
