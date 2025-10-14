@@ -20,12 +20,12 @@ class StatsOverviewTransactions extends StatsOverviewWidget
         $totalTransactions = Transaction::count();
 
         // Total revenue (semua transaksi yang paid)
-        $totalRevenue = Transaction::where('payment_status', 'paid')
+        $totalRevenue = (float) Transaction::where('payment_status', 'paid')
             ->sum('total_price');
 
         // Average transaction value
         $averageTransaction = $totalTransactions > 0
-            ? Transaction::avg('total_price')
+            ? (float) Transaction::avg('total_price')
             : 0;
 
         // Ambil data 6 bulan terakhir
