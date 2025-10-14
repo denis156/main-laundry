@@ -64,13 +64,14 @@ class MasterDataSeeder extends Seeder
             'duration_days' => 5,
         ]);
 
-        // Buat resorts (5 resort untuk Jakarta)
+        // Buat resorts (6 resort untuk Kendari)
         $areas = [
-            'Jakarta Selatan',
-            'Jakarta Pusat',
-            'Jakarta Timur',
-            'Jakarta Barat',
-            'Jakarta Utara',
+            'Kendari Barat',
+            'Kendari',
+            'Kambu',
+            'Kadia',
+            'Abeli',
+            'Wua-Wua',
         ];
 
         $resorts = [];

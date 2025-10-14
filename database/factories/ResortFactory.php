@@ -19,23 +19,37 @@ class ResortFactory extends Factory
     public function definition(): array
     {
         $areas = [
-            'Jakarta Selatan' => ['Kebayoran Baru', 'Tebet', 'Pancoran', 'Cilandak', 'Jagakarsa'],
-            'Jakarta Pusat' => ['Menteng', 'Tanah Abang', 'Gambir', 'Cempaka Putih'],
-            'Jakarta Timur' => ['Jatinegara', 'Matraman', 'Pulo Gadung', 'Cakung'],
-            'Jakarta Barat' => ['Kebon Jeruk', 'Grogol Petamburan', 'Palmerah', 'Tambora'],
-            'Jakarta Utara' => ['Tanjung Priok', 'Kelapa Gading', 'Pademangan', 'Penjaringan'],
+            'Kendari Barat' => ['Purirano', 'Benubenua', 'Tobimeita', 'Lalolara'],
+            'Kendari' => ['Mandonga', 'Wua-Wua', 'Poasia', 'Baruga'],
+            'Kambu' => ['Kambu', 'Korumba', 'Lepo-Lepo', 'Padaleu'],
+            'Kadia' => ['Kadia', 'Bende', 'Watubangga', 'Gunung Jati'],
+            'Abeli' => ['Abeli', 'Anduonohu', 'Lapulu', 'Tipulu'],
+            'Wua-Wua' => ['Wua-Wua', 'Mokoau', 'Bungkutoko', 'Lahundape'],
         ];
 
         $area = fake()->randomElement(array_keys($areas));
+        $isMainPost = false; // Default resort biasa
 
         return [
             'name' => 'Resort ' . $area,
             'address' => fake()->address(),
             'phone' => fake()->numerify('08##########'),
             'pic_name' => fake()->name(),
-            'area_coverage' => $areas[$area],
+            'area_coverage' => $isMainPost ? null : $areas[$area], // Jika pos pusat, area_coverage null
             'is_active' => fake()->boolean(90),
-            'is_main_post' => false,
+            'is_main_post' => $isMainPost,
         ];
+    }
+
+    /**
+     * Indicate that the resort is a main post (pos pusat).
+     */
+    public function mainPost(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => 'Pos Pusat Laundry',
+            'area_coverage' => null, // Pos pusat tidak punya area coverage
+            'is_main_post' => true,
+        ]);
     }
 }
