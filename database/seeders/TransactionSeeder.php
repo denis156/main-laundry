@@ -9,7 +9,7 @@ use App\Models\Payment;
 use App\Models\Service;
 use App\Models\Transaction;
 use App\Models\CourierMotorcycle;
-use App\Models\LoadingPost;
+use App\Models\Resort;
 use Illuminate\Database\Seeder;
 
 class TransactionSeeder extends Seeder
@@ -22,14 +22,14 @@ class TransactionSeeder extends Seeder
         $customers = Customer::all();
         $services = Service::all();
         $couriers = CourierMotorcycle::all();
-        $loadingPosts = LoadingPost::all();
+        $resorts = Resort::all();
 
         // Buat 100 transaksi
         for ($i = 0; $i < 100; $i++) {
             $customer = $customers->random();
             $service = $services->random();
             $courier = $couriers->random();
-            $loadingPost = $loadingPosts->random();
+            $resort = $resorts->random();
 
             $orderDate = fake()->dateTimeBetween('-3 months', 'now');
             $weight = fake()->randomFloat(2, 1, 20);
@@ -56,7 +56,7 @@ class TransactionSeeder extends Seeder
                 'customer_id' => $customer->id,
                 'service_id' => $service->id,
                 'courier_motorcycle_id' => $courier->id,
-                'loading_post_id' => $loadingPost->id,
+                'resort_id' => $resort->id,
                 'weight' => $weight,
                 'price_per_kg' => $pricePerKg,
                 'total_price' => $totalPrice,

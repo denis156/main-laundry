@@ -20,7 +20,7 @@ class Transaction extends Model
         'customer_id',
         'service_id',
         'courier_motorcycle_id',
-        'loading_post_id',
+        'resort_id',
         'weight',
         'price_per_kg',
         'total_price',
@@ -73,11 +73,11 @@ class Transaction extends Model
     }
 
     /**
-     * Relasi many-to-one dengan LoadingPost
+     * Relasi many-to-one dengan Resort
      */
-    public function loadingPost(): BelongsTo
+    public function resort(): BelongsTo
     {
-        return $this->belongsTo(LoadingPost::class);
+        return $this->belongsTo(Resort::class);
     }
 
     /**

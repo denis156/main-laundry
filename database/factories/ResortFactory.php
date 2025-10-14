@@ -7,9 +7,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\LoadingPost>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Resort>
  */
-class LoadingPostFactory extends Factory
+class ResortFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -29,7 +29,7 @@ class LoadingPostFactory extends Factory
         $area = fake()->randomElement(array_keys($areas));
 
         return [
-            'name' => 'Pos Loading ' . $area,
+            'name' => 'Resort ' . $area,
             'address' => fake()->address(),
             'phone' => fake()->numerify('08##########'),
             'pic_name' => fake()->name(),

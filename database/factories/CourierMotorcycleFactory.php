@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\LoadingPost;
+use App\Models\Resort;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -25,7 +25,7 @@ class CourierMotorcycleFactory extends Factory
             'password' => 'password', // default password
             'phone' => fake()->numerify('08##########'),
             'vehicle_number' => strtoupper(fake()->bothify('? #### ???')),
-            'assigned_loading_post_id' => LoadingPost::factory(),
+            'assigned_resort_id' => Resort::factory(),
             'avatar_url' => fake()->optional()->imageUrl(200, 200, 'people'),
             'is_active' => fake()->boolean(85),
         ];

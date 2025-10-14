@@ -6,7 +6,7 @@ namespace Database\Seeders;
 
 use App\Models\Service;
 use App\Models\User;
-use App\Models\LoadingPost;
+use App\Models\Resort;
 use App\Models\CourierMotorcycle;
 use App\Models\CourierCarSchedule;
 use Illuminate\Database\Seeder;
@@ -14,7 +14,7 @@ use Illuminate\Database\Seeder;
 class MasterDataSeeder extends Seeder
 {
     /**
-     * Seed data master seperti users, services, loading posts, dan couriers
+     * Seed data master seperti users, services, resorts, dan couriers
      */
     public function run(): void
     {
@@ -64,8 +64,8 @@ class MasterDataSeeder extends Seeder
             'duration_days' => 5,
         ]);
 
-        // Buat loading posts (5 pos untuk Jakarta)
-        $posts = [
+        // Buat resorts (5 resort untuk Jakarta)
+        $areas = [
             'Jakarta Selatan',
             'Jakarta Pusat',
             'Jakarta Timur',
@@ -73,17 +73,17 @@ class MasterDataSeeder extends Seeder
             'Jakarta Utara',
         ];
 
-        $loadingPosts = [];
-        foreach ($posts as $area) {
-            $loadingPosts[] = LoadingPost::factory()->create([
-                'name' => 'Pos Loading ' . $area,
+        $resorts = [];
+        foreach ($areas as $area) {
+            $resorts[] = Resort::factory()->create([
+                'name' => 'Resort ' . $area,
             ]);
         }
 
-        // Buat courier motorcycle (2-3 kurir per pos)
-        foreach ($loadingPosts as $post) {
+        // Buat courier motorcycle (2-3 kurir per resort)
+        foreach ($resorts as $resort) {
             CourierMotorcycle::factory()->count(fake()->numberBetween(2, 3))->create([
-                'assigned_loading_post_id' => $post->id,
+                'assigned_resort_id' => $resort->id,
             ]);
         }
 

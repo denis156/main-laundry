@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class LoadingPost extends Model
+class Resort extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -35,7 +35,7 @@ class LoadingPost extends Model
      */
     public function courierMotorcycles(): HasMany
     {
-        return $this->hasMany(CourierMotorcycle::class, 'assigned_loading_post_id');
+        return $this->hasMany(CourierMotorcycle::class, 'assigned_resort_id');
     }
 
     /**

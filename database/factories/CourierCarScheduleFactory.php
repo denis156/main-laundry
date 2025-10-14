@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\LoadingPost;
+use App\Models\Resort;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,14 +19,14 @@ class CourierCarScheduleFactory extends Factory
      */
     public function definition(): array
     {
-        $loadingPostIds = LoadingPost::pluck('id')->toArray();
-        $selectedPosts = fake()->randomElements($loadingPostIds, fake()->numberBetween(2, 5));
+        $resortIds = Resort::pluck('id')->toArray();
+        $selectedResorts = fake()->randomElements($resortIds, fake()->numberBetween(2, 5));
 
         return [
             'trip_date' => fake()->dateTimeBetween('-1 month', '+1 month'),
             'departure_time' => fake()->time('H:i:s'),
             'trip_type' => fake()->randomElement(['pickup', 'delivery']),
-            'loading_post_ids' => $selectedPosts,
+            'loading_post_ids' => $selectedResorts,
             'status' => fake()->randomElement(['scheduled', 'in_progress', 'completed', 'cancelled']),
             'notes' => fake()->optional()->sentence(),
         ];
