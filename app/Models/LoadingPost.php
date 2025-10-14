@@ -9,24 +9,33 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Customer extends Model
+class LoadingPost extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'name',
-        'phone',
-        'email',
         'address',
-        'default_address',
-        'member',
+        'phone',
+        'pic_name',
+        'area_coverage',
+        'is_active',
     ];
 
     protected function casts(): array
     {
         return [
-            'member' => 'boolean',
+            'area_coverage' => 'array',
+            'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Relasi one-to-many dengan CourierMotorcycle
+     */
+    public function courierMotorcycles(): HasMany
+    {
+        return $this->hasMany(CourierMotorcycle::class, 'assigned_loading_post_id');
     }
 
     /**

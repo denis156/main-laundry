@@ -15,9 +15,9 @@ class Payment extends Model
 
     protected $fillable = [
         'transaction_id',
-        'user_id',
+        'courier_motorcycle_id',
         'amount',
-        'payment_method',
+        'payment_proof_url',
         'payment_date',
         'notes',
     ];
@@ -39,10 +39,10 @@ class Payment extends Model
     }
 
     /**
-     * Relasi many-to-one dengan User (kasir)
+     * Relasi many-to-one dengan CourierMotorcycle
      */
-    public function user(): BelongsTo
+    public function courierMotorcycle(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(CourierMotorcycle::class);
     }
 }

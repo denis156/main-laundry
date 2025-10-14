@@ -158,56 +158,25 @@ class TransactionForm
                     ->aside()
                     ->columnSpanFull(),
 
-                Section::make('Diskon & Promo')
-                    ->description('Informasi promo dan diskon yang digunakan')
+                Section::make('Diskon')
+                    ->description('Informasi diskon yang digunakan')
                     ->collapsible()
                     ->collapsed()
                     ->schema([
-                        Grid::make([
-                            'default' => 1,
-                            'sm' => 2,
-                        ])
-                            ->schema([
-                                Select::make('promo_id')
-                                    ->label('Promo')
-                                    ->relationship('promo', 'name')
-                                    ->searchable()
-                                    ->preload()
-                                    ->validationAttribute('promo')
-                                    ->placeholder('Pilih promo (jika ada)')
-                                    ->hint('Opsional')
-                                    ->helperText('Promo yang sedang berlaku'),
-
-                                TextInput::make('promo_discount_amount')
-                                    ->label('Nominal Diskon Promo')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->minValue(0)
-                                    ->default(0)
-                                    ->validationAttribute('nominal diskon promo')
-                                    ->validationMessages([
-                                        'numeric' => 'Nominal diskon promo harus berupa angka.',
-                                        'min' => 'Nominal diskon promo minimal Rp 0.',
-                                    ])
-                                    ->placeholder('5000')
-                                    ->hint('Opsional')
-                                    ->helperText('Nominal diskon dari promo'),
-
-                                TextInput::make('total_discount_amount')
-                                    ->label('Total Diskon')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->minValue(0)
-                                    ->default(0)
-                                    ->validationAttribute('total diskon')
-                                    ->validationMessages([
-                                        'numeric' => 'Total diskon harus berupa angka.',
-                                        'min' => 'Total diskon minimal Rp 0.',
-                                    ])
-                                    ->placeholder('10000')
-                                    ->hint('Opsional')
-                                    ->helperText('Total semua diskon'),
+                        TextInput::make('total_discount_amount')
+                            ->label('Total Diskon')
+                            ->numeric()
+                            ->prefix('Rp')
+                            ->minValue(0)
+                            ->default(0)
+                            ->validationAttribute('total diskon')
+                            ->validationMessages([
+                                'numeric' => 'Total diskon harus berupa angka.',
+                                'min' => 'Total diskon minimal Rp 0.',
                             ])
+                            ->placeholder('10000')
+                            ->hint('Opsional')
+                            ->helperText('Total semua diskon'),
                     ])
                     ->aside()
                     ->columnSpanFull(),

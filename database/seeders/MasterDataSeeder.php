@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\Promo;
 use App\Models\Service;
 use App\Models\User;
+use App\Models\LoadingPost;
+use App\Models\CourierMotorcycle;
+use App\Models\CourierCarSchedule;
 use Illuminate\Database\Seeder;
 
 class MasterDataSeeder extends Seeder
 {
     /**
-     * Seed data master seperti users, services, dan promos
+     * Seed data master seperti users, services, loading posts, dan couriers
      */
     public function run(): void
     {
@@ -23,7 +25,7 @@ class MasterDataSeeder extends Seeder
         ]);
 
         // Buat staff users
-        User::factory()->count(13)->create();
+        User::factory()->count(5)->create();
 
         // Buat services
         Service::factory()->create([
@@ -62,7 +64,30 @@ class MasterDataSeeder extends Seeder
             'duration_days' => 5,
         ]);
 
-        // Buat promos
-        Promo::factory()->count(10)->create();
+        // Buat loading posts (5 pos untuk Jakarta)
+        $posts = [
+            'Jakarta Selatan',
+            'Jakarta Pusat',
+            'Jakarta Timur',
+            'Jakarta Barat',
+            'Jakarta Utara',
+        ];
+
+        $loadingPosts = [];
+        foreach ($posts as $area) {
+            $loadingPosts[] = LoadingPost::factory()->create([
+                'name' => 'Pos Loading ' . $area,
+            ]);
+        }
+
+        // Buat courier motorcycle (2-3 kurir per pos)
+        foreach ($loadingPosts as $post) {
+            CourierMotorcycle::factory()->count(fake()->numberBetween(2, 3))->create([
+                'assigned_loading_post_id' => $post->id,
+            ]);
+        }
+
+        // Buat beberapa courier car schedules
+        CourierCarSchedule::factory()->count(10)->create();
     }
 }

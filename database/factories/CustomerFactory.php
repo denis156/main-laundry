@@ -18,11 +18,14 @@ class CustomerFactory extends Factory
      */
     public function definition(): array
     {
+        $address = fake()->address();
+
         return [
             'name' => fake()->name(),
-            'phone' => fake()->unique()->phoneNumber(),
+            'phone' => fake()->unique()->numerify('08##########'),
             'email' => fake()->optional()->safeEmail(),
-            'address' => fake()->optional()->address(),
+            'address' => $address,
+            'default_address' => fake()->boolean(70) ? $address : fake()->address(),
             'member' => fake()->boolean(40), // 40% kemungkinan member
         ];
     }

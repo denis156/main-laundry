@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\Customer;
-use App\Models\Promo;
-use App\Models\User;
+use App\Models\Service;
+use App\Models\CourierMotorcycle;
+use App\Models\LoadingPost;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -25,25 +26,39 @@ class TransactionFactory extends Factory
         $durationDays = fake()->randomElement([1, 2, 3, 5]);
         $estimatedFinishDate = (clone $orderDate)->modify("+{$durationDays} days");
 
-        $subtotal = fake()->randomFloat(2, 20000, 500000);
-        $promoDiscountAmount = fake()->optional(0.3)->randomFloat(2, 5000, 50000) ?? 0;
-        $totalDiscountAmount = $promoDiscountAmount;
-        $totalPrice = $subtotal - $totalDiscountAmount;
-        $paidAmount = fake()->randomElement([0, $totalPrice * 0.5, $totalPrice]);
+        $weight = fake()->randomFloat(2, 1, 20);
+        $pricePerKg = fake()->randomFloat(2, 5000, 15000);
+        $totalPrice = $weight * $pricePerKg;
+
+        $workflowStatus = fake()->randomElement([
+            'pending_confirmation',
+            'confirmed',
+            'picked_up',
+            'at_loading_post',
+            'in_washing',
+            'washing_completed',
+            'out_for_delivery',
+            'delivered',
+            'cancelled',
+        ]);
+
+        $paymentTiming = fake()->randomElement(['on_pickup', 'on_delivery']);
+        $isPaid = fake()->boolean(60);
 
         return [
             'invoice_number' => 'INV/' . $orderDate->format('Ymd') . '/' . str_pad((string) fake()->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
             'customer_id' => Customer::factory(),
-            'promo_id' => fake()->optional(0.3)->randomElement([null, Promo::factory()]),
-            'user_id' => User::factory(),
-            'total_weight' => fake()->randomFloat(2, 1, 20),
-            'subtotal' => $subtotal,
-            'promo_discount_amount' => $promoDiscountAmount,
-            'total_discount_amount' => $totalDiscountAmount,
+            'service_id' => Service::factory(),
+            'courier_motorcycle_id' => fake()->optional(0.8)->randomElement([null, CourierMotorcycle::factory()]),
+            'loading_post_id' => fake()->optional(0.7)->randomElement([null, LoadingPost::factory()]),
+            'weight' => $weight,
+            'price_per_kg' => $pricePerKg,
             'total_price' => $totalPrice,
-            'status' => fake()->randomElement(['pending', 'process', 'ready', 'completed', 'cancelled']),
-            'payment_status' => $paidAmount >= $totalPrice ? 'paid' : ($paidAmount > 0 ? 'partial' : 'unpaid'),
-            'paid_amount' => $paidAmount,
+            'workflow_status' => $workflowStatus,
+            'payment_timing' => $paymentTiming,
+            'payment_status' => $isPaid ? 'paid' : 'unpaid',
+            'payment_proof_url' => $isPaid ? fake()->imageUrl(640, 480, 'payment', true) : null,
+            'paid_at' => $isPaid ? fake()->dateTimeBetween($orderDate, 'now') : null,
             'notes' => fake()->optional()->sentence(),
             'order_date' => $orderDate,
             'estimated_finish_date' => $estimatedFinishDate,

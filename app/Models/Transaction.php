@@ -18,16 +18,17 @@ class Transaction extends Model
     protected $fillable = [
         'invoice_number',
         'customer_id',
-        'promo_id',
-        'user_id',
-        'total_weight',
-        'subtotal',
-        'promo_discount_amount',
-        'total_discount_amount',
+        'service_id',
+        'courier_motorcycle_id',
+        'loading_post_id',
+        'weight',
+        'price_per_kg',
         'total_price',
-        'status',
+        'workflow_status',
+        'payment_timing',
         'payment_status',
-        'paid_amount',
+        'payment_proof_url',
+        'paid_at',
         'notes',
         'order_date',
         'estimated_finish_date',
@@ -37,12 +38,10 @@ class Transaction extends Model
     protected function casts(): array
     {
         return [
-            'total_weight' => 'decimal:2',
-            'subtotal' => 'decimal:2',
-            'promo_discount_amount' => 'decimal:2',
-            'total_discount_amount' => 'decimal:2',
+            'weight' => 'decimal:2',
+            'price_per_kg' => 'decimal:2',
             'total_price' => 'decimal:2',
-            'paid_amount' => 'decimal:2',
+            'paid_at' => 'datetime',
             'order_date' => 'datetime',
             'estimated_finish_date' => 'datetime',
             'actual_finish_date' => 'datetime',
@@ -58,27 +57,27 @@ class Transaction extends Model
     }
 
     /**
-     * Relasi many-to-one dengan Promo
+     * Relasi many-to-one dengan Service
      */
-    public function promo(): BelongsTo
+    public function service(): BelongsTo
     {
-        return $this->belongsTo(Promo::class);
+        return $this->belongsTo(Service::class);
     }
 
     /**
-     * Relasi many-to-one dengan User (kasir)
+     * Relasi many-to-one dengan CourierMotorcycle
      */
-    public function user(): BelongsTo
+    public function courierMotorcycle(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(CourierMotorcycle::class);
     }
 
     /**
-     * Relasi one-to-many dengan TransactionDetail
+     * Relasi many-to-one dengan LoadingPost
      */
-    public function transactionDetails(): HasMany
+    public function loadingPost(): BelongsTo
     {
-        return $this->hasMany(TransactionDetail::class);
+        return $this->belongsTo(LoadingPost::class);
     }
 
     /**

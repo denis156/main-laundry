@@ -128,21 +128,6 @@ class TransactionsTable
                         ->fontFamily('mono')
                         ->toggleable(isToggledHiddenByDefault: true),
                 ]),
-                ColumnGroup::make('Promo & Diskon', [
-                    TextColumn::make('promo.name')
-                        ->label('Promo')
-                        ->placeholder('Tanpa Promo')
-                        ->searchable()
-                        ->toggleable(isToggledHiddenByDefault: true),
-                    TextColumn::make('promo_discount_amount')
-                        ->label('Diskon Promo')
-                        ->money('IDR')
-                        ->placeholder('-')
-                        ->sortable()
-                        ->alignEnd()
-                        ->fontFamily('mono')
-                        ->toggleable(isToggledHiddenByDefault: true),
-                ]),
                 ColumnGroup::make('Tanggal & Waktu', [
                     TextColumn::make('order_date')
                         ->label('Tgl Order')

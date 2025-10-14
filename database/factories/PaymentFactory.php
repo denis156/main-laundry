@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\Transaction;
-use App\Models\User;
+use App\Models\CourierMotorcycle;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -22,9 +22,9 @@ class PaymentFactory extends Factory
     {
         return [
             'transaction_id' => Transaction::factory(),
-            'user_id' => User::factory(),
+            'courier_motorcycle_id' => CourierMotorcycle::factory(),
             'amount' => fake()->randomFloat(2, 10000, 500000),
-            'payment_method' => fake()->randomElement(['cash', 'transfer', 'qris', 'debit', 'credit']),
+            'payment_proof_url' => fake()->imageUrl(640, 480, 'payment', true),
             'payment_date' => fake()->dateTimeBetween('-3 months', 'now'),
             'notes' => fake()->optional()->sentence(),
         ];

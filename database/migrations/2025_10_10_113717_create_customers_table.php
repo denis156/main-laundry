@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,9 +16,10 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id()->comment('ID unik customer');
             $table->string('name')->comment('Nama lengkap customer');
-            $table->string('phone')->unique()->comment('Nomor telepon customer (unik)');
+            $table->string('phone')->unique()->comment('Nomor telepon/WhatsApp customer (unik)');
             $table->string('email')->nullable()->comment('Email customer');
             $table->text('address')->nullable()->comment('Alamat lengkap customer');
+            $table->text('default_address')->nullable()->comment('Alamat utama yang sering digunakan');
             $table->boolean('member')->default(false)->comment('Status member customer (true/false)');
             $table->timestamps();
             $table->softDeletes();
