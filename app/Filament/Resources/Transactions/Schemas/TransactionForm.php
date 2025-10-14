@@ -167,10 +167,10 @@ class TransactionForm
                             'sm' => 2,
                         ])
                             ->schema([
-                                ToggleButtons::make('workflow_status')
+                                Select::make('workflow_status')
                                     ->label('Status Workflow')
                                     ->required()
-                                    ->grouped()
+                                    ->native(false)
                                     ->default('pending_confirmation')
                                     ->options([
                                         'pending_confirmation' => 'Menunggu Konfirmasi',
@@ -183,32 +183,11 @@ class TransactionForm
                                         'delivered' => 'Terkirim',
                                         'cancelled' => 'Dibatalkan',
                                     ])
-                                    ->colors([
-                                        'pending_confirmation' => 'gray',
-                                        'confirmed' => 'info',
-                                        'picked_up' => 'warning',
-                                        'at_loading_post' => 'warning',
-                                        'in_washing' => 'primary',
-                                        'washing_completed' => 'success',
-                                        'out_for_delivery' => 'warning',
-                                        'delivered' => 'success',
-                                        'cancelled' => 'danger',
-                                    ])
-                                    ->icons([
-                                        'pending_confirmation' => 'solar-clock-circle-bold',
-                                        'confirmed' => 'solar-check-circle-bold',
-                                        'picked_up' => 'solar-box-bold',
-                                        'at_loading_post' => 'solar-home-bold',
-                                        'in_washing' => 'solar-washing-machine-bold',
-                                        'washing_completed' => 'solar-verified-check-bold',
-                                        'out_for_delivery' => 'solar-delivery-bold',
-                                        'delivered' => 'solar-star-bold',
-                                        'cancelled' => 'solar-close-circle-bold',
-                                    ])
                                     ->validationAttribute('status workflow')
                                     ->validationMessages([
                                         'required' => 'Status workflow wajib dipilih.',
                                     ])
+                                    ->placeholder('Pilih status workflow')
                                     ->helperText('Status pengerjaan order')
                                     ->columnSpanFull(),
 
