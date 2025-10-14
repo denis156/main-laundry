@@ -9,6 +9,10 @@ use App\Models\User;
 use App\Models\Resort;
 use App\Models\CourierMotorcycle;
 use App\Models\CourierCarSchedule;
+use App\Models\Equipment;
+use App\Models\EquipmentMaintenance;
+use App\Models\Material;
+use App\Models\MaterialStockHistory;
 use Illuminate\Database\Seeder;
 
 class MasterDataSeeder extends Seeder
@@ -93,5 +97,25 @@ class MasterDataSeeder extends Seeder
 
         // Buat beberapa courier car schedules
         CourierCarSchedule::factory()->count(10)->create();
+
+        // Buat equipments (alat-alat)
+        $equipments = Equipment::factory()->count(15)->create();
+
+        // Buat equipment maintenance history untuk beberapa alat
+        foreach ($equipments->random(10) as $equipment) {
+            EquipmentMaintenance::factory()->count(fake()->numberBetween(1, 5))->create([
+                'equipment_id' => $equipment->id,
+            ]);
+        }
+
+        // Buat materials (bahan-bahan)
+        $materials = Material::factory()->count(20)->create();
+
+        // Buat material stock history untuk setiap bahan
+        foreach ($materials as $material) {
+            MaterialStockHistory::factory()->count(fake()->numberBetween(3, 10))->create([
+                'material_id' => $material->id,
+            ]);
+        }
     }
 }
