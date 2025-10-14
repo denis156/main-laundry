@@ -64,7 +64,10 @@ class MasterDataSeeder extends Seeder
             'duration_days' => 5,
         ]);
 
-        // Buat resorts (6 resort untuk Kendari)
+        // Buat 1 pos pusat
+        $mainPost = Resort::factory()->mainPost()->create();
+
+        // Buat resorts biasa (6 resort untuk Kendari)
         $areas = [
             'Kendari Barat',
             'Kendari',
@@ -74,7 +77,7 @@ class MasterDataSeeder extends Seeder
             'Wua-Wua',
         ];
 
-        $resorts = [];
+        $resorts = [$mainPost]; // Include main post untuk courier assignment
         foreach ($areas as $area) {
             $resorts[] = Resort::factory()->create([
                 'name' => 'Resort ' . $area,

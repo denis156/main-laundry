@@ -18,16 +18,15 @@ class ResortFactory extends Factory
      */
     public function definition(): array
     {
-        $areas = [
-            'Kendari Barat' => ['Purirano', 'Benubenua', 'Tobimeita', 'Lalolara'],
-            'Kendari' => ['Mandonga', 'Wua-Wua', 'Poasia', 'Baruga'],
-            'Kambu' => ['Kambu', 'Korumba', 'Lepo-Lepo', 'Padaleu'],
-            'Kadia' => ['Kadia', 'Bende', 'Watubangga', 'Gunung Jati'],
-            'Abeli' => ['Abeli', 'Anduonohu', 'Lapulu', 'Tipulu'],
-            'Wua-Wua' => ['Wua-Wua', 'Mokoau', 'Bungkutoko', 'Lahundape'],
-        ];
+        $area = fake()->randomElement([
+            'Kendari Barat',
+            'Kendari',
+            'Kambu',
+            'Kadia',
+            'Abeli',
+            'Wua-Wua',
+        ]);
 
-        $area = fake()->randomElement(array_keys($areas));
         $isMainPost = false; // Default resort biasa
 
         return [
@@ -35,7 +34,7 @@ class ResortFactory extends Factory
             'address' => fake()->address(),
             'phone' => fake()->numerify('08##########'),
             'pic_name' => fake()->name(),
-            'area_coverage' => $isMainPost ? null : $areas[$area], // Jika pos pusat, area_coverage null
+            'area_coverage' => null, // Resort biasa tidak punya area coverage
             'is_active' => fake()->boolean(90),
             'is_main_post' => $isMainPost,
         ];
@@ -46,9 +45,19 @@ class ResortFactory extends Factory
      */
     public function mainPost(): static
     {
+        // Area yang dilayani oleh pos pusat
+        $allAreas = [
+            'Purirano', 'Benubenua', 'Tobimeita', 'Lalolara', // Kendari Barat
+            'Mandonga', 'Wua-Wua', 'Poasia', 'Baruga', // Kendari
+            'Kambu', 'Korumba', 'Lepo-Lepo', 'Padaleu', // Kambu
+            'Kadia', 'Bende', 'Watubangga', 'Gunung Jati', // Kadia
+            'Abeli', 'Anduonohu', 'Lapulu', 'Tipulu', // Abeli
+            'Mokoau', 'Bungkutoko', 'Lahundape', // Wua-Wua
+        ];
+
         return $this->state(fn (array $attributes) => [
             'name' => 'Pos Pusat Laundry',
-            'area_coverage' => null, // Pos pusat tidak punya area coverage
+            'area_coverage' => $allAreas, // Pos pusat melayani semua area
             'is_main_post' => true,
         ]);
     }
