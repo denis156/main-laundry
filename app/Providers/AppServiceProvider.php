@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Models\MaterialStockHistory;
+use App\Models\EquipmentMaintenance;
 use App\Observers\MaterialStockHistoryObserver;
+use App\Observers\EquipmentMaintenanceObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,5 +24,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         MaterialStockHistory::observe(MaterialStockHistoryObserver::class);
+        EquipmentMaintenance::observe(EquipmentMaintenanceObserver::class);
     }
 }
