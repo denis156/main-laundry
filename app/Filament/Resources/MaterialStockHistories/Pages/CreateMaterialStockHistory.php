@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\MaterialStockHistories\Pages;
 
 use Filament\Actions\Action;
+use Illuminate\Support\Facades\Auth;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\MaterialStockHistories\MaterialStockHistoryResource;
 
@@ -27,7 +28,7 @@ class CreateMaterialStockHistory extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['created_by'] = auth()->id();
+        $data['created_by'] = Auth::id();
         return $data;
     }
 }
