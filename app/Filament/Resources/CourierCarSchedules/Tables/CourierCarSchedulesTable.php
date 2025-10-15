@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\CourierCarSchedules\Tables;
 
-use App\Models\Resort;
+use App\Models\Pos;
 use Filament\Tables\Table;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -48,8 +48,8 @@ class CourierCarSchedulesTable
                         ->label('Jenis Trip')
                         ->badge()
                         ->formatStateUsing(fn (string $state): string => match ($state) {
-                            'pickup' => 'Ambil dari Resort',
-                            'delivery' => 'Antar ke Resort',
+                            'pickup' => 'Ambil dari Pos',
+                            'delivery' => 'Antar ke Pos',
                             default => $state,
                         })
                         ->color(fn (string $state): string => match ($state) {
@@ -63,20 +63,20 @@ class CourierCarSchedulesTable
                             default => 'solar-question-circle-linear',
                         })
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('resort_ids')
-                        ->label('Resort Dikunjungi')
+                    TextColumn::make('pos_ids')
+                        ->label('Pos Dikunjungi')
                         ->getStateUsing(function ($record) {
-                            if (empty($record->resort_ids)) {
+                            if (empty($record->pos_ids)) {
                                 return null;
                             }
-                            $resortIds = is_array($record->resort_ids) ? $record->resort_ids : [];
-                            return Resort::whereIn('id', $resortIds)->pluck('name')->toArray();
+                            $posIds = is_array($record->pos_ids) ? $record->pos_ids : [];
+                            return Pos::whereIn('id', $posIds)->pluck('name')->toArray();
                         })
                         ->listWithLineBreaks()
                         ->bulleted()
                         ->limitList(2)
                         ->expandableLimitedList()
-                        ->placeholder('Belum ada resort')
+                        ->placeholder('Belum ada pos')
                         ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('status')
                         ->label('Status')
@@ -143,8 +143,8 @@ class CourierCarSchedulesTable
                     ->label('Jenis Trip')
                     ->native(false)
                     ->options([
-                        'pickup' => 'Ambil dari Resort',
-                        'delivery' => 'Antar ke Resort',
+                        'pickup' => 'Ambil dari Pos',
+                        'delivery' => 'Antar ke Pos',
                     ])
                     ->placeholder('Semua jenis trip'),
                 SelectFilter::make('status')

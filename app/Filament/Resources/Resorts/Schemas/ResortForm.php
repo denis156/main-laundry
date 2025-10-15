@@ -9,7 +9,6 @@ use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Components\DateTimePicker;
 
@@ -20,7 +19,7 @@ class ResortForm
         return $schema
             ->components([
                 Section::make('Informasi Resort')
-                    ->description('Data lengkap resort/pos pusat termasuk nama, lokasi, penanggung jawab, dan area layanan')
+                    ->description('Data lengkap resort (induk) termasuk nama, lokasi, dan penanggung jawab')
                     ->collapsible()
                     ->schema([
                         Grid::make([
@@ -84,13 +83,6 @@ class ResortForm
                                     ->placeholder('Masukkan alamat lengkap resort')
                                     ->columnSpanFull(),
 
-                                TagsInput::make('area_coverage')
-                                    ->label('Area Layanan')
-                                    ->placeholder('Ketik nama area lalu tekan Enter')
-                                    ->helperText('Area yang dilayani oleh resort ini. Tekan Enter setelah mengetik setiap area.')
-                                    ->columnSpanFull()
-                                    ->visible(fn($get) => $get('is_main_post') === true),
-
                                 ToggleButtons::make('is_active')
                                     ->label('Status Resort')
                                     ->required()
@@ -114,31 +106,6 @@ class ResortForm
                                         'required' => 'Status resort wajib dipilih.',
                                     ])
                                     ->helperText('Resort aktif akan ditampilkan dalam sistem'),
-
-                                ToggleButtons::make('is_main_post')
-                                    ->label('Tipe Lokasi')
-                                    ->required()
-                                    ->boolean()
-                                    ->grouped()
-                                    ->default(false)
-                                    ->options([
-                                        false => 'Resort Biasa',
-                                        true => 'Pos Pusat',
-                                    ])
-                                    ->colors([
-                                        false => 'info',
-                                        true => 'warning',
-                                    ])
-                                    ->icons([
-                                        false => 'solar-buildings-2-bold',
-                                        true => 'solar-home-2-bold',
-                                    ])
-                                    ->validationAttribute('tipe lokasi')
-                                    ->validationMessages([
-                                        'required' => 'Tipe lokasi wajib dipilih.',
-                                    ])
-                                    ->helperText('Pos Pusat adalah tempat pencucian utama, Resort adalah cabang yang melayani area tertentu')
-                                    ->live(),
                             ])
                     ])
                     ->aside()

@@ -25,28 +25,16 @@ class StatsOverviewResorts extends StatsOverviewWidget
         // Resort tidak aktif
         $inactiveResorts = Resort::where('is_active', false)->count();
 
-        // Resort dengan area layanan terbanyak
-        $topResort = Resort::all()
-            ->map(function ($resort) {
-                $areaCount = is_array($resort->area_coverage) ? count($resort->area_coverage) : 0;
-                return [
-                    'resort' => $resort,
-                    'area_count' => $areaCount,
-                ];
-            })
-            ->sortByDesc('area_count')
-            ->first();
-
-        $topResortName = $topResort ? $topResort['resort']->name : 'Belum Ada';
-        $topResortAreas = $topResort ? $topResort['area_count'] : 0;
+        // Hitung total pos yang terkait dengan resort
+        $totalPosWithResort = \App\Models\Pos::whereNotNull('resort_id')->count();
 
         // Ambil data 6 bulan terakhir
         $totalResortsChart = $this->getResortsChartData(6);
         $activeResortsChart = $this->getActiveResortsChartData(6);
 
         return [
-            Stat::make('Total Resort', $totalResorts . ' Lokasi')
-                ->description('Semua Resort & Pos')
+            Stat::make('Total Resort', $totalResorts . ' Resort')
+                ->description('Resort Induk')
                 ->descriptionIcon('solar-buildings-2-bold-duotone')
                 ->color('primary')
                 ->chart($totalResortsChart),
@@ -55,8 +43,8 @@ class StatsOverviewResorts extends StatsOverviewWidget
                 ->descriptionIcon('solar-check-circle-bold-duotone')
                 ->color('success')
                 ->chart($activeResortsChart),
-            Stat::make($topResortName, $topResortAreas . ' Area')
-                ->description('Resort dengan area layanan terbanyak')
+            Stat::make('Total Pos Terkait', $totalPosWithResort . ' Pos')
+                ->description('Pos yang terkait dengan resort')
                 ->descriptionIcon('solar-map-point-bold-duotone')
                 ->color('warning'),
         ];

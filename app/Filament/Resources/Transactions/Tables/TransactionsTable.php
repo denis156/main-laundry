@@ -52,10 +52,10 @@ class TransactionsTable
                         ->searchable()
                         ->placeholder('Belum ditugaskan')
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('resort.name')
-                        ->label('Resort')
+                    TextColumn::make('pos.name')
+                        ->label('Pos')
                         ->searchable()
-                        ->placeholder('Belum di resort')
+                        ->placeholder('Belum di pos')
                         ->toggleable(isToggledHiddenByDefault: true),
                     TextColumn::make('workflow_status')
                         ->label('Status Workflow')
@@ -76,7 +76,7 @@ class TransactionsTable
                             'pending_confirmation' => 'Menunggu Konfirmasi',
                             'confirmed' => 'Terkonfirmasi',
                             'picked_up' => 'Sudah Dijemput',
-                            'at_loading_post' => 'Di Resort',
+                            'at_loading_post' => 'Di Pos',
                             'in_washing' => 'Sedang Dicuci',
                             'washing_completed' => 'Cucian Selesai',
                             'out_for_delivery' => 'Dalam Pengiriman',
@@ -207,7 +207,7 @@ class TransactionsTable
                         'pending_confirmation' => 'Menunggu Konfirmasi',
                         'confirmed' => 'Terkonfirmasi',
                         'picked_up' => 'Sudah Dijemput',
-                        'at_loading_post' => 'Di Resort',
+                        'at_loading_post' => 'Di Pos',
                         'in_washing' => 'Sedang Dicuci',
                         'washing_completed' => 'Cucian Selesai',
                         'out_for_delivery' => 'Dalam Pengiriman',

@@ -21,7 +21,7 @@ class CourierCarScheduleForm
         return $schema
             ->components([
                 Section::make('Informasi Jadwal')
-                    ->description('Data lengkap jadwal kurir mobil termasuk tanggal, waktu, jenis trip, dan resort yang dikunjungi')
+                    ->description('Data lengkap jadwal kurir mobil termasuk tanggal, waktu, jenis trip, dan pos yang dikunjungi')
                     ->collapsible()
                     ->schema([
                         Grid::make([
@@ -61,8 +61,8 @@ class CourierCarScheduleForm
                                     ->required()
                                     ->grouped()
                                     ->options([
-                                        'pickup' => 'Ambil dari Resort',
-                                        'delivery' => 'Antar ke Resort',
+                                        'pickup' => 'Ambil dari Pos',
+                                        'delivery' => 'Antar ke Pos',
                                     ])
                                     ->colors([
                                         'pickup' => 'info',
@@ -76,12 +76,12 @@ class CourierCarScheduleForm
                                     ->validationMessages([
                                         'required' => 'Jenis trip wajib dipilih.',
                                     ])
-                                    ->helperText('Pickup: ambil laundry dari resort ke pos pusat | Delivery: antar laundry bersih dari pos pusat ke resort')
+                                    ->helperText('Pickup: ambil laundry dari pos ke pos pusat | Delivery: antar laundry bersih dari pos pusat ke pos')
                                     ->columnSpanFull(),
 
-                                Select::make('resort_ids')
-                                    ->label('Resort Dikunjungi')
-                                    ->options(fn() => \App\Models\Resort::query()
+                                Select::make('pos_ids')
+                                    ->label('Pos Dikunjungi')
+                                    ->options(fn() => \App\Models\Pos::query()
                                         ->where('is_active', true)
                                         ->pluck('name', 'id'))
                                     ->multiple()
@@ -89,12 +89,12 @@ class CourierCarScheduleForm
                                     ->searchable()
                                     ->preload()
                                     ->native(false)
-                                    ->validationAttribute('resort')
+                                    ->validationAttribute('pos')
                                     ->validationMessages([
-                                        'required' => 'Minimal satu resort harus dipilih.',
+                                        'required' => 'Minimal satu pos harus dipilih.',
                                     ])
-                                    ->placeholder('Pilih resort yang akan dikunjungi')
-                                    ->helperText('Pilih satu atau lebih resort yang akan dikunjungi dalam trip ini')
+                                    ->placeholder('Pilih pos yang akan dikunjungi')
+                                    ->helperText('Pilih satu atau lebih pos yang akan dikunjungi dalam trip ini')
                                     ->columnSpanFull(),
 
                                 ToggleButtons::make('status')

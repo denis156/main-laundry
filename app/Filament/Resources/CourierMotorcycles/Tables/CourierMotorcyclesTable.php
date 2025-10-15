@@ -62,8 +62,8 @@ class CourierMotorcyclesTable
                         ->badge()
                         ->color('info')
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('assignedResort.name')
-                        ->label('Resort Ditugaskan')
+                    TextColumn::make('assignedPos.name')
+                        ->label('Pos Ditugaskan')
                         ->searchable()
                         ->badge()
                         ->color('primary')
@@ -110,11 +110,11 @@ class CourierMotorcyclesTable
                         false: fn($query) => $query->where('is_active', false),
                         blank: fn($query) => $query,
                     ),
-                SelectFilter::make('assigned_resort_id')
-                    ->label('Resort')
+                SelectFilter::make('assigned_pos_id')
+                    ->label('Pos')
                     ->native(false)
-                    ->relationship('assignedResort', 'name')
-                    ->placeholder('Semua resort')
+                    ->relationship('assignedPos', 'name')
+                    ->placeholder('Semua pos')
                     ->searchable()
                     ->preload(),
             ])

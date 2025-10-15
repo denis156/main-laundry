@@ -84,14 +84,14 @@ class TransactionForm
                                     ->hint('Opsional')
                                     ->helperText('Kurir motor yang menangani transaksi'),
 
-                                Select::make('resort_id')
-                                    ->label('Resort')
-                                    ->relationship('resort', 'name')
+                                Select::make('pos_id')
+                                    ->label('Pos')
+                                    ->relationship('pos', 'name')
                                     ->searchable()
                                     ->preload()
-                                    ->placeholder('Pilih resort')
+                                    ->placeholder('Pilih pos')
                                     ->hint('Opsional')
-                                    ->helperText('Resort transit cucian'),
+                                    ->helperText('Pos transit cucian'),
                             ])
                     ])
                     ->aside()
@@ -176,7 +176,7 @@ class TransactionForm
                                         'pending_confirmation' => 'Menunggu Konfirmasi',
                                         'confirmed' => 'Terkonfirmasi',
                                         'picked_up' => 'Sudah Dijemput',
-                                        'at_loading_post' => 'Di Resort',
+                                        'at_loading_post' => 'Di Pos',
                                         'in_washing' => 'Sedang Dicuci',
                                         'washing_completed' => 'Cucian Selesai',
                                         'out_for_delivery' => 'Dalam Pengiriman',

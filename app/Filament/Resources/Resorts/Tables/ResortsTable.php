@@ -45,20 +45,8 @@ class ResortsTable
                         ->searchable()
                         ->fontFamily('mono')
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('area_coverage')
-                        ->label('Area Layanan')
-                        ->listWithLineBreaks()
-                        ->bulleted()
-                        ->limitList(2)
-                        ->expandableLimitedList()
-                        ->toggleable(isToggledHiddenByDefault: true),
                     IconColumn::make('is_active')
                         ->label('Status Aktif')
-                        ->boolean()
-                        ->alignCenter()
-                        ->toggleable(isToggledHiddenByDefault: false),
-                    IconColumn::make('is_main_post')
-                        ->label('Pos Pusat')
                         ->boolean()
                         ->alignCenter()
                         ->toggleable(isToggledHiddenByDefault: false),
@@ -98,18 +86,6 @@ class ResortsTable
                         false: fn($query) => $query->where('is_active', false),
                         blank: fn($query) => $query,
                     ),
-                TernaryFilter::make('is_main_post')
-                    ->label('Tipe Lokasi')
-                    ->native(false)
-                    ->nullable()
-                    ->placeholder('Semua lokasi')
-                    ->trueLabel('Pos pusat')
-                    ->falseLabel('Resort biasa')
-                    ->queries(
-                        true: fn($query) => $query->where('is_main_post', true),
-                        false: fn($query) => $query->where('is_main_post', false),
-                        blank: fn($query) => $query,
-                    )
             ])
             ->filtersTriggerAction(
                 fn(Action $action) => $action

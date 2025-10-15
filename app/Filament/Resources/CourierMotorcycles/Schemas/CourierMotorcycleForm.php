@@ -21,7 +21,7 @@ class CourierMotorcycleForm
         return $schema
             ->components([
                 Section::make('Informasi Kurir Motor')
-                    ->description('Data lengkap kurir motor termasuk identitas, kontak, kendaraan, dan penugasan resort')
+                    ->description('Data lengkap kurir motor termasuk identitas, kontak, kendaraan, dan penugasan pos')
                     ->collapsible()
                     ->schema([
                         Grid::make([
@@ -109,19 +109,19 @@ class CourierMotorcycleForm
                                             ->placeholder('Contoh: B 1234 XYZ')
                                             ->columnSpanFull(),
 
-                                        Select::make('assigned_resort_id')
-                                            ->label('Resort Ditugaskan')
-                                            ->relationship('assignedResort', 'name')
+                                        Select::make('assigned_pos_id')
+                                            ->label('Pos Ditugaskan')
+                                            ->relationship('assignedPos', 'name')
                                             ->required()
                                             ->searchable()
                                             ->preload()
                                             ->native(false)
-                                            ->validationAttribute('resort')
+                                            ->validationAttribute('pos')
                                             ->validationMessages([
-                                                'required' => 'Resort wajib dipilih.',
+                                                'required' => 'Pos wajib dipilih.',
                                             ])
-                                            ->placeholder('Pilih resort')
-                                            ->helperText('Resort tempat kurir ini ditugaskan')
+                                            ->placeholder('Pilih pos')
+                                            ->helperText('Pos tempat kurir ini ditugaskan')
                                             ->columnSpanFull(),
 
                                         ToggleButtons::make('is_active')
