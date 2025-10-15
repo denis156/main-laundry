@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Models\Service;
 use App\Models\User;
 use App\Models\Resort;
+use App\Models\Pos;
 use App\Models\CourierMotorcycle;
 use App\Models\CourierCarSchedule;
 use App\Models\Equipment;
@@ -68,10 +69,7 @@ class MasterDataSeeder extends Seeder
             'duration_days' => 5,
         ]);
 
-        // Buat 1 pos pusat
-        $mainPost = Resort::factory()->mainPost()->create();
-
-        // Buat resorts biasa (6 resort untuk Kendari)
+        // Buat resorts (6 resort untuk Kendari)
         $areas = [
             'Kendari Barat',
             'Kendari',
@@ -81,17 +79,29 @@ class MasterDataSeeder extends Seeder
             'Wua-Wua',
         ];
 
-        $resorts = [$mainPost]; // Include main post untuk courier assignment
+        $resorts = [];
         foreach ($areas as $area) {
-            $resorts[] = Resort::factory()->create([
+            $resort = Resort::factory()->create([
                 'name' => 'Resort ' . $area,
+            ]);
+            $resorts[] = $resort;
+
+            // Buat 2-3 pos untuk setiap resort
+            Pos::factory()->count(fake()->numberBetween(2, 3))->create([
+                'resort_id' => $resort->id,
             ]);
         }
 
-        // Buat courier motorcycle (2-3 kurir per resort)
-        foreach ($resorts as $resort) {
-            CourierMotorcycle::factory()->count(fake()->numberBetween(2, 3))->create([
-                'assigned_resort_id' => $resort->id,
+        // Buat beberapa pos berdiri sendiri (standalone)
+        Pos::factory()->standalone()->count(5)->create();
+
+        // Ambil semua pos untuk assign courier
+        $allPos = Pos::all();
+
+        // Buat courier motorcycle (2-3 kurir per pos)
+        foreach ($allPos as $pos) {
+            CourierMotorcycle::factory()->count(fake()->numberBetween(1, 2))->create([
+                'assigned_pos_id' => $pos->id,
             ]);
         }
 

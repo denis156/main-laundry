@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('password')->comment('Password terenkripsi');
             $table->string('phone')->comment('Nomor telepon/WA kurir');
             $table->string('vehicle_number')->comment('Nomor kendaraan (B1234XYZ)');
-            $table->foreignId('assigned_resort_id')->constrained('resorts')->cascadeOnDelete()->comment('Resort tetap yang ditugaskan (cascade on delete)');
+            $table->foreignId('assigned_pos_id')->constrained('pos')->cascadeOnDelete()->comment('Pos tetap yang ditugaskan (cascade on delete)');
             $table->string('avatar_url')->nullable()->comment('URL foto profil');
             $table->boolean('is_active')->default(true)->comment('Status aktif kurir (true/false)');
             $table->rememberToken();

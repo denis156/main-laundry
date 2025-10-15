@@ -7,7 +7,7 @@ namespace Database\Factories;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\CourierMotorcycle;
-use App\Models\Resort;
+use App\Models\Pos;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -50,7 +50,7 @@ class TransactionFactory extends Factory
             'customer_id' => Customer::factory(),
             'service_id' => Service::factory(),
             'courier_motorcycle_id' => fake()->optional(0.8)->randomElement([null, CourierMotorcycle::factory()]),
-            'resort_id' => fake()->optional(0.7)->randomElement([null, Resort::factory()]),
+            'pos_id' => fake()->optional(0.7)->randomElement([null, Pos::factory()]),
             'weight' => $weight,
             'price_per_kg' => $pricePerKg,
             'total_price' => $totalPrice,

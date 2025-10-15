@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained()->cascadeOnDelete()->comment('ID customer (cascade on delete)');
             $table->foreignId('service_id')->constrained()->cascadeOnDelete()->comment('ID layanan yang dipilih (cascade on delete)');
             $table->foreignId('courier_motorcycle_id')->nullable()->constrained('couriers_motorcycle')->nullOnDelete()->comment('ID kurir motor yang handle (null on delete)');
-            $table->foreignId('resort_id')->nullable()->constrained('resorts')->nullOnDelete()->comment('ID resort transit (null on delete)');
+            $table->foreignId('pos_id')->nullable()->constrained('pos')->nullOnDelete()->comment('ID pos transit (null on delete)');
             $table->decimal('weight', 10, 2)->nullable()->comment('Berat cucian ditimbang kurir (kg)');
             $table->decimal('price_per_kg', 10, 2)->comment('Harga per kg saat transaksi untuk historical record (Rp)');
             $table->decimal('total_price', 10, 2)->default(0)->comment('Total harga final (weight × price_per_kg) (Rp)');

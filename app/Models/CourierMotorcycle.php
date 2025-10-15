@@ -25,7 +25,7 @@ class CourierMotorcycle extends Authenticatable
         'password',
         'phone',
         'vehicle_number',
-        'assigned_resort_id',
+        'assigned_pos_id',
         'avatar_url',
         'is_active',
     ];
@@ -44,11 +44,11 @@ class CourierMotorcycle extends Authenticatable
     }
 
     /**
-     * Relasi many-to-one dengan Resort
+     * Relasi many-to-one dengan Pos
      */
-    public function assignedResort(): BelongsTo
+    public function assignedPos(): BelongsTo
     {
-        return $this->belongsTo(Resort::class, 'assigned_resort_id');
+        return $this->belongsTo(Pos::class, 'assigned_pos_id');
     }
 
     /**

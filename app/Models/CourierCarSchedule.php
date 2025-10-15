@@ -18,7 +18,7 @@ class CourierCarSchedule extends Model
         'trip_date',
         'departure_time',
         'trip_type',
-        'resort_ids',
+        'pos_ids',
         'status',
         'notes',
     ];
@@ -27,7 +27,7 @@ class CourierCarSchedule extends Model
     {
         return [
             'trip_date' => 'date',
-            'resort_ids' => 'array',
+            'pos_ids' => 'array',
         ];
     }
 }

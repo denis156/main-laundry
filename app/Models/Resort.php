@@ -18,33 +18,22 @@ class Resort extends Model
         'address',
         'phone',
         'pic_name',
-        'area_coverage',
         'is_active',
-        'is_main_post',
     ];
 
     protected function casts(): array
     {
         return [
-            'area_coverage' => 'array',
             'is_active' => 'boolean',
-            'is_main_post' => 'boolean',
         ];
     }
 
     /**
-     * Relasi one-to-many dengan CourierMotorcycle
+     * Relasi one-to-many dengan Pos
+     * Resort bisa punya banyak Pos
      */
-    public function courierMotorcycles(): HasMany
+    public function pos(): HasMany
     {
-        return $this->hasMany(CourierMotorcycle::class, 'assigned_resort_id');
-    }
-
-    /**
-     * Relasi one-to-many dengan Transaction
-     */
-    public function transactions(): HasMany
-    {
-        return $this->hasMany(Transaction::class);
+        return $this->hasMany(Pos::class);
     }
 }

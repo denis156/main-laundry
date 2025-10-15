@@ -16,7 +16,6 @@ return new class extends Migration
             $table->text('address')->comment('Alamat lengkap resort');
             $table->string('phone')->comment('Nomor telepon resort');
             $table->string('pic_name')->comment('Nama penanggung jawab resort');
-            $table->json('area_coverage')->nullable()->comment('Area yang dilayani (JSON array)');
             $table->boolean('is_active')->default(true)->comment('Status aktif resort (true/false)');
             $table->timestamps();
             $table->softDeletes();
