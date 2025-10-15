@@ -29,8 +29,8 @@ class ServiceResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
     protected static ?string $navigationLabel = 'Layanan';
     protected static string|UnitEnum|null $navigationGroup = 'Data Master';
-    protected static string |BackedEnum | null $navigationIcon = 'solar-washing-machine-minimalistic-linear';
-    protected static string |BackedEnum | null $activeNavigationIcon = 'solar-washing-machine-minimalistic-bold';
+    protected static string |BackedEnum | null $navigationIcon = 'solar-checklist-linear';
+    protected static string |BackedEnum | null $activeNavigationIcon = 'solar-checklist-bold';
 
     public static function form(Schema $schema): Schema
     {
