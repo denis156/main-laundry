@@ -45,6 +45,26 @@ class ResortsTable
                         ->searchable()
                         ->fontFamily('mono')
                         ->toggleable(isToggledHiddenByDefault: false),
+                    TextColumn::make('pos.area')
+                        ->label('Area Layanan')
+                        ->getStateUsing(function ($record) {
+                            // Ambil semua area dari pos yang terkait dengan resort ini
+                            $areas = $record->pos()
+                                ->whereNotNull('area')
+                                ->where('area', '!=', '')
+                                ->pluck('area')
+                                ->filter()
+                                ->unique()
+                                ->toArray();
+
+                            return !empty($areas) ? $areas : null;
+                        })
+                        ->listWithLineBreaks()
+                        ->bulleted()
+                        ->limitList(2)
+                        ->expandableLimitedList()
+                        ->placeholder('Belum ada pos dengan area')
+                        ->toggleable(isToggledHiddenByDefault: false),
                     IconColumn::make('is_active')
                         ->label('Status Aktif')
                         ->boolean()
