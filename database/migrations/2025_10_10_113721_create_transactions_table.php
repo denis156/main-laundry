@@ -20,8 +20,8 @@ return new class extends Migration
             $table->foreignId('service_id')->constrained()->cascadeOnDelete()->comment('ID layanan yang dipilih (cascade on delete)');
             $table->foreignId('courier_motorcycle_id')->nullable()->constrained('couriers_motorcycle')->nullOnDelete()->comment('ID kurir motor yang handle (null on delete)');
             $table->foreignId('pos_id')->nullable()->constrained('pos')->nullOnDelete()->comment('ID pos transit (null on delete)');
-            $table->decimal('weight', 10, 2)->nullable()->comment('Berat cucian ditimbang kurir (kg)');
-            $table->decimal('price_per_kg', 10, 2)->comment('Harga per kg saat transaksi untuk historical record (Rp)');
+            $table->decimal('weight', 10, 2)->default(0)->comment('Berat cucian ditimbang kurir (kg)');
+            $table->decimal('price_per_kg', 10, 2)->default(0)->comment('Harga per kg saat transaksi untuk historical record (Rp)');
             $table->decimal('total_price', 10, 2)->default(0)->comment('Total harga final (weight × price_per_kg) (Rp)');
             $table->enum('workflow_status', ['pending_confirmation', 'confirmed', 'picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered', 'cancelled'])->default('pending_confirmation')->comment('Status workflow transaksi');
             $table->enum('payment_timing', ['on_pickup', 'on_delivery'])->comment('Kapan customer bayar');
