@@ -22,13 +22,13 @@ class CourierMotorcycleResource extends Resource
 {
     protected static ?string $model = CourierMotorcycle::class;
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
     protected static ?string $slug = 'kurir-motor';
     protected static ?string $modelLabel = 'Kurir Motor';
     protected static int $globalSearchResultsLimit = 5;
     protected static ?string $recordTitleAttribute = 'name';
     protected static ?string $navigationLabel = 'Kurir Motor';
-    protected static string|UnitEnum|null $navigationGroup = 'Operasional';
+    protected static string|UnitEnum|null $navigationGroup = 'Lokasi & Operasional';
     protected static string |BackedEnum | null $navigationIcon = 'solar-delivery-linear';
     protected static string |BackedEnum | null $activeNavigationIcon = 'solar-delivery-bold';
 

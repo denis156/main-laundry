@@ -30,7 +30,7 @@ class EquipmentMaintenanceResource extends Resource
 
     protected static ?string $navigationLabel = 'Perawatan Peralatan';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Inventori';
+    protected static string|UnitEnum|null $navigationGroup = 'Inventori & Aset';
 
     protected static string|BackedEnum|null $navigationIcon = 'solar-settings-linear';
 

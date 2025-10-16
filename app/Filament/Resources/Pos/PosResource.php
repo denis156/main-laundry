@@ -22,11 +22,11 @@ class PosResource extends Resource
 {
     protected static ?string $model = Pos::class;
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 2;
     protected static ?string $slug = 'pos';
     protected static ?string $modelLabel = 'Pos';
     protected static ?string $navigationLabel = 'Pos';
-    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Lokasi';
+    protected static string|UnitEnum|null $navigationGroup = 'Lokasi & Operasional';
     protected static string|BackedEnum|null $navigationIcon = 'solar-map-point-wave-linear';
     protected static string|BackedEnum|null $activeNavigationIcon = 'solar-map-point-wave-bold';
     protected static ?string $recordTitleAttribute = 'name';

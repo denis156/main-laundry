@@ -34,7 +34,7 @@ class EquipmentResource extends Resource
 
     protected static ?string $navigationLabel = 'Peralatan';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Inventori';
+    protected static string|UnitEnum|null $navigationGroup = 'Inventori & Aset';
 
     protected static string|BackedEnum|null $navigationIcon = 'solar-washing-machine-linear';
 

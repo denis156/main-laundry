@@ -28,7 +28,7 @@ class ServiceResource extends Resource
     protected static int $globalSearchResultsLimit = 5;
     protected static ?string $recordTitleAttribute = 'name';
     protected static ?string $navigationLabel = 'Layanan';
-    protected static string|UnitEnum|null $navigationGroup = 'Data Master';
+    protected static string|UnitEnum|null $navigationGroup = 'Pelanggan & Layanan';
     protected static string |BackedEnum | null $navigationIcon = 'solar-checklist-linear';
     protected static string |BackedEnum | null $activeNavigationIcon = 'solar-checklist-bold';
 

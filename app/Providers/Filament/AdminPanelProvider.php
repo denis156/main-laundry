@@ -139,6 +139,13 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->navigationGroups([
+                'Lokasi & Operasional',
+                'Pelanggan & Layanan',
+                'Keuangan',
+                'Inventori & Aset',
+                'Pengguna',
             ]);
     }
 }

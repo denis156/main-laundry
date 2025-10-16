@@ -24,7 +24,7 @@ class MaterialStockHistoryResource extends Resource
     protected static ?string $slug = 'riwayat-stock-bahan';
     protected static ?string $modelLabel = 'Riwayat Stock Bahan';
     protected static ?string $navigationLabel = 'Riwayat Stock Bahan';
-    protected static string|UnitEnum|null $navigationGroup = 'Inventori';
+    protected static string|UnitEnum|null $navigationGroup = 'Inventori & Aset';
     protected static string |BackedEnum | null $navigationIcon = 'solar-clipboard-list-linear';
     protected static string |BackedEnum | null $activeNavigationIcon = 'solar-clipboard-list-bold';
 

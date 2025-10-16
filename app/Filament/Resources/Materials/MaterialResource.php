@@ -28,7 +28,7 @@ class MaterialResource extends Resource
     protected static int $globalSearchResultsLimit = 5;
     protected static ?string $recordTitleAttribute = 'name';
     protected static ?string $navigationLabel = 'Bahan';
-    protected static string|UnitEnum|null $navigationGroup = 'Inventori';
+    protected static string|UnitEnum|null $navigationGroup = 'Inventori & Aset';
     protected static string |BackedEnum | null $navigationIcon = 'solar-box-linear';
     protected static string |BackedEnum | null $activeNavigationIcon = 'solar-box-bold';
 

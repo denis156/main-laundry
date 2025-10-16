@@ -22,13 +22,13 @@ class TransactionResource extends Resource
 {
     protected static ?string $model = Transaction::class;
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
     protected static ?string $slug = 'transaksi';
     protected static ?string $modelLabel = 'Transaksi';
     protected static int $globalSearchResultsLimit = 10;
     protected static ?string $recordTitleAttribute = 'invoice_number';
     protected static ?string $navigationLabel = 'Transaksi';
-    protected static string|UnitEnum|null $navigationGroup = 'Keuangan';
+    protected static string|UnitEnum|null $navigationGroup = 'Pelanggan & Layanan';
     protected static string |BackedEnum | null $navigationIcon = 'solar-bill-list-linear';
     protected static string |BackedEnum | null $activeNavigationIcon = 'solar-bill-list-bold';
 
