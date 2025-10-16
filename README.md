@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/image/Main-Tim-Logo.jpg" width="200" alt="Main Tim Logo" style="border-radius: 100px;">
+  <img src="public/image/app.png" width="200" alt="Main Tim Logo" style="border-radius: 100px;">
 </p>
 
 <h1 align="center">Main Laundry</h1>
