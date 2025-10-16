@@ -6,10 +6,7 @@ namespace App\Providers\Filament;
 
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Pages\Dashboard;
 use App\Filament\Pages\Beranda;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -31,11 +28,24 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->loginRouteSlug('masuk')
-            ->spa()
             ->font('Poppins')
             ->breadcrumbs(false)
-            ->sidebarFullyCollapsibleOnDesktop()
+            ->sidebarWidth('18rem')
+            ->unsavedChangesAlerts()
+            ->brandLogoHeight('4rem')
+            ->spa(hasPrefetching: true)
             ->collapsibleNavigationGroups(false)
+            ->favicon(asset('image/favico.svg'))
+            ->brandLogo(asset('image/logo.png'))
+            ->sidebarCollapsibleOnDesktop()
+            ->navigationGroups([
+                'Monitoring',
+                'Lokasi & Operasional',
+                'Pelanggan & Layanan',
+                'Keuangan',
+                'Inventori & Aset',
+                'Pengguna',
+            ])
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
                 'primary' => [
@@ -140,14 +150,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ])
-            ->navigationGroups([
-                'Monitoring',
-                'Lokasi & Operasional',
-                'Pelanggan & Layanan',
-                'Keuangan',
-                'Inventori & Aset',
-                'Pengguna',
             ]);
     }
 }
