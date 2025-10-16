@@ -123,4 +123,18 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Application Version Configuration
+    |--------------------------------------------------------------------------
+    |
+    | These values define the version numbers for different parts of your
+    | application. The admin version is used for the admin panel interface,
+    | while the kurir version is used for the courier/delivery application.
+    |
+    */
+
+    'admin_version' => env('ADMIN_APP_VERSION', '1.0.0'),
+    'kurir_version' => env('KURIR_APP_VERSION', '1.0.0'),
+
 ];
