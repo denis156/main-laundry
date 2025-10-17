@@ -40,6 +40,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'courier' => [
+            'driver' => 'session',
+            'provider' => 'couriers',
+        ],
     ],
 
     /*
@@ -63,6 +68,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
+        ],
+
+        'couriers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\CourierMotorcycle::class,
         ],
 
         // 'users' => [

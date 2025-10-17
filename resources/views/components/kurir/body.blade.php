@@ -11,4 +11,7 @@
         {{-- BOTTOM NAV --}}
         @include('components.kurir.bottomnav')
     </div>
+
+    {{--  TOAST area --}}
+    <x-toast />
 </body>
