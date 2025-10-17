@@ -97,7 +97,7 @@
                                         wire:model="address"
                                         placeholder="Contoh: Jl. Mawar No. 123, RT 001/RW 002, Kel. Lalolara, Kec. Kambu, Kendari"
                                         rows="3"
-                                        hint="Alamat lengkap untuk pickup & delivery" />
+                                        hint="Alamat lengkap untuk jemput & pengantaran" />
                                 </div>
                             </div>
                         </div>
