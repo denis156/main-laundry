@@ -48,26 +48,6 @@
                         Cara Kerja
                     </a>
                 </div>
-
-                {{-- Stats --}}
-                {{-- <div class="grid grid-cols-3 gap-4 max-w-md mx-auto lg:mx-0">
-                    <div class="text-center">
-                        <div class="text-3xl lg:text-4xl font-bold text-primary">
-                            {{ $totalCustomers >= 1000 ? number_format($totalCustomers / 1000, 1) . 'K+' : $totalCustomers }}
-                        </div>
-                        <div class="text-sm text-base-content opacity-70">Lebih Pelanggan</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl lg:text-4xl font-bold text-accent">{{ $totalPos }}</div>
-                        <div class="text-sm text-base-content opacity-70">Lebih Pos</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl lg:text-4xl font-bold text-secondary">
-                            {{ $totalTransactions >= 1000 ? number_format($totalTransactions / 1000, 1) . 'K+' : $totalTransactions }}
-                        </div>
-                        <div class="text-sm text-base-content opacity-70">Lebih Pesanan</div>
-                    </div>
-                </div> --}}
             </div>
         </div>
     </div>

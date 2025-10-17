@@ -48,31 +48,6 @@
                             </a>
                         </div>
                     @endforeach
-
-                    {{-- Address Card --}}
-                    {{-- <div data-aos="fade-up" data-aos-delay="400">
-                        <div class="card bg-base-300 shadow-lg">
-                            <div class="card-body p-6">
-                                <div class="flex items-start gap-4">
-                                    <div class="bg-accent/10 p-4 rounded-full">
-                                        <x-icon name="mdi.map-marker" class="h-8 w-8 text-accent" />
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold text-lg text-accent mb-2">
-                                            Alamat
-                                        </h4>
-                                        <p class="text-base-content opacity-80 font-semibold">
-                                            {{ $address['name'] }}
-                                        </p>
-                                        <p class="text-base-content opacity-70">
-                                            {{ $address['street'] }}<br>
-                                            {{ $address['city'] }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
                 </div>
             </div>
 

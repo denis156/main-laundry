@@ -10,10 +10,6 @@
                 <h2 class="text-4xl lg:text-5xl font-bold text-primary mb-4">
                     Main Laundry Cocok Banget <span class="text-accent">Buat Kamu!</span>
                 </h2>
-                {{-- <p class="text-xl text-base-content opacity-80 max-w-2xl mx-auto">
-                    Dari <strong class="text-primary">pasutri yang berkarir</strong> yang sibuk, sampai
-                    <span class="text-accent font-semibold">mahasiswa yang mau fokus kuliah</span> — semua kebutuhan laundry kami tangani!
-                </p> --}}
             </div>
         </div>
 

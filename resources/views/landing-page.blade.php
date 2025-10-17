@@ -34,14 +34,8 @@
         {{-- Untuk Mu --}}
         <livewire:landing-page.untuk-mu />
 
-        {{-- Tentang Kami --}}
-        {{-- <livewire:landing-page.tentang-kami /> --}}
-
         {{-- Layanan --}}
         <livewire:landing-page.layanan />
-
-        {{-- Cara Kerja --}}
-        {{-- <livewire:landing-page.cara-kerja /> --}}
 
         {{-- Kontak --}}
         <livewire:landing-page.kontak />

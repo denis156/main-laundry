@@ -11,16 +11,10 @@
     <nav>
         <h6 class="footer-title opacity-100">Navigasi Cepat</h6>
         <a href="#beranda" class="link link-hover hover:text-primary">Beranda</a>
+        <a href="#untuk-mu" class="link link-hover hover:text-primary">Untuk Mu</a>
         <a href="#layanan" class="link link-hover hover:text-primary">Layanan</a>
-        <a href="#tentang-kami" class="link link-hover hover:text-primary">Tentang Kami</a>
-        <a href="#cara-kerja" class="link link-hover hover:text-primary">Cara Kerja</a>
-    </nav>
-    <nav>
-        <h6 class="footer-title opacity-100">Perusahaan</h6>
-        <a href="#tentang-kami" class="link link-hover hover:text-primary">Tentang Kami</a>
-        <a href="#cara-kerja" class="link link-hover hover:text-primary">Cara Kerja</a>
         <a href="#kontak" class="link link-hover hover:text-primary">Kontak</a>
-        <a href="#" class="link link-hover hover:text-primary">Karir</a>
+        <a href="#pesan" class="link link-hover hover:text-primary">Pesan</a>
     </nav>
     <nav>
         <h6 class="footer-title opacity-100">Hubungi Kami</h6>
@@ -32,7 +26,7 @@
     <nav>
         <h6 class="footer-title opacity-100">Credits</h6>
         <p class="text-sm opacity-70">Powered by</p>
-        <div class="font-bold flex items-center gap-1 mb-4">
+        <div class="text-accent font-bold flex items-center gap-1 mb-4">
             <x-icon name="solar.buildings-bold" class="h-4 w-4" />
             MAIN GROUP
         </div>
