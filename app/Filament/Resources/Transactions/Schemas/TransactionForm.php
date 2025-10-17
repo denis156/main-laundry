@@ -6,12 +6,13 @@ namespace App\Filament\Resources\Transactions\Schemas;
 
 use Filament\Schemas\Schema;
 use App\Services\InvoiceService;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\FileUpload;
 use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Components\DateTimePicker;
 
@@ -321,6 +322,7 @@ class TransactionForm
                 Section::make('Tanggal & Waktu')
                     ->description('Riwayat tanggal dan waktu pembuatan dan update terakhir data transaksi')
                     ->collapsible()
+                    ->collapsed()
                     ->schema([
                         Grid::make([
                             'default' => 1,
@@ -346,6 +348,57 @@ class TransactionForm
                     ->aside()
                     ->columnSpanFull()
                     ->visible(fn(string $operation): bool => $operation === 'edit'),
+
+                Section::make('Tracking & Security')
+                    ->description('Informasi tracking token dan data security untuk fraud detection')
+                    ->collapsible()
+                    ->collapsed()
+                    ->schema([
+                        Grid::make([
+                            'default' => 1,
+                            'sm' => 2,
+                        ])
+                            ->schema([
+                                TextInput::make('tracking_token')
+                                    ->label('Tracking Token')
+                                    ->maxLength(36)
+                                    ->disabled()
+                                    ->hint('Auto-generated')
+                                    ->helperText('Token unik untuk tracking pesanan')
+                                    ->placeholder('Akan di-generate otomatis')
+                                    ->columnSpanFull(),
+
+                                TextInput::make('customer_ip')
+                                    ->label('IP Address')
+                                    ->maxLength(45)
+                                    ->disabled()
+                                    ->hint('Auto-captured')
+                                    ->helperText('IP address customer saat order')
+                                    ->placeholder('Akan di-capture otomatis')
+                                    ->columnSpanFull(),
+
+                                Textarea::make('customer_user_agent')
+                                    ->label('User Agent')
+                                    ->rows(2)
+                                    ->disabled()
+                                    ->hint('Auto-captured')
+                                    ->helperText('Browser user agent customer')
+                                    ->placeholder('Akan di-capture otomatis')
+                                    ->columnSpanFull(),
+
+                                DateTimePicker::make('form_loaded_at')
+                                    ->label('Form Dimuat Pada')
+                                    ->native(false)
+                                    ->disabled()
+                                    ->hint('Auto-captured')
+                                    ->helperText('Waktu form dimuat untuk detect bot submission')
+                                    ->placeholder('Akan di-capture otomatis')
+                                    ->columnSpanFull(),
+                            ]),
+                    ])
+                    ->aside()
+                    ->columnSpanFull()
+                    ->visible(fn(string $operation): bool => $operation === 'edit' && Auth::user()?->super_admin === true),
             ])
             ->columns(1);
     }

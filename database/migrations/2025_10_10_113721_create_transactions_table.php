@@ -32,6 +32,10 @@ return new class extends Migration
             $table->datetime('order_date')->comment('Tanggal order');
             $table->datetime('estimated_finish_date')->nullable()->comment('Estimasi selesai');
             $table->datetime('actual_finish_date')->nullable()->comment('Tanggal selesai aktual');
+            $table->string('tracking_token', 36)->unique()->index()->comment('Token unik untuk tracking pesanan');
+            $table->string('customer_ip', 45)->nullable()->comment('IP address customer saat order (support IPv6)');
+            $table->text('customer_user_agent')->nullable()->comment('Browser user agent customer saat order');
+            $table->datetime('form_loaded_at')->nullable()->comment('Waktu form dimuat untuk detect bot submission');
             $table->timestamps();
             $table->softDeletes();
         });

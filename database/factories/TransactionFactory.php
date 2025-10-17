@@ -45,6 +45,8 @@ class TransactionFactory extends Factory
         $paymentTiming = fake()->randomElement(['on_pickup', 'on_delivery']);
         $isPaid = fake()->boolean(60);
 
+        $formLoadedAt = (clone $orderDate)->modify('-' . fake()->numberBetween(5, 300) . ' seconds');
+
         return [
             'invoice_number' => 'INV/' . $orderDate->format('Ymd') . '/' . str_pad((string) fake()->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
             'customer_id' => Customer::factory(),
@@ -63,6 +65,10 @@ class TransactionFactory extends Factory
             'order_date' => $orderDate,
             'estimated_finish_date' => $estimatedFinishDate,
             'actual_finish_date' => fake()->optional(0.7)->dateTimeBetween($orderDate, $estimatedFinishDate),
+            'tracking_token' => fake()->uuid(),
+            'customer_ip' => fake()->ipv4(),
+            'customer_user_agent' => fake()->userAgent(),
+            'form_loaded_at' => $formLoadedAt,
         ];
     }
 }

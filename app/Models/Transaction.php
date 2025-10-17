@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Services\TransactionService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -33,6 +32,10 @@ class Transaction extends Model
         'order_date',
         'estimated_finish_date',
         'actual_finish_date',
+        'tracking_token',
+        'customer_ip',
+        'customer_user_agent',
+        'form_loaded_at',
     ];
 
     protected function casts(): array
@@ -45,6 +48,7 @@ class Transaction extends Model
             'order_date' => 'datetime',
             'estimated_finish_date' => 'datetime',
             'actual_finish_date' => 'datetime',
+            'form_loaded_at' => 'datetime',
         ];
     }
 
@@ -86,45 +90,5 @@ class Transaction extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
-    }
-
-    /**
-     * Update status transaksi melalui service
-     */
-    public function updateStatus(string $status): void
-    {
-        app(TransactionService::class)->updateStatus($this, $status);
-    }
-
-    /**
-     * Update status pembayaran melalui service
-     */
-    public function updatePaymentStatus(): void
-    {
-        app(TransactionService::class)->updatePaymentStatus($this);
-    }
-
-    /**
-     * Dapatkan sisa pembayaran melalui service
-     */
-    public function getRemainingPayment(): float
-    {
-        return app(TransactionService::class)->getRemainingPayment($this);
-    }
-
-    /**
-     * Cek apakah sudah lunas melalui service
-     */
-    public function isFullyPaid(): bool
-    {
-        return app(TransactionService::class)->isFullyPaid($this);
-    }
-
-    /**
-     * Batalkan transaksi melalui service
-     */
-    public function cancel(): void
-    {
-        app(TransactionService::class)->cancelTransaction($this);
     }
 }

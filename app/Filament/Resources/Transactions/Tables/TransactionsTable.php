@@ -11,6 +11,7 @@ use Filament\Support\Enums\Size;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\RestoreAction;
+use Illuminate\Support\Facades\Auth;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ColumnGroup;
@@ -194,6 +195,42 @@ class TransactionsTable
                         ->dateTime()
                         ->sortable()
                         ->toggleable(isToggledHiddenByDefault: true),
+                ]),
+                ColumnGroup::make('Tracking & Security', [
+                    TextColumn::make('tracking_token')
+                        ->label('Tracking Token')
+                        ->fontFamily('mono')
+                        ->copyable()
+                        ->copyMessage('Token disalin!')
+                        ->placeholder('Belum ada')
+                        ->limit(12)
+                        ->tooltip(function ($record): ?string {
+                            return $record?->tracking_token;
+                        })
+                        ->toggleable(isToggledHiddenByDefault: true)
+                        ->visible(fn(): bool => Auth::user()?->super_admin === true),
+                    TextColumn::make('customer_ip')
+                        ->label('IP Address')
+                        ->fontFamily('mono')
+                        ->placeholder('Tidak ada')
+                        ->searchable()
+                        ->toggleable(isToggledHiddenByDefault: true)
+                        ->visible(fn(): bool => Auth::user()?->super_admin === true),
+                    TextColumn::make('customer_user_agent')
+                        ->label('User Agent')
+                        ->limit(30)
+                        ->tooltip(function ($record): ?string {
+                            return $record?->customer_user_agent;
+                        })
+                        ->placeholder('Tidak ada')
+                        ->toggleable(isToggledHiddenByDefault: true)
+                        ->visible(fn(): bool => Auth::user()?->super_admin === true),
+                    TextColumn::make('form_loaded_at')
+                        ->label('Form Dimuat')
+                        ->dateTime('d M Y H:i:s')
+                        ->placeholder('Tidak ada')
+                        ->toggleable(isToggledHiddenByDefault: true)
+                        ->visible(fn(): bool => Auth::user()?->super_admin === true),
                 ]),
             ])
             ->filters([

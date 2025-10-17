@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Models\MaterialStockHistory;
 use App\Models\EquipmentMaintenance;
+use App\Models\Transaction;
 use App\Observers\MaterialStockHistoryObserver;
 use App\Observers\EquipmentMaintenanceObserver;
+use App\Observers\TransactionObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,5 +27,6 @@ class AppServiceProvider extends ServiceProvider
     {
         MaterialStockHistory::observe(MaterialStockHistoryObserver::class);
         EquipmentMaintenance::observe(EquipmentMaintenanceObserver::class);
+        Transaction::observe(TransactionObserver::class);
     }
 }
