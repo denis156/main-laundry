@@ -13,12 +13,12 @@ class Layanan extends Component
         [
             'graphic' => 'kurir.svg',
             'title' => 'Jemput & Antar GRATIS',
-            'description' => 'Ke seluruh Kota Kendari! Kurir kami siap datang dalam 30 menit.',
-            'color' => 'primary'
+            'description' => 'Ke seluruh Kota Kendari! Tinggal pesan, kurir kami langsung meluncur!',
+            'color' => 'accent'
         ],
         [
             'graphic' => 'kaos-kotor-menjadi-kaos-bersinar.svg',
-            'title' => 'Harga Termurah',
+            'title' => 'Harga Termurah SeIndonesia',
             'description' => 'Mulai Rp 3.000/kg! Ga ada lagi alasan untuk males nyuci.',
             'color' => 'accent'
         ],
@@ -26,13 +26,13 @@ class Layanan extends Component
             'graphic' => 'kaos-putih-bersinar.svg',
             'title' => 'Kualitas Terjamin',
             'description' => 'Cucian bersih, wangi tahan lama, dan rapi. Garansi 100%!',
-            'color' => 'secondary'
+            'color' => 'accent'
         ],
         [
             'graphic' => 'smartphone.svg',
-            'title' => 'Order Gampang',
+            'title' => 'Order Mudah',
             'description' => 'Cukup isi form pesanan, kami langsung jemput bajumu!',
-            'color' => 'success'
+            'color' => 'accent'
         ]
     ];
 

@@ -16,22 +16,23 @@
 
             {{-- Content --}}
             <div class="flex-1 text-center lg:text-left">
-                <div class="badge badge-accent badge-lg mb-4 gap-2">
-                    <x-icon name="mdi.fire" class="h-4 w-4" />
-                    TELAH HADIR DI KOTA KENDARI!
-                </div>
+                <p class="text-base sm:text-xl lg:text-2xl bg-accent rounded-full py-2 px-3 sm:px-4 text-base-100 font-bold mb-6 text-center mx-auto lg:mx-0 w-fit">
+                    MAIN LAUNDRY TELAH HADIR DI KOTA ANDA!
+                </p>
                 <h1 class="text-4xl lg:text-6xl font-bold text-accent leading-tight mb-4">
                     Tetap Main, <br />
                     <span class="text-primary">Tetap Bersih!</span>
                 </h1>
-                <p class="text-xl lg:text-2xl font-semibold text-secondary mb-6">
-                    Cuma <span class="text-accent">Rp 3.000/kg</span>
-                    <span class="text-primary">— Satu Kota Dijemput Gratis!</span>
-                </p>
+                <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 mb-6 mx-auto lg:mx-0 w-fit">
+                    <p class="text-xl sm:text-2xl lg:text-3xl bg-error rounded-full py-2 px-3 sm:px-4 text-base-100 font-bold">
+                        Rp 3.000/kg — Dijemputin
+                    </p>
+                    <span class="text-3xl sm:text-4xl lg:text-5xl font-black text-error animate-pulse">GRATIS!</span>
+                </div>
                 <p class="text-lg text-base-content opacity-80 mb-8 max-w-xl mx-auto lg:mx-0">
-                    Gak perlu keluar rumah, gak perlu repot mikir baju kotor.
-                    <strong>Main aja. Kerja aja. Kuliah aja.</strong><br />
-                    Urusan bajumu, biar kami yang antar-jemput, cuci, bersih, beres.
+                    Sekarang nggak perlu keluar rumah, apalagi repot mikirin baju kotor.
+                    <strong>Main aja, Kerja aja, Bebaskan Ekspresimu.</strong><br />
+                    Pakaian kotormu, biar kami yang antar jemput, cuci bersih sampai beres.
                 </p>
 
                 {{-- CTA Buttons --}}
@@ -49,7 +50,7 @@
                 </div>
 
                 {{-- Stats --}}
-                <div class="grid grid-cols-3 gap-4 max-w-md mx-auto lg:mx-0">
+                {{-- <div class="grid grid-cols-3 gap-4 max-w-md mx-auto lg:mx-0">
                     <div class="text-center">
                         <div class="text-3xl lg:text-4xl font-bold text-primary">
                             {{ $totalCustomers >= 1000 ? number_format($totalCustomers / 1000, 1) . 'K+' : $totalCustomers }}
@@ -66,7 +67,7 @@
                         </div>
                         <div class="text-sm text-base-content opacity-70">Lebih Pesanan</div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>

@@ -31,22 +31,23 @@
         {{-- Hero Section --}}
         <livewire:landing-page.beranda />
 
+        {{-- Untuk Mu --}}
+        <livewire:landing-page.untuk-mu />
+
+        {{-- Tentang Kami --}}
+        {{-- <livewire:landing-page.tentang-kami /> --}}
+
         {{-- Layanan --}}
         <livewire:landing-page.layanan />
 
-        {{-- Tentang Kami --}}
-        <livewire:landing-page.tentang />
-
         {{-- Cara Kerja --}}
-        <livewire:landing-page.cara-kerja />
+        {{-- <livewire:landing-page.cara-kerja /> --}}
 
         {{-- Kontak --}}
         <livewire:landing-page.kontak />
 
         {{-- Pesan --}}
-        <section id="pesan" class="bg-primary/14 scroll-mt-16 min-h-dvh flex items-center relative overflow-hidden">
-
-        </section>
+        <livewire:landing-page.pesan />
     </main>
 
     {{-- Footer --}}

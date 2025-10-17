@@ -50,7 +50,7 @@
                     @endforeach
 
                     {{-- Address Card --}}
-                    <div data-aos="fade-up" data-aos-delay="400">
+                    {{-- <div data-aos="fade-up" data-aos-delay="400">
                         <div class="card bg-base-300 shadow-lg">
                             <div class="card-body p-6">
                                 <div class="flex items-start gap-4">
@@ -72,7 +72,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
 

@@ -43,10 +43,11 @@ class Kontak extends Component
     ];
 
     public $address = [
-        'name' => 'Main Group Cabang Kendari',
-        'street' => '2G58+5X6, Lalolara',
-        'city' => 'Kec. Kambu, Kota Kendari, Sulawesi Tenggara',
-        'mapEmbed' => 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3980.1376789796395!2d122.51482267562864!3d-3.9920960959816587!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2d988d00245398a3%3A0x2d68c413fab2ecef!2sMain%20Group%20Cabang%20Kendari!5e0!3m2!1sid!2sid!4v1760693476673!5m2!1sid!2sid'
+        'name' => 'Kota Kendari',
+        'street' => '',
+        'city' => '',
+        'mapEmbed' => 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d142954.49995489785!2d122.53704485000002!3d-3.9850497!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2d98ecde0b6b7183%3A0x1397347f9e562fc7!2sKendari%2C%20Kota%20Kendari%2C%20Sulawesi%20Tenggara!5e1!3m2!1sid!2sid!4v1760711897861!5m2!1sid!2sid'
+
     ];
 
     public function render()

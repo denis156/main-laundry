@@ -12,9 +12,8 @@ class Nav extends Component
 
     public $menuItems = [
         'beranda' => 'Beranda',
+        'untuk-mu' => 'Untuk Mu',
         'layanan' => 'Layanan',
-        'tentang-kami' => 'Tentang Kami',
-        'cara-kerja' => 'Cara Kerja',
         'kontak' => 'Kontak'
     ];
 

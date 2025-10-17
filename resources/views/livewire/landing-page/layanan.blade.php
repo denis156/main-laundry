@@ -8,17 +8,17 @@
                     LAYANAN KAMI
                 </div>
                 <h2 class="text-4xl lg:text-5xl font-bold text-accent mb-4">
-                    Kami Bukan Laundry Biasa
+                    Laundry Termurah SeIndonesia
                 </h2>
                 <p class="text-xl text-base-content opacity-80 max-w-2xl mx-auto">
-                    Kami adalah <strong class="text-primary">gerakan gaya hidup baru di Kendari</strong> —
-                    gaya hidup <span class="text-accent font-semibold">"main aja, hidup tetap bersih."</span>
+                    Kami adalah <strong class="text-primary">ekspresi gaya hidup baru di kotamu</strong> —
+                    <span class="text-accent font-semibold">"main sepuasnya, baju kotormu biar kami yang beresin."</span>
                 </p>
             </div>
         </div>
 
         {{-- Services Grid --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-20">
             @forelse($services as $index => $service)
                 <div data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
                     <div
@@ -117,12 +117,12 @@
                                 <x-icon name="mdi.star-circle" class="h-16 w-16 text-accent mx-auto" />
                             </div>
                             <h3 class="text-3xl lg:text-4xl font-bold text-accent mb-4">
-                                Siap Coba Layanan Kami?
+                                Segera Cobain Layanan Kami
                             </h3>
                             <p class="text-lg text-base-content opacity-80 mb-6">
                                 Mulai dari <strong class="text-primary">Rp 3.000/kg</strong> aja!
                                 Dijemput gratis, diantar gratis, dijamin bersih & wangi.
-                                <span class="text-accent font-semibold">Gak ada alasan lagi untuk males nyuci!</span>
+                                <span class="text-accent font-semibold">Gak ada alasan lagi untuk pakaian kotor!</span>
                             </p>
                             <a href="#pesan"
                                 class="btn btn-accent btn-lg rounded-full gap-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all">

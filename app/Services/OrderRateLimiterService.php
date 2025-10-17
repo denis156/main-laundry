@@ -6,7 +6,6 @@ namespace App\Services;
 
 use App\Models\Transaction;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Cache;
 
 class OrderRateLimiterService
 {
@@ -64,17 +63,22 @@ class OrderRateLimiterService
     /**
      * Check if submission was too fast (possible bot)
      *
-     * @param \Carbon\Carbon|null $formLoadedAt
-     * @return bool True jika valid (tidak terlalu cepat), false jika suspicious
+     * @param int $formLoadedTimestamp Unix timestamp when form was loaded
+     * @return bool True jika suspicious (terlalu cepat), false jika valid
      */
-    public function isSubmissionTooFast(?Carbon $formLoadedAt): bool
+    public function isSubmissionTooFast(int $formLoadedTimestamp): bool
     {
-        if ($formLoadedAt === null) {
-            // Jika form_loaded_at tidak ada, anggap suspicious
+        if ($formLoadedTimestamp <= 0) {
+            // Jika form_loaded_at tidak valid, anggap suspicious
             return true;
         }
 
-        $secondsElapsed = Carbon::now()->diffInSeconds($formLoadedAt);
+        $secondsElapsed = now()->timestamp - $formLoadedTimestamp;
+
+        // Jika elapsed time negatif (form loaded in future), anggap suspicious
+        if ($secondsElapsed < 0) {
+            return true;
+        }
 
         return $secondsElapsed < self::MIN_SUBMISSION_SECONDS;
     }
@@ -120,10 +124,10 @@ class OrderRateLimiterService
      *
      * @param string $ip
      * @param string $phone
-     * @param \Carbon\Carbon|null $formLoadedAt
+     * @param int $formLoadedTimestamp Unix timestamp when form was loaded
      * @return array ['passed' => bool, 'errors' => array]
      */
-    public function checkAllLimits(string $ip, string $phone, ?Carbon $formLoadedAt): array
+    public function checkAllLimits(string $ip, string $phone, int $formLoadedTimestamp): array
     {
         $errors = [];
 
@@ -138,7 +142,7 @@ class OrderRateLimiterService
         }
 
         // Check submission speed (bot detection)
-        if ($this->isSubmissionTooFast($formLoadedAt)) {
+        if ($this->isSubmissionTooFast($formLoadedTimestamp)) {
             $errors[] = 'Pengiriman form terlalu cepat. Silakan isi form dengan lebih teliti.';
         }
 
