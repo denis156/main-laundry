@@ -1,94 +1,70 @@
-<section id="beranda"
-    class="scroll-mt-18 min-h-dvh px-8 bg-gradient-to-b from-base-100 via-primary/46 to-primary/48 flex items-center">
-    <div class="container mx-auto">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {{-- Grid 1 --}}
-            <div class="col-span-1">
-                <div class="text-center lg:text-left">
-                    <div data-aos="fade-right" data-aos-duration="600">
-                        <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary mb-6">
-                            Layanan Laundry <span class="text-accent">Terpercaya</span>
-                        </h1>
-                    </div>
-                    <div data-aos="fade-right" data-aos-delay="100" data-aos-duration="600">
-                        <p class="text-lg sm:text-xl lg:text-2xl text-neutral/48 mb-8 leading-relaxed">
-                            Kami memberikan pelayanan laundry terbaik dengan kualitas premium dan harga terjangkau
-                            untuk semua kebutuhan Anda
-                        </p>
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start" data-aos="fade-right" data-aos-delay="200" data-aos-duration="600">
-                        <div>
-                            <x-button class="btn-accent btn-lg shadow-lg shadow-accent transition-all duration-300 hover:scale-110" link="/#layanan" no-wire-navigate>
-                                <x-icon class="h-5 w-5" name="mdi.arrow-down-bold-outline" />
-                                Mulai Sekarang
-                            </x-button>
-                        </div>
-                        <div>
-                            <x-button class="btn-secondary btn-lg shadow-lg shadow-secondary transition-all duration-300 hover:scale-110" link="/#reservasi" no-wire-navigate>
-                                <x-icon class="h-5 w-5" name="mdi.receipt-text-send-outline" />
-                                Reservasi
-                            </x-button>
-                        </div>
-                    </div>
+<section id="beranda" class="bg-primary/14 scroll-mt-16 min-h-dvh flex items-center relative overflow-hidden">
+    {{-- Background Decorations --}}
+    <x-landing-page.bg-decoration />
+
+    <div class="container mx-auto px-4 py-16 lg:py-24 relative z-10">
+        <div class="flex flex-col lg:flex-row-reverse items-center gap-12">
+            {{-- Image --}}
+            <div class="flex-1 flex justify-center">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-accent/40 rounded-3xl blur-3xl"></div>
+                    <img src="{{ asset('grafis/kaos-kotor-menjadi-kaos-bersinar.svg') }}"
+                        alt="Main Laundry - Layanan Profesional"
+                        class="relative w-full max-w-xs lg:max-w-md hover:scale-105 transition-transform duration-300" />
                 </div>
             </div>
 
-            {{-- Grid 2 --}}
-            <div class="col-span-1">
-                <div class="text-center space-y-6">
-                    {{-- Feature Badges --}}
-                    <div class="flex flex-row gap-3 justify-center flex-wrap" data-aos="fade-left" data-aos-delay="100" data-aos-duration="600">
-                        <div>
-                            <x-badge value="24/7 Service" class="badge-success badge-lg font-medium transition-all duration-300 hover:scale-105" />
+            {{-- Content --}}
+            <div class="flex-1 text-center lg:text-left">
+                <div class="badge badge-accent badge-lg mb-4 gap-2">
+                    <x-icon name="mdi.fire" class="h-4 w-4" />
+                    TELAH HADIR DI KOTA KENDARI!
+                </div>
+                <h1 class="text-4xl lg:text-6xl font-bold text-accent leading-tight mb-4">
+                    Tetap Main, <br />
+                    <span class="text-primary">Tetap Bersih!</span>
+                </h1>
+                <p class="text-xl lg:text-2xl font-semibold text-secondary mb-6">
+                    Cuma <span class="text-accent">Rp 3.000/kg</span>
+                    <span class="text-primary">— Satu Kota Dijemput Gratis!</span>
+                </p>
+                <p class="text-lg text-base-content opacity-80 mb-8 max-w-xl mx-auto lg:mx-0">
+                    Gak perlu keluar rumah, gak perlu repot mikir baju kotor.
+                    <strong>Main aja. Kerja aja. Kuliah aja.</strong><br />
+                    Urusan bajumu, biar kami yang antar-jemput, cuci, bersih, beres.
+                </p>
+
+                {{-- CTA Buttons --}}
+                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
+                    <a href="#pesan"
+                        class="btn btn-accent btn-lg rounded-full gap-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all">
+                        <x-icon name="mdi.phone" class="h-6 w-6" />
+                        Pesan Sekarang
+                    </a>
+                    <a href="#cara-kerja"
+                        class="btn btn-secondary btn-outline btn-lg rounded-full gap-2 hover:scale-105 transition-all">
+                        <x-icon name="mdi.information" class="h-6 w-6" />
+                        Cara Kerja
+                    </a>
+                </div>
+
+                {{-- Stats --}}
+                <div class="grid grid-cols-3 gap-4 max-w-md mx-auto lg:mx-0">
+                    <div class="text-center">
+                        <div class="text-3xl lg:text-4xl font-bold text-primary">
+                            {{ $totalCustomers >= 1000 ? number_format($totalCustomers / 1000, 1) . 'K+' : $totalCustomers }}
                         </div>
-                        <div>
-                            <x-badge value="Eco Friendly" class="badge-info badge-lg font-medium transition-all duration-300 hover:scale-105" />
-                        </div>
+                        <div class="text-sm text-base-content opacity-70">Lebih Pelanggan</div>
                     </div>
-
-                    {{-- Customer Review Card --}}
-                    <div data-aos="fade-left" data-aos-delay="300" data-aos-duration="600">
-                        <x-card class="max-w-md mx-auto bg-base-100/95 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-primary">
-                            <div class="flex items-center justify-center gap-2 mb-3">
-                                <x-rating value="0" class="bg-warning" total="5" />
-                                <span class="text-sm font-bold text-warning">5.0</span>
-                            </div>
-                            <p class="text-sm text-secondary italic text-center leading-relaxed mb-3 font-medium">
-                                "Pelayanan sangat memuaskan! Pakaian bersih dan wangi. Recommended!"</p>
-                            <div class="flex items-center justify-center gap-3">
-                                <div class="avatar">
-                                    <div class="w-8 rounded-full bg-primary">
-                                        <div class="w-full h-full flex items-center justify-center">
-                                            <span class="text-sm text-primary-content font-bold">SM</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <span class="text-sm font-bold text-primary">Sarah M.</span>
-                            </div>
-                        </x-card>
+                    <div class="text-center">
+                        <div class="text-3xl lg:text-4xl font-bold text-accent">{{ $totalPos }}</div>
+                        <div class="text-sm text-base-content opacity-70">Lebih Pos</div>
                     </div>
-
-                    {{-- Stats Card --}}
-                    <div data-aos="fade-left" data-aos-delay="500" data-aos-duration="600">
-                        <div class="stats stats-vertical lg:stats-horizontal shadow-lg bg-base-100/95 w-full mb-4 transition-all duration-300 hover:scale-105 hover:shadow-primary">
-                            <div class="stat py-4 text-center">
-                                <div class="stat-title text-sm font-medium">Pelanggan</div>
-                                <div class="stat-value text-2xl text-success font-bold">1000+</div>
-                                <div class="stat-desc text-sm font-medium">Pelanggan Puas</div>
-                            </div>
-
-                            <div class="stat py-4 text-center">
-                                <div class="stat-title text-sm font-medium">Rating</div>
-                                <div class="stat-value text-2xl text-info font-bold">4.9</div>
-                                <div class="stat-desc text-sm font-medium">Dari 1000 Review</div>
-                            </div>
-
-                            <div class="stat py-4 text-center">
-                                <div class="stat-title text-sm font-medium">Pengalaman</div>
-                                <div class="stat-value text-2xl text-warning font-bold">5+</div>
-                                <div class="stat-desc text-sm font-medium">Tahun Melayani</div>
-                            </div>
+                    <div class="text-center">
+                        <div class="text-3xl lg:text-4xl font-bold text-secondary">
+                            {{ $totalTransactions >= 1000 ? number_format($totalTransactions / 1000, 1) . 'K+' : $totalTransactions }}
                         </div>
+                        <div class="text-sm text-base-content opacity-70">Lebih Pesanan</div>
                     </div>
                 </div>
             </div>

@@ -10,7 +10,7 @@ use App\Livewire\Kurir\Pembayaran;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('index');
+    return view('landing-page');
 })->name('index');
 
 Route::prefix('kurir')->name('kurir.')->group(function () {

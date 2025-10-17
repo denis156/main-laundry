@@ -50,16 +50,16 @@
     --color-base-content: oklch(94% 0.01 254);
 
     /* Primary: Brighter purple for visibility, darker content for contrast */
-    --color-primary: oklch(75% 0.20 254.03);
+    --color-primary: oklch(80% 0.22 254.03);
     --color-primary-content: oklch(12% 0.01 254.03);
 
-    /* Secondary: Medium brightness with good saturation */
-    --color-secondary: oklch(62% 0.15 240);
-    --color-secondary-content: oklch(12% 0.01 240);
+    /* Secondary: Neutral gray for subtle elements */
+    --color-secondary: oklch(65% 0.02 254);
+    --color-secondary-content: oklch(12% 0.01 254);
 
     /* Accent: Rich purple that pops but not overwhelming */
-    --color-accent: oklch(65% 0.22 257.73);
-    --color-accent-content: oklch(12% 0.01 257.73);
+    --color-accent: oklch(55% 0.20 257.73);
+    --color-accent-content: oklch(98% 0.01 257.73);
 
     /* Neutral: Soft light for less critical text */
     --color-neutral: oklch(85% 0.008 254);
