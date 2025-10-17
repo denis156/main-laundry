@@ -1,9 +1,10 @@
 <section id="pesan" class="bg-primary/14 scroll-mt-16 min-h-dvh flex items-center relative overflow-hidden">
     {{-- Background Decorations --}}
-    <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute top-20 left-10 w-64 h-64 bg-accent/10 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
-    </div>
+    <x-landing-page.bg-decoration
+        topRight="wanita-nyuci.svg"
+        bottomLeft="botol-pewangi.svg"
+        topLeft="smartphone.svg"
+        bottomRight="kaos-putih-bersinar.svg" />
 
     <div class="container mx-auto px-4 py-16 lg:py-24 relative z-10">
         {{-- Header Section --}}

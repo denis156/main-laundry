@@ -1,5 +1,12 @@
 <section id="untuk-mu" class="bg-base-200 scroll-mt-16 min-h-dvh py-16 lg:py-24 relative overflow-hidden">
-    <div class="container mx-auto px-4">
+    {{-- Background Decorations --}}
+    <x-landing-page.bg-decoration
+        topRight="ibu&anak-nyuci.svg"
+        bottomLeft="pria-angkat-kerangjang-loundry.svg"
+        topLeft="kaos-putih-bersinar.svg"
+        bottomRight="pria-menjemur.svg" />
+
+    <div class="container mx-auto px-4 relative z-10">
         {{-- Section Header --}}
         <div data-aos="fade-up">
             <div class="text-center mb-16 transition-all duration-500">
@@ -119,13 +126,5 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    {{-- Decorative Background Elements --}}
-    <div class="absolute inset-0 pointer-events-none opacity-5">
-        <img src="{{ asset('grafis/kaos-putih-bersinar.svg') }}" alt=""
-            class="absolute top-20 right-10 w-32 lg:w-48 animate-float-slow" />
-        <img src="{{ asset('grafis/pria-menjemur.svg') }}" alt=""
-            class="absolute bottom-20 left-10 w-24 lg:w-36 animate-float-medium" />
     </div>
 </section>

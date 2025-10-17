@@ -1,6 +1,10 @@
 <section id="beranda" class="bg-primary/14 scroll-mt-16 min-h-dvh flex items-center relative overflow-hidden">
     {{-- Background Decorations --}}
-    <x-landing-page.bg-decoration />
+    <x-landing-page.bg-decoration
+        topRight="kaos-kotor-menjadi-kaos-bersinar.svg"
+        bottomLeft="botol-pewangi.svg"
+        topLeft="dus-detergent.svg"
+        bottomRight="mesin-cuci.svg" />
 
     <div class="container mx-auto px-4 py-16 lg:py-24 relative z-10">
         <div class="flex flex-col lg:flex-row-reverse items-center gap-12">
