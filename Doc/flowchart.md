@@ -23,17 +23,17 @@ flowchart TB
         UpdateStatus1["Update Status:<br>LUNAS saat Pickup"]
         TandaiNanti["Update Status:<br>BELUM BAYAR"]
   end
- subgraph Phase2["FASE 2: TRANSIT DI RESORTS LOADING"]
+ subgraph Phase2["FASE 2: TRANSIT DI POS LOADING"]
     direction LR
-        BawaKeResorts["Bawa ke<br>Resorts Terdekat"]
-        PakaianDiResorts["Pakaian Disimpan<br>di Resorts Loading"]
+        BawaKePos["Bawa ke<br>Pos Terdekat"]
+        PakaianDiPos["Pakaian Disimpan<br>di Pos Loading"]
         NotifAdmin["Notifikasi<br>ke Admin"]
   end
  subgraph Phase3["FASE 3: TRANSPORTASI & PENCUCIAN (Kurir Mobil)"]
     direction TB
         AdminInform["Admin Beritahu<br>Kurir Mobil"]
         JadwalMobil{"Cek Jadwal<br>Berkeliling"}
-        PickupResorts["Berkeliling Ambil<br>dari Resorts-Resorts"]
+        PickupPos["Berkeliling Ambil<br>dari Pos-Pos"]
         BawaLaundry["Bawa ke<br>Tempat Pencucian"]
   end
  subgraph Phase3b["PROSES PENCUCIAN"]
@@ -41,15 +41,15 @@ flowchart TB
         Cuci["Proses Pencucian<br>di Tempat Pencucian"]
         Selesai{"Pencucian<br>Selesai?"}
   end
- subgraph Phase4["FASE 4: KEMBALI KE RESORTS"]
+ subgraph Phase4["FASE 4: KEMBALI KE Pos"]
     direction LR
-        KirimBalik["Kurir Mobil Antar<br>ke Resorts Asal"]
-        PakaianKembali["Pakaian Bersih<br>di Resorts"]
+        KirimBalik["Kurir Mobil Antar<br>ke Pos Asal"]
+        PakaianKembali["Pakaian Bersih<br>di Pos"]
         NotifKurirMotor["Notifikasi<br>Kurir Motor"]
   end
  subgraph Phase5["FASE 5: PENGANTARAN KE CUSTOMER (Kurir Motor)"]
     direction TB
-        AmbilBersih["Kurir Motor Ambil<br>dari Resorts"]
+        AmbilBersih["Kurir Motor Ambil<br>dari Pos"]
         AntarCustomer["Antar ke<br>Rumah Customer"]
         CekBayar2{"Status<br>Pembayaran?"}
         BayarAntar["PEMBAYARAN PENGANTARAN<br>Customer Bayar Tunai/QRIS<br>ke Kurir Motor"]
@@ -70,13 +70,13 @@ flowchart TB
     CekBayar1 -- Bayar saat<br>Pengantaran --> TandaiNanti
     BayarPickup --> UpdateStatus1
     Phase1 --> Phase1b
-    BawaKeResorts --> PakaianDiResorts
-    PakaianDiResorts --> NotifAdmin
+    BawaKePos --> PakaianDiPos
+    PakaianDiPos --> NotifAdmin
     UpdateStatus1 --> Phase2
     TandaiNanti --> Phase2
     AdminInform --> JadwalMobil
-    JadwalMobil --> PickupResorts
-    PickupResorts --> BawaLaundry
+    JadwalMobil --> PickupPos
+    PickupPos --> BawaLaundry
     Phase2 --> Phase3
     Cuci --> Selesai
     Selesai -- Belum --> Cuci
@@ -102,11 +102,11 @@ flowchart TB
     BayarPickup@{ shape: procs}
     UpdateStatus1@{ shape: lean-r}
     TandaiNanti@{ shape: lean-r}
-    BawaKeResorts@{ shape: manual}
-    PakaianDiResorts@{ shape: das}
+    BawaKePos@{ shape: manual}
+    PakaianDiPos@{ shape: das}
     NotifAdmin@{ shape: bolt}
     AdminInform@{ shape: lean-r}
-    PickupResorts@{ shape: manual}
+    PickupPos@{ shape: manual}
     BawaLaundry@{ shape: manual}
     Cuci@{ shape: procs}
     KirimBalik@{ shape: manual}
@@ -132,12 +132,12 @@ flowchart TB
      BayarPickup:::payment
      UpdateStatus1:::input
      TandaiNanti:::input
-     BawaKeResorts:::manual
-     PakaianDiResorts:::storage
+     BawaKePos:::manual
+     PakaianDiPos:::storage
      NotifAdmin:::communication
      AdminInform:::input
      JadwalMobil:::decision
-     PickupResorts:::manual
+     PickupPos:::manual
      BawaLaundry:::manual
      Cuci:::process
      Selesai:::decision
