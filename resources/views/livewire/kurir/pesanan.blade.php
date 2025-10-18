@@ -246,24 +246,22 @@
                         {{-- Action Buttons --}}
                         <div class="mt-3 space-y-2">
                             @if ($transaction->workflow_status === 'pending_confirmation')
-                                {{-- Status: Pending Confirmation - Tampilkan WhatsApp + Ambil Pesanan --}}
+                                {{-- Status: Pending Confirmation - Tampilkan Batalkan + Ambil Pesanan --}}
                                 <div class="grid grid-cols-2 gap-2">
-                                    @if ($transaction->customer?->phone && $transaction->customer?->name)
-                                        <a href="{{ $this->getWhatsAppUrl($transaction->customer->phone, $transaction->customer->name) }}"
-                                            target="_blank" class="btn btn-success btn-sm">
-                                            <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
-                                            WhatsApp
-                                        </a>
-                                    @endif
+                                    <button wire:click="cancelOrder({{ $transaction->id }})"
+                                        class="btn btn-error btn-sm">
+                                        <x-icon name="solar.close-circle-bold-duotone" class="w-4 h-4" />
+                                        Batalkan Pesanan
+                                    </button>
 
                                     <button wire:click="confirmOrder({{ $transaction->id }})"
-                                        class="btn btn-accent btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}">
+                                        class="btn btn-accent btn-sm">
                                         <x-icon name="solar.check-circle-bold-duotone" class="w-4 h-4" />
                                         Ambil Pesanan
                                     </button>
                                 </div>
                             @elseif ($transaction->workflow_status === 'confirmed')
-                                {{-- Status: Confirmed - Tampilkan Input Berat + Upload Bukti (jika bayar saat jemput) + Sudah Dijemput + Detail --}}
+                                {{-- Status: Confirmed - Tampilkan Input Berat + Upload Bukti (jika bayar saat jemput) + WhatsApp + Sudah Dijemput --}}
                                 <div class="bg-base-200 rounded-lg p-3 mb-2 space-y-3">
                                     {{-- Input Berat --}}
                                     <x-input wire:model.live="weights.{{ $transaction->id }}" type="number" step="0.01"
@@ -280,8 +278,16 @@
                                 </div>
 
                                 <div class="grid grid-cols-2 gap-2">
+                                    @if ($transaction->customer?->phone && $transaction->customer?->name)
+                                        <a href="{{ $this->getWhatsAppUrl($transaction->customer->phone, $transaction->customer->name) }}"
+                                            target="_blank" class="btn btn-success btn-sm">
+                                            <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
+                                            WhatsApp
+                                        </a>
+                                    @endif
+
                                     <button wire:click="markAsPickedUp({{ $transaction->id }})"
-                                        class="btn btn-warning btn-sm"
+                                        class="btn btn-warning btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}"
                                         @php
                                             $disabled = empty($weights[$transaction->id]) || $weights[$transaction->id] <= 0;
                                             // Jika bayar saat jemput, bukti pembayaran harus ada
@@ -293,11 +299,6 @@
                                         <x-icon name="solar.box-bold-duotone" class="w-4 h-4" />
                                         Sudah Dijemput
                                     </button>
-
-                                    <button class="btn btn-primary btn-sm">
-                                        <x-icon name="solar.eye-bold-duotone" class="w-4 h-4" />
-                                        Detail Pesanan
-                                    </button>
                                 </div>
                             @elseif ($transaction->workflow_status === 'picked_up')
                                 {{-- Status: Picked Up - Tampilkan Sudah di Pos + Detail --}}
@@ -308,10 +309,10 @@
                                         Sudah di Pos
                                     </button>
 
-                                    <button class="btn btn-primary btn-sm">
+                                    <a href="{{ route('kurir.pesanan.detail', $transaction->id) }}" class="btn btn-primary btn-sm">
                                         <x-icon name="solar.eye-bold-duotone" class="w-4 h-4" />
                                         Detail Pesanan
-                                    </button>
+                                    </a>
                                 </div>
                             @elseif ($transaction->workflow_status === 'washing_completed')
                                 {{-- Status: Washing Completed - Tampilkan WhatsApp + Dalam Pengiriman --}}
@@ -356,10 +357,10 @@
                                 </button>
                             @else
                                 {{-- Status lain (at_loading_post, in_washing, delivered, cancelled) - Hanya tampilkan Detail --}}
-                                <button class="btn btn-primary btn-sm w-full">
+                                <a href="{{ route('kurir.pesanan.detail', $transaction->id) }}" class="btn btn-primary btn-sm w-full">
                                     <x-icon name="solar.eye-bold-duotone" class="w-4 h-4" />
                                     Detail Pesanan
-                                </button>
+                                </a>
                             @endif
                         </div>
                     </div>

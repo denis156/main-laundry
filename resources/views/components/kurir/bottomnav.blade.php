@@ -10,7 +10,7 @@
         <a href="{{ route('kurir.pesanan') }}" wire:navigate class="flex-1 flex flex-col items-center gap-1 relative">
             <x-icon name="solar.bill-list-linear" class="h-6" />
             <span class="text-xs">Pesanan</span>
-            @if(Route::currentRouteName() === 'kurir.pesanan')
+            @if(in_array(Route::currentRouteName(), ['kurir.pesanan', 'kurir.pesanan.detail']))
                 <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-primary rounded-full"></div>
             @endif
         </a>

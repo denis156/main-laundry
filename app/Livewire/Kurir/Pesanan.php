@@ -209,6 +209,38 @@ class Pesanan extends Component
     }
 
     /**
+     * Batalkan pesanan (ubah status dari pending_confirmation ke cancelled)
+     */
+    public function cancelOrder(int $transactionId): void
+    {
+        $courier = Auth::guard('courier')->user();
+
+        $transaction = Transaction::where('id', $transactionId)
+            ->where(function ($q) use ($courier) {
+                // Transaksi yang sudah di-assign ke kurir ini ATAU belum ada kurirnya
+                $q->where('courier_motorcycle_id', $courier->id)
+                    ->orWhereNull('courier_motorcycle_id');
+            })
+            ->where('workflow_status', 'pending_confirmation')
+            ->first();
+
+        if (!$transaction) {
+            $this->error('Pesanan tidak ditemukan atau tidak bisa dibatalkan.');
+            return;
+        }
+
+        $transaction->update([
+            'workflow_status' => 'cancelled',
+        ]);
+
+        $this->success('Pesanan berhasil dibatalkan.');
+
+        // Refresh data
+        unset($this->transactions);
+        unset($this->stats);
+    }
+
+    /**
      * Tandai pesanan sudah dijemput (ubah status dari confirmed ke picked_up)
      * Update pos_id sesuai dengan pos kurir dan simpan berat yang ditimbang
      */

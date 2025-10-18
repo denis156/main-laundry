@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Livewire\Kurir;
 
 use Mary\Traits\Toast;
-use App\Models\Payment;
 use Livewire\Component;
 use App\Models\Transaction;
 use Livewire\WithPagination;

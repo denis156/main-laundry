@@ -8,6 +8,7 @@ use App\Livewire\Kurir\Profil;
 use App\Livewire\Kurir\Beranda;
 use App\Livewire\Kurir\Pesanan;
 use App\Livewire\Kurir\Pembayaran;
+use App\Livewire\Kurir\DetailPesanan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +29,7 @@ Route::prefix('kurir')->name('kurir.')->group(function () {
         Route::get('/', Beranda::class)->name('beranda');
         Route::get('/beranda', Beranda::class)->name('beranda.alt');
         Route::get('/pesanan', Pesanan::class)->name('pesanan');
+        Route::get('/pesanan/{id}', DetailPesanan::class)->name('pesanan.detail');
         Route::get('/pembayaran', Pembayaran::class)->name('pembayaran');
         Route::get('/info', Info::class)->name('info');
         Route::get('/profil', Profil::class)->name('profil');
