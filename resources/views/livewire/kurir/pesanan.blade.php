@@ -166,35 +166,51 @@
                             </div>
                         </div>
 
-                        {{-- Customer Address & Notes --}}
-                        @if ($transaction->customer?->address || $transaction->notes)
-                            <div class="mt-2 bg-base-200 rounded-lg p-3 space-y-3">
-                                {{-- Address --}}
-                                @if ($transaction->customer?->address)
-                                    <div class="flex items-start gap-2">
-                                        <x-icon name="solar.map-point-bold-duotone"
-                                            class="w-5 h-5 text-base-content/70 mt-0.5" />
-                                        <div class="flex-1">
-                                            <p class="text-xs text-base-content/70 font-semibold mb-1">Alamat Pickup:</p>
-                                            <p class="text-sm">{{ $transaction->customer->address }}</p>
-                                        </div>
+                        {{-- Service, Pos, Berat & Address Info --}}
+                        @if ($transaction->service_id || $transaction->pos_id || $transaction->weight || $transaction->customer?->address)
+                            <div class="mt-2 bg-base-200 rounded-lg p-3 space-y-2">
+                                {{-- Layanan --}}
+                                @if ($transaction->service_id)
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-base-content/70">Layanan</span>
+                                        <span class="font-semibold">{{ $transaction->service?->name ?? 'N/A' }}</span>
                                     </div>
                                 @endif
 
-                                {{-- Notes --}}
-                                @if ($transaction->notes)
-                                    @if ($transaction->customer?->address)
-                                        <div class="divider my-0"></div>
-                                    @endif
-                                    <div class="flex items-start gap-2">
-                                        <x-icon name="solar.document-text-bold-duotone"
-                                            class="w-5 h-5 text-base-content/70 mt-0.5" />
-                                        <div class="flex-1">
-                                            <p class="text-xs text-base-content/70 font-semibold mb-1">Catatan:</p>
-                                            <p class="text-sm">{{ $transaction->notes }}</p>
-                                        </div>
+                                {{-- Pos --}}
+                                @if ($transaction->pos_id)
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-base-content/70">Pos</span>
+                                        <span class="font-semibold">{{ $transaction->pos?->name ?? 'N/A' }}</span>
                                     </div>
                                 @endif
+
+                                {{-- Berat --}}
+                                @if ($transaction->weight)
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-base-content/70">Berat</span>
+                                        <span class="font-semibold">{{ $transaction->weight }} kg</span>
+                                    </div>
+                                @endif
+
+                                {{-- Address --}}
+                                @if ($transaction->customer?->address)
+                                    @if ($transaction->service_id || $transaction->pos_id || $transaction->weight)
+                                        <div class="divider my-1"></div>
+                                    @endif
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-base-content/70">Alamat</span>
+                                        <span class="font-semibold text-right text-primary text-sm">{{ $transaction->customer->address }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
+                        {{-- Notes --}}
+                        @if ($transaction->notes)
+                            <div class="mt-2 p-3 bg-base-200 rounded-lg">
+                                <p class="text-xs text-base-content/70 mb-1">Catatan:</p>
+                                <p class="text-sm">{{ $transaction->notes }}</p>
                             </div>
                         @endif
 
@@ -280,7 +296,7 @@
 
                                     <button class="btn btn-primary btn-sm">
                                         <x-icon name="solar.eye-bold-duotone" class="w-4 h-4" />
-                                        Lihat Detail
+                                        Detail Pesanan
                                     </button>
                                 </div>
                             @elseif ($transaction->workflow_status === 'picked_up')
@@ -294,7 +310,7 @@
 
                                     <button class="btn btn-primary btn-sm">
                                         <x-icon name="solar.eye-bold-duotone" class="w-4 h-4" />
-                                        Lihat Detail
+                                        Detail Pesanan
                                     </button>
                                 </div>
                             @elseif ($transaction->workflow_status === 'washing_completed')
@@ -342,7 +358,7 @@
                                 {{-- Status lain (at_loading_post, in_washing, delivered, cancelled) - Hanya tampilkan Detail --}}
                                 <button class="btn btn-primary btn-sm w-full">
                                     <x-icon name="solar.eye-bold-duotone" class="w-4 h-4" />
-                                    Lihat Detail
+                                    Detail Pesanan
                                 </button>
                             @endif
                         </div>

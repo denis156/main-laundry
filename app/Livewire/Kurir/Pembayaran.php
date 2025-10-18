@@ -21,7 +21,7 @@ class Pembayaran extends Component
 {
     use Toast, WithPagination;
 
-    public string $filter = 'unpaid'; // unpaid, paid, all
+    public string $filter = 'all'; // unpaid, paid, all
     public string $search = '';
 
     /**

@@ -71,17 +71,36 @@
                                     {{ $transaction->order_date->format('d M Y, H:i') }}
                                 </p>
                             </div>
-                            @if ($transaction->payment_status === 'paid')
-                                <span class="badge badge-success gap-1">
-                                    <x-icon name="solar.check-circle-bold-duotone" class="w-3 h-3" />
-                                    Lunas
-                                </span>
-                            @else
-                                <span class="badge badge-error gap-1">
-                                    <x-icon name="solar.close-circle-bold-duotone" class="w-3 h-3" />
-                                    Belum Bayar
-                                </span>
-                            @endif
+                            @php
+                                $statusColor = match ($transaction->workflow_status) {
+                                    'pending_confirmation' => 'badge-secondary',
+                                    'confirmed' => 'badge-info',
+                                    'picked_up' => 'badge-warning',
+                                    'at_loading_post' => 'badge-warning',
+                                    'in_washing' => 'badge-primary',
+                                    'washing_completed' => 'badge-success',
+                                    'out_for_delivery' => 'badge-warning',
+                                    'delivered' => 'badge-success',
+                                    'cancelled' => 'badge-error',
+                                    default => 'badge-secondary',
+                                };
+
+                                $statusText = match ($transaction->workflow_status) {
+                                    'pending_confirmation' => 'Menunggu Konfirmasi',
+                                    'confirmed' => 'Terkonfirmasi',
+                                    'picked_up' => 'Sudah Dijemput',
+                                    'at_loading_post' => 'Di Pos',
+                                    'in_washing' => 'Sedang Dicuci',
+                                    'washing_completed' => 'Cucian Selesai',
+                                    'out_for_delivery' => 'Dalam Pengiriman',
+                                    'delivered' => 'Terkirim',
+                                    'cancelled' => 'Dibatalkan',
+                                    default => $transaction->workflow_status,
+                                };
+                            @endphp
+                            <span class="badge {{ $statusColor }} gap-1">
+                                {{ $statusText }}
+                            </span>
                         </div>
 
                         <div class="divider my-2"></div>
@@ -125,87 +144,51 @@
                             </div>
                         </div>
 
-                        {{-- Payment Timing Badge --}}
-                        <div class="mt-3">
-                            @if ($transaction->payment_timing === 'on_pickup')
-                                <div class="badge badge-info gap-1">
-                                    <x-icon name="solar.upload-bold-duotone" class="w-3 h-3" />
-                                    Bayar Saat Pickup
-                                </div>
-                            @else
-                                <div class="badge badge-warning gap-1">
-                                    <x-icon name="solar.download-bold-duotone" class="w-3 h-3" />
-                                    Bayar Saat Delivery
-                                </div>
-                            @endif
-
-                            {{-- Workflow Status --}}
-                            @php
-                                $statusColor = match ($transaction->workflow_status) {
-                                    'pending_confirmation' => 'badge-secondary',
-                                    'confirmed' => 'badge-info',
-                                    'picked_up' => 'badge-warning',
-                                    'at_loading_post' => 'badge-warning',
-                                    'in_washing' => 'badge-primary',
-                                    'washing_completed' => 'badge-success',
-                                    'out_for_delivery' => 'badge-warning',
-                                    'delivered' => 'badge-success',
-                                    'cancelled' => 'badge-error',
-                                    default => 'badge-secondary',
-                                };
-
-                                $statusText = match ($transaction->workflow_status) {
-                                    'pending_confirmation' => 'Menunggu Konfirmasi',
-                                    'confirmed' => 'Terkonfirmasi',
-                                    'picked_up' => 'Sudah Dijemput',
-                                    'at_loading_post' => 'Di Pos',
-                                    'in_washing' => 'Sedang Dicuci',
-                                    'washing_completed' => 'Cucian Selesai',
-                                    'out_for_delivery' => 'Dalam Pengiriman',
-                                    'delivered' => 'Terkirim',
-                                    'cancelled' => 'Dibatalkan',
-                                    default => $transaction->workflow_status,
-                                };
-                            @endphp
-                            <div class="badge {{ $statusColor }} gap-1 ml-2">
-                                {{ $statusText }}
-                            </div>
-                        </div>
-
-                        {{-- Payment Proof --}}
-                        @if ($transaction->payment_status === 'paid' && $transaction->payment_proof_url)
-                            <div class="mt-3 p-3 bg-success/10 rounded-lg border border-success/20">
-                                <div class="flex items-center gap-2 text-success">
-                                    <x-icon name="solar.shield-check-bold-duotone" class="w-5 h-5" />
-                                    <span class="text-sm font-semibold">Pembayaran Terkonfirmasi</span>
-                                </div>
-                                @if ($transaction->paid_at)
-                                    <p class="text-xs text-base-content/60 mt-1">
-                                        {{ $transaction->paid_at->format('d M Y, H:i') }}
-                                    </p>
-                                @endif
-                                <button class="btn btn-success btn-sm btn-outline mt-2 w-full">
-                                    <x-icon name="solar.eye-bold-duotone" class="w-4 h-4" />
-                                    Lihat Bukti Pembayaran
-                                </button>
-                            </div>
-                        @else
-                            {{-- Action Button --}}
-                            <div class="card-actions mt-3">
-                                <button class="btn btn-primary btn-block">
-                                    <x-icon name="solar.camera-bold-duotone" class="w-5 h-5" />
-                                    Upload Bukti Pembayaran
-                                </button>
-                            </div>
-                        @endif
-
                         {{-- Notes --}}
                         @if ($transaction->notes)
-                            <div class="mt-3 p-3 bg-base-200 rounded-lg">
+                            <div class="mt-2 p-3 bg-base-200 rounded-lg">
                                 <p class="text-xs text-base-content/70 mb-1">Catatan:</p>
                                 <p class="text-sm">{{ $transaction->notes }}</p>
                             </div>
                         @endif
+
+                        {{-- Payment & Timing Info --}}
+                        <div class="mt-3 flex gap-2 flex-wrap justify-center">
+                            {{-- Payment Status --}}
+                            @if ($transaction->payment_status === 'paid')
+                                <div class="badge badge-success gap-1">
+                                    <x-icon name="solar.check-circle-bold-duotone" class="w-3 h-3" />
+                                    Lunas
+                                </div>
+                            @else
+                                <div class="badge badge-error gap-1">
+                                    <x-icon name="solar.close-circle-bold-duotone" class="w-3 h-3" />
+                                    Belum Bayar
+                                </div>
+                            @endif
+
+                            {{-- Payment Timing --}}
+                            @if ($transaction->payment_timing === 'on_pickup')
+                                <div class="badge badge-info gap-1">
+                                    <x-icon name="solar.upload-bold-duotone" class="w-3 h-3" />
+                                    Bayar Saat Jemput
+                                </div>
+                            @else
+                                <div class="badge badge-warning gap-1">
+                                    <x-icon name="solar.download-bold-duotone" class="w-3 h-3" />
+                                    Bayar Saat Antar
+                                </div>
+                            @endif
+                        </div>
+
+
+                        {{-- Action Button --}}
+                        <div class="mt-3">
+                            <button class="btn btn-primary btn-sm w-full">
+                                <x-icon name="solar.eye-bold-duotone" class="w-4 h-4" />
+                                Detail Pembayaran
+                            </button>
+                        </div>
                     </div>
                 </div>
             @empty
