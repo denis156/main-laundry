@@ -105,7 +105,7 @@ class Pesanan extends Component
     }
 
     /**
-     * Generate WhatsApp URL dengan message untuk customer
+     * Generate WhatsApp URL dengan message untuk customer (pickup)
      */
     public function getWhatsAppUrl(string $phone, string $customerName): string
     {
@@ -130,6 +130,41 @@ class Pesanan extends Component
         $message = "Halo Kak *{$customerName}*\n\n";
         $message .= "Perkenalkan, saya *{$courier->name}* dari *Main Laundry*. ";
         $message .= "Saya akan mengambil cucian Kakak hari ini.\n\n";
+        $message .= "Boleh minta tolong kirim *share lokasi* Kakak ya, biar saya gak nyasar.\n\n";
+        $message .= "Terima kasih";
+
+        // Encode message untuk URL
+        $encodedMessage = urlencode($message);
+
+        return "https://wa.me/{$cleanPhone}?text={$encodedMessage}";
+    }
+
+    /**
+     * Generate WhatsApp URL dengan message untuk customer (delivery)
+     */
+    public function getWhatsAppUrlForDelivery(string $phone, string $customerName): string
+    {
+        $courier = Auth::guard('courier')->user();
+
+        // Format nomor telepon (hapus karakter non-numeric)
+        $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
+
+        // Format nomor Indonesia untuk WhatsApp
+        if (str_starts_with($cleanPhone, '0')) {
+            // 081234567890 -> 6281234567890
+            $cleanPhone = '62' . substr($cleanPhone, 1);
+        } elseif (str_starts_with($cleanPhone, '8')) {
+            // 81234567890 -> 6281234567890
+            $cleanPhone = '62' . $cleanPhone;
+        } elseif (!str_starts_with($cleanPhone, '62')) {
+            // Jika tidak dimulai dengan 62, 0, atau 8, tambahkan 62
+            $cleanPhone = '62' . $cleanPhone;
+        }
+
+        // Message template untuk pengantaran
+        $message = "Halo Kak *{$customerName}*\n\n";
+        $message .= "Kabar baik! Cucian Kakak sudah selesai dan siap diantar.\n\n";
+        $message .= "Saya *{$courier->name}* dari *Main Laundry* akan mengantar cucian Kakak hari ini.\n\n";
         $message .= "Boleh minta tolong kirim *share lokasi* Kakak ya, biar saya gak nyasar.\n\n";
         $message .= "Terima kasih";
 
@@ -283,6 +318,92 @@ class Pesanan extends Component
         ]);
 
         $this->success('Pesanan berhasil ditandai sudah di pos loading!');
+
+        // Refresh data
+        unset($this->transactions);
+        unset($this->stats);
+    }
+
+    /**
+     * Tandai pesanan dalam pengiriman (ubah status dari washing_completed ke out_for_delivery)
+     */
+    public function markAsOutForDelivery(int $transactionId): void
+    {
+        $courier = Auth::guard('courier')->user();
+
+        $transaction = Transaction::where('id', $transactionId)
+            ->where('courier_motorcycle_id', $courier->id)
+            ->where('workflow_status', 'washing_completed')
+            ->first();
+
+        if (!$transaction) {
+            $this->error('Pesanan tidak ditemukan atau tidak bisa diupdate.');
+            return;
+        }
+
+        $transaction->update([
+            'workflow_status' => 'out_for_delivery',
+        ]);
+
+        $this->success('Pesanan berhasil ditandai dalam pengiriman!');
+
+        // Refresh data
+        unset($this->transactions);
+        unset($this->stats);
+    }
+
+    /**
+     * Tandai pesanan terkirim (ubah status dari out_for_delivery ke delivered)
+     * Upload bukti pembayaran jika payment_timing adalah on_delivery
+     */
+    public function markAsDelivered(int $transactionId): void
+    {
+        $courier = Auth::guard('courier')->user();
+
+        $transaction = Transaction::where('id', $transactionId)
+            ->where('courier_motorcycle_id', $courier->id)
+            ->where('workflow_status', 'out_for_delivery')
+            ->first();
+
+        if (!$transaction) {
+            $this->error('Pesanan tidak ditemukan atau tidak bisa diupdate.');
+            return;
+        }
+
+        // Validasi bukti pembayaran jika bayar saat antar
+        if ($transaction->payment_timing === 'on_delivery') {
+            if (empty($this->paymentProofs[$transactionId])) {
+                $this->error('Bukti pembayaran harus diupload untuk pesanan yang bayar saat antar!');
+                return;
+            }
+        }
+
+        $updateData = [
+            'workflow_status' => 'delivered',
+        ];
+
+        // Handle upload bukti pembayaran jika bayar saat antar
+        if ($transaction->payment_timing === 'on_delivery' && !empty($this->paymentProofs[$transactionId])) {
+            $file = $this->paymentProofs[$transactionId];
+            $filename = 'payment-proof-' . $transaction->invoice_number . '-' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('payment-proofs', $filename, 'public');
+
+            $updateData['payment_proof_url'] = $path;
+            $updateData['payment_status'] = 'paid';
+            $updateData['paid_at'] = now();
+        }
+
+        $transaction->update($updateData);
+
+        $message = 'Pesanan berhasil ditandai terkirim!';
+        if ($transaction->payment_timing === 'on_delivery') {
+            $message .= ' Pembayaran telah terkonfirmasi.';
+        }
+
+        $this->success($message);
+
+        // Clear inputs setelah berhasil
+        unset($this->paymentProofs[$transactionId]);
 
         // Refresh data
         unset($this->transactions);

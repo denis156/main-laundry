@@ -297,8 +297,49 @@
                                         Lihat Detail
                                     </button>
                                 </div>
+                            @elseif ($transaction->workflow_status === 'washing_completed')
+                                {{-- Status: Washing Completed - Tampilkan WhatsApp + Dalam Pengiriman --}}
+                                <div class="grid grid-cols-2 gap-2">
+                                    @if ($transaction->customer?->phone && $transaction->customer?->name)
+                                        <a href="{{ $this->getWhatsAppUrlForDelivery($transaction->customer->phone, $transaction->customer->name) }}"
+                                            target="_blank" class="btn btn-success btn-sm">
+                                            <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
+                                            WhatsApp
+                                        </a>
+                                    @endif
+
+                                    <button wire:click="markAsOutForDelivery({{ $transaction->id }})"
+                                        class="btn btn-accent btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}">
+                                        <x-icon name="solar.delivery-bold-duotone" class="w-4 h-4" />
+                                        Dalam Pengiriman
+                                    </button>
+                                </div>
+                            @elseif ($transaction->workflow_status === 'out_for_delivery')
+                                {{-- Status: Out for Delivery - Tampilkan Upload Bukti (jika bayar saat antar) + Terkirim --}}
+                                @if ($transaction->payment_timing === 'on_delivery')
+                                    <div class="bg-base-200 rounded-lg p-3 mb-2">
+                                        {{-- Upload Bukti Pembayaran - Hanya untuk bayar saat antar --}}
+                                        <x-file wire:model="paymentProofs.{{ $transaction->id }}"
+                                            label="Bukti Pembayaran" hint="Upload foto/screenshot bukti pembayaran"
+                                            accept="image/png, image/jpeg, image/jpg" />
+                                    </div>
+                                @endif
+
+                                <button wire:click="markAsDelivered({{ $transaction->id }})"
+                                    class="btn btn-success btn-sm w-full"
+                                    @php
+                                        $disabled = false;
+                                        // Jika bayar saat antar, bukti pembayaran harus ada
+                                        if ($transaction->payment_timing === 'on_delivery') {
+                                            $disabled = empty($paymentProofs[$transaction->id]);
+                                        }
+                                    @endphp
+                                    @if ($disabled) disabled @endif>
+                                    <x-icon name="solar.check-circle-bold-duotone" class="w-4 h-4" />
+                                    Terkirim
+                                </button>
                             @else
-                                {{-- Status lain - Hanya tampilkan Detail --}}
+                                {{-- Status lain (at_loading_post, in_washing, delivered, cancelled) - Hanya tampilkan Detail --}}
                                 <button class="btn btn-primary btn-sm w-full">
                                     <x-icon name="solar.eye-bold-duotone" class="w-4 h-4" />
                                     Lihat Detail
