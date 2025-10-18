@@ -1,13 +1,294 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Kurir;
 
+use Mary\Traits\Toast;
+use App\Models\Transaction;
 use Livewire\Component;
+use Livewire\WithFileUploads;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Computed;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Collection;
 
+#[Title('Pesanan')]
 #[Layout('components.layouts.mobile')]
 class Pesanan extends Component
 {
+    use Toast, WithFileUploads;
+
+    public string $filter = 'all'; // all, pending_confirmation, confirmed, picked_up, at_loading_post, in_washing, washing_completed, out_for_delivery, delivered, cancelled
+    public string $search = '';
+
+    // Array untuk menyimpan berat per transaksi [transaction_id => weight]
+    public array $weights = [];
+
+    // Array untuk menyimpan bukti pembayaran per transaksi [transaction_id => file]
+    public array $paymentProofs = [];
+
+    /**
+     * Get transaksi yang di-handle oleh kurir yang sedang login
+     * atau transaksi yang belum ada kurirnya (untuk bisa diambil)
+     */
+    #[Computed]
+    public function transactions(): Collection
+    {
+        $courier = Auth::guard('courier')->user();
+
+        $query = Transaction::with(['customer', 'service', 'pos'])
+            ->where(function ($q) use ($courier) {
+                // Transaksi yang sudah di-assign ke kurir ini
+                $q->where('courier_motorcycle_id', $courier->id)
+                    // ATAU transaksi yang belum ada kurirnya (bisa diambil)
+                    ->orWhereNull('courier_motorcycle_id');
+            })
+            ->whereNotNull('customer_id')
+            ->whereNotNull('service_id')
+            ->whereHas('customer')
+            ->whereHas('service');
+
+        // Filter berdasarkan workflow_status
+        if ($this->filter !== 'all') {
+            $query->where('workflow_status', $this->filter);
+        }
+
+        // Search
+        if (!empty($this->search)) {
+            $query->where(function ($q) {
+                $q->where('invoice_number', 'like', '%' . $this->search . '%')
+                    ->orWhereHas('customer', function ($subQ) {
+                        $subQ->where('name', 'like', '%' . $this->search . '%');
+                    });
+            });
+        }
+
+        return $query->orderBy('order_date', 'desc')
+            ->get();
+    }
+
+    /**
+     * Get statistik pesanan
+     */
+    #[Computed]
+    public function stats(): array
+    {
+        $courier = Auth::guard('courier')->user();
+
+        $pendingCount = Transaction::where(function ($q) use ($courier) {
+                $q->where('courier_motorcycle_id', $courier->id)
+                    ->orWhereNull('courier_motorcycle_id');
+            })
+            ->where('workflow_status', 'pending_confirmation')
+            ->count();
+
+        $activeCount = Transaction::where('courier_motorcycle_id', $courier->id)
+            ->whereIn('workflow_status', ['confirmed', 'picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery'])
+            ->count();
+
+        $deliveredCount = Transaction::where('courier_motorcycle_id', $courier->id)
+            ->where('workflow_status', 'delivered')
+            ->count();
+
+        $cancelledCount = Transaction::where('courier_motorcycle_id', $courier->id)
+            ->where('workflow_status', 'cancelled')
+            ->count();
+
+        return [
+            'pending_count' => $pendingCount,
+            'active_count' => $activeCount,
+            'delivered_count' => $deliveredCount,
+            'cancelled_count' => $cancelledCount,
+        ];
+    }
+
+    /**
+     * Generate WhatsApp URL dengan message untuk customer
+     */
+    public function getWhatsAppUrl(string $phone, string $customerName): string
+    {
+        $courier = Auth::guard('courier')->user();
+
+        // Format nomor telepon (hapus karakter non-numeric)
+        $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
+
+        // Format nomor Indonesia untuk WhatsApp
+        if (str_starts_with($cleanPhone, '0')) {
+            // 081234567890 -> 6281234567890
+            $cleanPhone = '62' . substr($cleanPhone, 1);
+        } elseif (str_starts_with($cleanPhone, '8')) {
+            // 81234567890 -> 6281234567890
+            $cleanPhone = '62' . $cleanPhone;
+        } elseif (!str_starts_with($cleanPhone, '62')) {
+            // Jika tidak dimulai dengan 62, 0, atau 8, tambahkan 62
+            $cleanPhone = '62' . $cleanPhone;
+        }
+
+        // Message template (lebih santai)
+        $message = "Halo Kak *{$customerName}*\n\n";
+        $message .= "Perkenalkan, saya *{$courier->name}* dari *Main Laundry*. ";
+        $message .= "Saya akan mengambil cucian Kakak hari ini.\n\n";
+        $message .= "Boleh minta tolong kirim *share lokasi* Kakak ya, biar saya gak nyasar.\n\n";
+        $message .= "Terima kasih";
+
+        // Encode message untuk URL
+        $encodedMessage = urlencode($message);
+
+        return "https://wa.me/{$cleanPhone}?text={$encodedMessage}";
+    }
+
+    /**
+     * Konfirmasi dan ambil pesanan (ubah status dari pending_confirmation ke confirmed)
+     * Jika belum ada kurir, assign kurir ini ke pesanan tersebut
+     */
+    public function confirmOrder(int $transactionId): void
+    {
+        $courier = Auth::guard('courier')->user();
+
+        $transaction = Transaction::where('id', $transactionId)
+            ->where(function ($q) use ($courier) {
+                // Transaksi yang sudah di-assign ke kurir ini ATAU belum ada kurirnya
+                $q->where('courier_motorcycle_id', $courier->id)
+                    ->orWhereNull('courier_motorcycle_id');
+            })
+            ->where('workflow_status', 'pending_confirmation')
+            ->first();
+
+        if (!$transaction) {
+            $this->error('Pesanan tidak ditemukan atau tidak bisa dikonfirmasi.');
+            return;
+        }
+
+        $transaction->update([
+            'courier_motorcycle_id' => $courier->id, // Assign kurir ke transaksi
+            'workflow_status' => 'confirmed',
+        ]);
+
+        $this->success('Pesanan berhasil diambil dan dikonfirmasi! Silahkan hubungi customer untuk koordinasi pickup.');
+
+        // Refresh data
+        unset($this->transactions);
+        unset($this->stats);
+    }
+
+    /**
+     * Tandai pesanan sudah dijemput (ubah status dari confirmed ke picked_up)
+     * Update pos_id sesuai dengan pos kurir dan simpan berat yang ditimbang
+     */
+    public function markAsPickedUp(int $transactionId): void
+    {
+        $courier = Auth::guard('courier')->user();
+
+        // Validasi berat harus diisi
+        if (empty($this->weights[$transactionId]) || $this->weights[$transactionId] <= 0) {
+            $this->error('Berat cucian harus diisi dan lebih dari 0 kg!');
+            return;
+        }
+
+        $transaction = Transaction::where('id', $transactionId)
+            ->where('courier_motorcycle_id', $courier->id)
+            ->where('workflow_status', 'confirmed')
+            ->first();
+
+        if (!$transaction) {
+            $this->error('Pesanan tidak ditemukan atau tidak bisa diupdate.');
+            return;
+        }
+
+        // Validasi bukti pembayaran jika bayar saat jemput
+        if ($transaction->payment_timing === 'on_pickup') {
+            if (empty($this->paymentProofs[$transactionId])) {
+                $this->error('Bukti pembayaran harus diupload untuk pesanan yang bayar saat jemput!');
+                return;
+            }
+        }
+
+        $weight = (float) $this->weights[$transactionId];
+        $pricePerKg = $transaction->price_per_kg;
+        $totalPrice = $weight * $pricePerKg;
+
+        $updateData = [
+            'workflow_status' => 'picked_up',
+            'pos_id' => $courier->assigned_pos_id,
+            'weight' => $weight,
+            'total_price' => $totalPrice,
+        ];
+
+        // Handle upload bukti pembayaran jika bayar saat jemput
+        if ($transaction->payment_timing === 'on_pickup' && !empty($this->paymentProofs[$transactionId])) {
+            $file = $this->paymentProofs[$transactionId];
+            $filename = 'payment-proof-' . $transaction->invoice_number . '-' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('payment-proofs', $filename, 'public');
+
+            $updateData['payment_proof_url'] = $path;
+            $updateData['payment_status'] = 'paid';
+            $updateData['paid_at'] = now();
+        }
+
+        $transaction->update($updateData);
+
+        $message = 'Pesanan berhasil ditandai sudah dijemput dengan berat ' . $weight . ' kg!';
+        if ($transaction->payment_timing === 'on_pickup') {
+            $message .= ' Pembayaran telah terkonfirmasi.';
+        }
+
+        $this->success($message);
+
+        // Clear inputs setelah berhasil
+        unset($this->weights[$transactionId]);
+        unset($this->paymentProofs[$transactionId]);
+
+        // Refresh data
+        unset($this->transactions);
+        unset($this->stats);
+    }
+
+    /**
+     * Get hint text untuk total harga berdasarkan berat yang diinput
+     */
+    public function getTotalPriceHint(Transaction $transaction): string
+    {
+        $weight = $this->weights[$transaction->id] ?? 0;
+
+        if ($weight <= 0 || $transaction->price_per_kg <= 0) {
+            return 'Masukkan berat untuk melihat total harga';
+        }
+
+        $totalPrice = $weight * $transaction->price_per_kg;
+
+        return 'Total: Rp ' . number_format($totalPrice, 0, ',', '.');
+    }
+
+    /**
+     * Tandai pesanan sudah di pos (ubah status dari picked_up ke at_loading_post)
+     */
+    public function markAsAtLoadingPost(int $transactionId): void
+    {
+        $courier = Auth::guard('courier')->user();
+
+        $transaction = Transaction::where('id', $transactionId)
+            ->where('courier_motorcycle_id', $courier->id)
+            ->where('workflow_status', 'picked_up')
+            ->first();
+
+        if (!$transaction) {
+            $this->error('Pesanan tidak ditemukan atau tidak bisa diupdate.');
+            return;
+        }
+
+        $transaction->update([
+            'workflow_status' => 'at_loading_post',
+        ]);
+
+        $this->success('Pesanan berhasil ditandai sudah di pos loading!');
+
+        // Refresh data
+        unset($this->transactions);
+        unset($this->stats);
+    }
+
     public function render()
     {
         return view('livewire.kurir.pesanan');
