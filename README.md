@@ -76,7 +76,7 @@
 1. Clone repository
 ```bash
 git clone <repository-url>
-cd main-loundry
+cd main-laundry
 ```
 
 2. Install dependencies
@@ -127,7 +127,7 @@ Aplikasi akan berjalan di `http://localhost:8000`
 ## Project Structure
 
 ```
-main-loundry/
+main-laundry/
 ├── app/
 │   └── Livewire/
 │       └── LandingPage/

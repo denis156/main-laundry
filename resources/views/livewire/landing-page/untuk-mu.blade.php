@@ -2,7 +2,7 @@
     {{-- Background Decorations --}}
     <x-landing-page.bg-decoration
         topRight="ibu&anak-nyuci.svg"
-        bottomLeft="pria-angkat-kerangjang-loundry.svg"
+        bottomLeft="pria-angkat-kerangjang-laundry.svg"
         topLeft="kaos-putih-bersinar.svg"
         bottomRight="pria-menjemur.svg" />
 
@@ -66,7 +66,7 @@
                     <div class="card-body items-center text-center flex flex-col">
                         {{-- Graphic Image --}}
                         <div class="mb-4 w-full max-w-[200px]">
-                            <img src="{{ asset('grafis/pria-angkat-kerangjang-loundry.svg') }}"
+                            <img src="{{ asset('grafis/pria-angkat-kerangjang-laundry.svg') }}"
                                 alt="Pekerja & Atlet Aktif"
                                 class="w-full h-32 object-contain" />
                         </div>

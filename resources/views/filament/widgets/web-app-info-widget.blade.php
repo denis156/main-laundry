@@ -12,7 +12,7 @@
 
             <x-filament::link
                 color="gray"
-                href="https://github.com/denis156/main-loundry"
+                href="https://github.com/denis156/main-laundry"
                 :icon-alias="\Filament\View\PanelsIconAlias::WIDGETS_FILAMENT_INFO_OPEN_GITHUB_BUTTON"
                 rel="noopener noreferrer"
                 target="_blank"
