@@ -1,0 +1,16 @@
+{
+    "name": "Main Laundry Kurir",
+    "short_name": "Kurir MainLaundry",
+    "background_color": "#F9FAFB",
+    "display": "fullscreen",
+    "description": "Aplikasi mobile untuk kurir Main Laundry - Kelola pesanan, pickup, dan delivery cucian dengan mudah",
+    "theme_color": "#8B5CF6",
+    "start_url": "/",
+    "icons": [
+        {
+            "src": "logo.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

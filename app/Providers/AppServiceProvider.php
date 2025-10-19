@@ -15,6 +15,7 @@ use App\Observers\TransactionObserver;
 use Illuminate\Support\ServiceProvider;
 use App\Observers\EquipmentMaintenanceObserver;
 use App\Observers\MaterialStockHistoryObserver;
+use EragLaravelPwa\EragLaravelPwaServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,5 +38,7 @@ class AppServiceProvider extends ServiceProvider
         MaterialStockHistory::observe(MaterialStockHistoryObserver::class);
         EquipmentMaintenance::observe(EquipmentMaintenanceObserver::class);
         Transaction::observe(TransactionObserver::class);
+
+        EragLaravelPwaServiceProvider::class;
     }
 }
