@@ -63,10 +63,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     /**
      * Cek apakah user bisa mengakses panel Filament
+     * Hanya super_admin yang bisa mengakses
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        return true;
+        return $this->super_admin === true;
     }
 
     /**

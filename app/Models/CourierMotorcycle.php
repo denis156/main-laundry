@@ -5,15 +5,17 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Exception;
+use Filament\Panel;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class CourierMotorcycle extends Authenticatable
+class CourierMotorcycle extends Authenticatable implements FilamentUser
 {
     use HasFactory, SoftDeletes;
 
@@ -41,6 +43,14 @@ class CourierMotorcycle extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Kurir TIDAK BOLEH mengakses panel admin
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return false;
     }
 
     /**
