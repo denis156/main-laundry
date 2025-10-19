@@ -1,4 +1,4 @@
-<div class="bg-base-100 min-h-dvh w-full">
+<div class="bg-base-100 min-h-dvh w-full" wire:poll.30s.visible>
     {{-- Header --}}
     <x-header title="Detail Pesanan" subtitle="{{ $transaction->invoice_number }}" separator progress-indicator>
         <x-slot:actions>

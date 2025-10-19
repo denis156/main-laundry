@@ -111,6 +111,16 @@ class DetailPesanan extends Component
 
     public function render()
     {
+        // Refresh transaction data dari database setiap render (termasuk saat polling)
+        $this->transaction->refresh();
+        $this->transaction->load([
+            'customer',
+            'service',
+            'pos',
+            'courierMotorcycle',
+            'payments'
+        ]);
+
         return view('livewire.kurir.detail-pesanan');
     }
 }
