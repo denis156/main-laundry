@@ -41,10 +41,10 @@
                                 {{-- Nomor WhatsApp --}}
                                 <x-input
                                     label="Nomor WhatsApp"
-                                    wire:model="phone"
+                                    wire:model.live="phone"
                                     placeholder="Contoh: 81234567890"
-                                    icon="o-phone"
-                                    hint="langsung tulis angka tanpa 0 atau +62"
+                                    prefix="+62"
+                                    hint="Bisa tulis dengan 08 atau langsung 8"
                                     maxlength="15" />
 
                                 {{-- Email (Optional) --}}
@@ -90,14 +90,37 @@
                                     </div>
                                 @endif
 
-                                {{-- Alamat Lengkap --}}
+                                {{-- Kecamatan --}}
+                                <x-select
+                                    label="Kecamatan"
+                                    wire:model.live="district_code"
+                                    :options="$districts"
+                                    option-value="code"
+                                    option-label="name"
+                                    icon="o-map-pin"
+                                    placeholder="--- Pilih Kecamatan ---"
+                                    hint="Pilih kecamatan di Kota Kendari" />
+
+                                {{-- Kelurahan --}}
+                                <x-select
+                                    label="Kelurahan"
+                                    wire:model="village_code"
+                                    :options="$villages"
+                                    option-value="code"
+                                    option-label="name"
+                                    icon="o-home"
+                                    placeholder="--- Pilih Kelurahan ---"
+                                    hint="Pilih kelurahan setelah memilih kecamatan"
+                                    :disabled="empty($district_code)" />
+
+                                {{-- Detail Alamat --}}
                                 <div class="md:col-span-2">
                                     <x-textarea
-                                        label="Alamat Lengkap"
-                                        wire:model="address"
-                                        placeholder="Contoh: Jl. Mawar No. 123, RT 001/RW 002, Kel. Lalolara, Kec. Kambu, Kendari"
+                                        label="Detail Alamat"
+                                        wire:model="detail_address"
+                                        placeholder="Contoh: Jl. Mawar No. 123, RT 001/RW 002"
                                         rows="3"
-                                        hint="Alamat lengkap untuk jemput & pengantaran" />
+                                        hint="Nama jalan, nomor rumah, RT/RW, patokan, dll" />
                                 </div>
                             </div>
                         </div>
@@ -206,12 +229,12 @@
                                 label="Reset Form"
                                 type="button"
                                 wire:click="resetForm"
-                                class="btn-secondary btn-outline btn-lg"
+                                class="btn-secondary btn-outline btn-sm md:btn-md lg:btn-lg"
                                 icon="o-arrow-path" />
                             <x-button
                                 label="Kirim Pesanan"
                                 type="submit"
-                                class="btn-accent btn-lg"
+                                class="btn-accent btn-sm md:btn-md lg:btn-lg"
                                 spinner="save"
                                 icon="o-paper-airplane" />
                         </x-slot:actions>
