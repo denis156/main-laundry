@@ -45,30 +45,37 @@ class ResortsTable
                         ->searchable()
                         ->fontFamily('mono')
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('pos.area')
-                        ->label('Area Layanan')
-                        ->getStateUsing(function ($record) {
-                            // Ambil semua area dari pos yang terkait dengan resort ini
-                            $areas = $record->pos()
-                                ->whereNotNull('area')
-                                ->where('area', '!=', '')
-                                ->pluck('area')
-                                ->filter()
-                                ->unique()
-                                ->toArray();
-
-                            return !empty($areas) ? $areas : null;
-                        })
-                        ->listWithLineBreaks()
-                        ->bulleted()
-                        ->limitList(2)
-                        ->expandableLimitedList()
-                        ->placeholder('Belum ada pos dengan area')
-                        ->toggleable(isToggledHiddenByDefault: false),
                     IconColumn::make('is_active')
                         ->label('Status Aktif')
                         ->boolean()
                         ->alignCenter()
+                        ->toggleable(isToggledHiddenByDefault: false),
+                ]),
+                ColumnGroup::make('Wilayah', [
+                    TextColumn::make('district_name')
+                        ->label('Kecamatan')
+                        ->searchable()
+                        ->placeholder('-')
+                        ->toggleable(isToggledHiddenByDefault: false),
+                    TextColumn::make('village_name')
+                        ->label('Kelurahan')
+                        ->searchable()
+                        ->placeholder('-')
+                        ->toggleable(isToggledHiddenByDefault: false),
+                    TextColumn::make('address')
+                        ->label('Alamat Lengkap')
+                        ->searchable()
+                        ->placeholder('-')
+                        ->limit(50)
+                        ->toggleable(isToggledHiddenByDefault: true),
+                    TextColumn::make('area')
+                        ->label('Area Layanan')
+                        ->searchable()
+                        ->bulleted()
+                        ->limitList(2)
+                        ->expandableLimitedList()
+                        ->listWithLineBreaks()
+                        ->placeholder('Belum ada area')
                         ->toggleable(isToggledHiddenByDefault: false),
                 ]),
                 ColumnGroup::make('Tanggal & Waktu', [

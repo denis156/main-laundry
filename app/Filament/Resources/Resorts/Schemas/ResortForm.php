@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Resorts\Schemas;
 
+use App\Services\WilayahService;
 use Filament\Schemas\Schema;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -70,18 +74,99 @@ class ResortForm
                                     ])
                                     ->placeholder('Contoh: 08123456789'),
 
-                                Textarea::make('address')
-                                    ->label('Alamat Lengkap')
-                                    ->required()
+                                Select::make('district_code')
+                                    ->label('Kecamatan')
+                                    ->options(function () {
+                                        $wilayahService = app(WilayahService::class);
+                                        $districts = $wilayahService->getKendariDistricts();
+                                        return collect($districts)->pluck('name', 'code')->toArray();
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->live()
+                                    ->afterStateUpdated(function (Set $set, $state) {
+                                        $set('village_code', null);
+                                        if ($state) {
+                                            $wilayahService = app(WilayahService::class);
+                                            $districts = $wilayahService->getKendariDistricts();
+                                            $district = collect($districts)->firstWhere('code', $state);
+                                            $set('district_name', $district['name'] ?? null);
+                                        }
+                                    })
+                                    ->placeholder('Pilih kecamatan')
+                                    ->helperText('Lokasi kantor resort'),
+
+                                Select::make('village_code')
+                                    ->label('Kelurahan')
+                                    ->options(function (Get $get) {
+                                        $districtCode = $get('district_code');
+                                        if (!$districtCode) {
+                                            return [];
+                                        }
+                                        $wilayahService = app(WilayahService::class);
+                                        $villages = $wilayahService->getVillagesByDistrict($districtCode);
+                                        return collect($villages)->pluck('name', 'code')->toArray();
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->live()
+                                    ->afterStateUpdated(function (Set $set, $state, Get $get) {
+                                        if ($state) {
+                                            $districtCode = $get('district_code');
+                                            if ($districtCode) {
+                                                $wilayahService = app(WilayahService::class);
+                                                $villages = $wilayahService->getVillagesByDistrict($districtCode);
+                                                $village = collect($villages)->firstWhere('code', $state);
+                                                $set('village_name', $village['name'] ?? null);
+                                            }
+                                        }
+                                    })
+                                    ->disabled(fn(Get $get) => !$get('district_code'))
+                                    ->placeholder('Pilih kelurahan')
+                                    ->helperText('Pilih kecamatan terlebih dahulu'),
+
+                                Textarea::make('detail_address')
+                                    ->label('Detail Alamat')
                                     ->rows(3)
                                     ->maxLength(500)
-                                    ->validationAttribute('alamat')
+                                    ->validationAttribute('detail alamat')
                                     ->validationMessages([
-                                        'required' => 'Alamat wajib diisi.',
-                                        'max' => 'Alamat tidak boleh lebih dari 500 karakter.',
+                                        'max' => 'Detail alamat tidak boleh lebih dari 500 karakter.',
                                     ])
-                                    ->placeholder('Masukkan alamat lengkap resort')
+                                    ->placeholder('Contoh: Jl. Ahmad Yani No. 45, RT 003/RW 001')
+                                    ->helperText('Nama jalan, nomor rumah, RT/RW kantor resort')
                                     ->columnSpanFull(),
+
+                                Select::make('area')
+                                    ->label('Area Layanan (Kecamatan)')
+                                    ->options(function () {
+                                        $wilayahService = app(WilayahService::class);
+                                        $districts = $wilayahService->getKendariDistricts();
+                                        return collect($districts)->pluck('name', 'name')->toArray();
+                                    })
+                                    ->multiple()
+                                    ->searchable()
+                                    ->preload()
+                                    ->native(false)
+                                    ->placeholder('Pilih kecamatan yang dilayani')
+                                    ->helperText('Pilih satu atau lebih kecamatan yang dilayani resort ini')
+                                    ->columnSpanFull(),
+
+                                TextInput::make('district_name')
+                                    ->hidden()
+                                    ->dehydrated(),
+
+                                TextInput::make('village_name')
+                                    ->hidden()
+                                    ->dehydrated(),
+
+                                Textarea::make('address')
+                                    ->label('Alamat Lengkap (Auto-generated)')
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->hint('Dibuat otomatis dari data di atas')
+                                    ->columnSpanFull()
+                                    ->visible(fn(string $operation): bool => $operation === 'edit'),
 
                                 ToggleButtons::make('is_active')
                                     ->label('Status Resort')

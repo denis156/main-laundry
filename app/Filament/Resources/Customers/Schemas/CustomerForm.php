@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Customers\Schemas;
 
+use App\Services\WilayahService;
 use Filament\Schemas\Schema;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -68,17 +72,89 @@ class CustomerForm
                                     ->hint('Opsional')
                                     ->placeholder('Contoh: customer@email.com'),
 
-                                Textarea::make('address')
-                                    ->label('Alamat')
+                                Select::make('district_code')
+                                    ->label('Kecamatan')
+                                    ->options(function () {
+                                        $wilayahService = app(WilayahService::class);
+                                        $districts = $wilayahService->getKendariDistricts();
+                                        return collect($districts)->pluck('name', 'code')->toArray();
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->live()
+                                    ->afterStateUpdated(function (Set $set, $state, Get $get) {
+                                        $set('village_code', null);
+                                        // Update district_name
+                                        if ($state) {
+                                            $wilayahService = app(WilayahService::class);
+                                            $districts = $wilayahService->getKendariDistricts();
+                                            $district = collect($districts)->firstWhere('code', $state);
+                                            $set('district_name', $district['name'] ?? null);
+                                        }
+                                    })
+                                    ->placeholder('Pilih kecamatan')
+                                    ->hint('Opsional')
+                                    ->helperText('Pilih kecamatan di Kota Kendari'),
+
+                                Select::make('village_code')
+                                    ->label('Kelurahan')
+                                    ->options(function (Get $get) {
+                                        $districtCode = $get('district_code');
+                                        if (!$districtCode) {
+                                            return [];
+                                        }
+                                        $wilayahService = app(WilayahService::class);
+                                        $villages = $wilayahService->getVillagesByDistrict($districtCode);
+                                        return collect($villages)->pluck('name', 'code')->toArray();
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->live()
+                                    ->afterStateUpdated(function (Set $set, $state) {
+                                        // Update village_name
+                                        if ($state) {
+                                            $wilayahService = app(WilayahService::class);
+                                            $districtCode = request()->input('district_code');
+                                            if ($districtCode) {
+                                                $villages = $wilayahService->getVillagesByDistrict($districtCode);
+                                                $village = collect($villages)->firstWhere('code', $state);
+                                                $set('village_name', $village['name'] ?? null);
+                                            }
+                                        }
+                                    })
+                                    ->disabled(fn(Get $get) => !$get('district_code'))
+                                    ->placeholder('Pilih kelurahan')
+                                    ->hint('Opsional')
+                                    ->helperText('Pilih kecamatan terlebih dahulu'),
+
+                                Textarea::make('detail_address')
+                                    ->label('Detail Alamat')
                                     ->rows(3)
                                     ->maxLength(500)
-                                    ->validationAttribute('alamat')
+                                    ->validationAttribute('detail alamat')
                                     ->validationMessages([
-                                        'max' => 'Alamat tidak boleh lebih dari 500 karakter.',
+                                        'max' => 'Detail alamat tidak boleh lebih dari 500 karakter.',
                                     ])
                                     ->hint('Opsional')
-                                    ->placeholder('Masukkan alamat lengkap pelanggan')
+                                    ->placeholder('Contoh: Jl. Mawar No. 123, RT 001/RW 002')
+                                    ->helperText('Nama jalan, nomor rumah, RT/RW, patokan, dll')
                                     ->columnSpanFull(),
+
+                                TextInput::make('district_name')
+                                    ->hidden()
+                                    ->dehydrated(),
+
+                                TextInput::make('village_name')
+                                    ->hidden()
+                                    ->dehydrated(),
+
+                                Textarea::make('address')
+                                    ->label('Alamat Lengkap (Auto-generated)')
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->hint('Dibuat otomatis dari data di atas')
+                                    ->columnSpanFull()
+                                    ->visible(fn(string $operation): bool => $operation === 'edit'),
 
                                 ToggleButtons::make('member')
                                     ->label('Status Member')

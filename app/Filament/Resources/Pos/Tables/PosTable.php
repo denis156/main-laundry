@@ -53,15 +53,37 @@ class PosTable
                         ->searchable()
                         ->fontFamily('mono')
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('area')
-                        ->label('Area Layanan')
-                        ->searchable()
-                        ->placeholder('Belum ada area')
-                        ->toggleable(isToggledHiddenByDefault: false),
                     IconColumn::make('is_active')
                         ->label('Status Aktif')
                         ->boolean()
                         ->alignCenter()
+                        ->toggleable(isToggledHiddenByDefault: false),
+                ]),
+                ColumnGroup::make('Wilayah', [
+                    TextColumn::make('district_name')
+                        ->label('Kecamatan')
+                        ->searchable()
+                        ->placeholder('-')
+                        ->toggleable(isToggledHiddenByDefault: false),
+                    TextColumn::make('village_name')
+                        ->label('Kelurahan')
+                        ->searchable()
+                        ->placeholder('-')
+                        ->toggleable(isToggledHiddenByDefault: false),
+                    TextColumn::make('address')
+                        ->label('Alamat Lengkap')
+                        ->searchable()
+                        ->placeholder('-')
+                        ->limit(50)
+                        ->toggleable(isToggledHiddenByDefault: true),
+                    TextColumn::make('area')
+                        ->label('Area Layanan')
+                        ->searchable()
+                        ->bulleted()
+                        ->limitList(2)
+                        ->expandableLimitedList()
+                        ->listWithLineBreaks()
+                        ->placeholder('Belum ada area')
                         ->toggleable(isToggledHiddenByDefault: false),
                 ]),
                 ColumnGroup::make('Tanggal & Waktu', [

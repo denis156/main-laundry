@@ -53,6 +53,24 @@ class CustomersTable
                         ->alignCenter()
                         ->toggleable(isToggledHiddenByDefault: false),
                 ]),
+                ColumnGroup::make('Wilayah', [
+                    TextColumn::make('district_name')
+                        ->label('Kecamatan')
+                        ->searchable()
+                        ->placeholder('-')
+                        ->toggleable(isToggledHiddenByDefault: false),
+                    TextColumn::make('village_name')
+                        ->label('Kelurahan')
+                        ->searchable()
+                        ->placeholder('-')
+                        ->toggleable(isToggledHiddenByDefault: false),
+                    TextColumn::make('address')
+                        ->label('Alamat Lengkap')
+                        ->searchable()
+                        ->placeholder('-')
+                        ->limit(50)
+                        ->toggleable(isToggledHiddenByDefault: true),
+                ]),
                 ColumnGroup::make('Tanggal & Waktu', [
                     TextColumn::make('created_at')
                         ->label('Dibuat Pada')
