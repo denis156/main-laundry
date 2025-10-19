@@ -174,8 +174,9 @@ class ResortForm
                                 Textarea::make('address')
                                     ->label('Alamat Lengkap (Auto-generated)')
                                     ->disabled()
-                                    ->dehydrated()
+                                    ->dehydrated(false)
                                     ->hint('Dibuat otomatis dari data di atas')
+                                    ->rows(2)
                                     ->columnSpanFull()
                                     ->visible(fn(string $operation): bool => $operation === 'edit'),
 

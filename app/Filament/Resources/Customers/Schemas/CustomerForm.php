@@ -93,7 +93,7 @@ class CustomerForm
                                     ->searchable()
                                     ->preload()
                                     ->live()
-                                    ->afterStateUpdated(function (Set $set, $state, Get $get) {
+                                    ->afterStateUpdated(function (Set $set, $state) {
                                         $set('village_code', null);
                                         // Update district_name
                                         if ($state) {
@@ -121,12 +121,11 @@ class CustomerForm
                                     ->searchable()
                                     ->preload()
                                     ->live()
-                                    ->afterStateUpdated(function (Set $set, $state) {
-                                        // Update village_name
+                                    ->afterStateUpdated(function (Set $set, $state, Get $get) {
                                         if ($state) {
-                                            $wilayahService = app(WilayahService::class);
-                                            $districtCode = request()->input('district_code');
+                                            $districtCode = $get('district_code');
                                             if ($districtCode) {
+                                                $wilayahService = app(WilayahService::class);
                                                 $villages = $wilayahService->getVillagesByDistrict($districtCode);
                                                 $village = collect($villages)->firstWhere('code', $state);
                                                 $set('village_name', $village['name'] ?? null);
@@ -162,8 +161,9 @@ class CustomerForm
                                 Textarea::make('address')
                                     ->label('Alamat Lengkap (Auto-generated)')
                                     ->disabled()
-                                    ->dehydrated()
+                                    ->dehydrated(false)
                                     ->hint('Dibuat otomatis dari data di atas')
+                                    ->rows(2)
                                     ->columnSpanFull()
                                     ->visible(fn(string $operation): bool => $operation === 'edit'),
 
