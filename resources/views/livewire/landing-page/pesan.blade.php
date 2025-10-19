@@ -41,7 +41,7 @@
                                 {{-- Nomor WhatsApp --}}
                                 <x-input
                                     label="Nomor WhatsApp"
-                                    wire:model.live="phone"
+                                    wire:model="phone"
                                     placeholder="Contoh: 81234567890"
                                     prefix="+62"
                                     hint="Bisa tulis dengan 08 atau langsung 8"

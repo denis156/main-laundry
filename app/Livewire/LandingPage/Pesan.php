@@ -58,21 +58,20 @@ class Pesan extends Component
     }
 
     /**
-     * Auto-format phone number saat user mengetik
-     * Hilangkan "0" di depan jika user mengetik "08..."
+     * Format phone number untuk database
+     * Hilangkan "0" di depan jika dimulai dengan "0"
      */
-    public function updatedPhone(): void
+    private function formatPhoneForDatabase(string $phone): string
     {
         // Hilangkan semua karakter non-numeric
-        $cleanPhone = preg_replace('/[^0-9]/', '', $this->phone);
+        $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
 
         // Jika dimulai dengan "0", hilangkan
         if (str_starts_with($cleanPhone, '0')) {
             $cleanPhone = substr($cleanPhone, 1);
         }
 
-        // Update property phone
-        $this->phone = $cleanPhone;
+        return $cleanPhone;
     }
 
     /**
@@ -132,6 +131,9 @@ class Pesan extends Component
 
     public function save(): void
     {
+        // Format phone number untuk database dan validasi
+        $this->phone = $this->formatPhoneForDatabase($this->phone);
+
         // Validate form
         $this->validate();
 
