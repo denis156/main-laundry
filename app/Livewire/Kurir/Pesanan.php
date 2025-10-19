@@ -11,6 +11,7 @@ use Livewire\WithFileUploads;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -28,6 +29,17 @@ class Pesanan extends Component
 
     // Array untuk menyimpan bukti pembayaran per transaksi [transaction_id => file]
     public array $paymentProofs = [];
+
+    /**
+     * Refresh orders - dipanggil dari JavaScript saat menerima broadcast event
+     */
+    #[On('refresh-orders')]
+    public function refreshOrders(): void
+    {
+        // Refresh computed properties untuk load data terbaru
+        unset($this->transactions);
+        unset($this->stats);
+    }
 
     /**
      * Get transaksi yang di-handle oleh kurir yang sedang login

@@ -10,3 +10,8 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  */
 
 import './echo';
+
+/**
+ * Import ringtone notification system untuk kurir
+ */
+import './ringtone';

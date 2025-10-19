@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\LandingPage;
 
+use App\Events\NewTransactionCreated;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Transaction;
@@ -148,23 +149,25 @@ class Pesan extends Component
             return;
         }
 
-        // Rate limiting check
-        $rateLimiter = app(OrderRateLimiterService::class);
+        // Rate limiting check - hanya aktif di production
+        if (app()->environment('production')) {
+            $rateLimiter = app(OrderRateLimiterService::class);
 
-        $rateLimitResult = $rateLimiter->checkAllLimits(
-            request()->ip() ?? '127.0.0.1',
-            $this->phone,
-            $this->form_loaded_at
-        );
-
-        if (!$rateLimitResult['passed']) {
-            $this->warning(
-                'Terlalu cepat!',
-                $rateLimitResult['errors'][0],
-                position: 'toast-top toast-end',
-                timeout: 5000
+            $rateLimitResult = $rateLimiter->checkAllLimits(
+                request()->ip() ?? '127.0.0.1',
+                $this->phone,
+                $this->form_loaded_at
             );
-            return;
+
+            if (!$rateLimitResult['passed']) {
+                $this->warning(
+                    'Terlalu cepat!',
+                    $rateLimitResult['errors'][0],
+                    position: 'toast-top toast-end',
+                    timeout: 5000
+                );
+                return;
+            }
         }
 
         try {
@@ -248,6 +251,9 @@ class Pesan extends Component
                 'form_loaded_at' => Carbon::createFromTimestamp($this->form_loaded_at),
                 // tracking_token, customer_ip, customer_user_agent akan di-set oleh Observer
             ]);
+
+            // Broadcast event untuk notifikasi real-time ke kurir
+            event(new NewTransactionCreated($transaction->load(['customer', 'service'])));
 
             // Success toast
             $this->success(
