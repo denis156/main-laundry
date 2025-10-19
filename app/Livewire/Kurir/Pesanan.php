@@ -99,7 +99,7 @@ class Pesanan extends Component
         $assignedPos = $courier->assignedPos;
 
         // Base query dengan filter area
-        $baseQuery = function () use ($courier, $assignedPos) {
+        $baseQuery = function () use ($assignedPos) {
             $query = Transaction::query();
 
             // Filter berdasarkan area layanan pos
@@ -311,6 +311,7 @@ class Pesanan extends Component
     /**
      * Batalkan pesanan (ubah status dari pending_confirmation ke cancelled)
      * Validasi: pesanan harus di area layanan pos kurir
+     * Assign kurir ke transaksi untuk tracking siapa yang membatalkan
      */
     public function cancelOrder(int $transactionId): void
     {
@@ -344,7 +345,9 @@ class Pesanan extends Component
             return;
         }
 
+        // Assign kurir ke transaksi untuk tracking siapa yang membatalkan
         $transaction->update([
+            'courier_motorcycle_id' => $courier->id,
             'workflow_status' => 'cancelled',
         ]);
 

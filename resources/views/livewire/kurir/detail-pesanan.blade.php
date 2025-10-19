@@ -152,6 +152,158 @@
                         <p class="text-sm">{{ $transaction->notes }}</p>
                     </div>
                 @endif
+
+                <div class="divider my-2"></div>
+
+                {{-- Payment & Timing Info --}}
+                <div class="flex gap-2 flex-wrap justify-center">
+                    {{-- Payment Status --}}
+                    @if ($transaction->payment_status === 'paid')
+                        <div class="badge badge-success gap-1">
+                            <x-icon name="solar.check-circle-bold-duotone" class="w-3 h-3" />
+                            Lunas
+                        </div>
+                    @else
+                        <div class="badge badge-error gap-1">
+                            <x-icon name="solar.close-circle-bold-duotone" class="w-3 h-3" />
+                            Belum Bayar
+                        </div>
+                    @endif
+
+                    {{-- Payment Timing --}}
+                    @if ($transaction->payment_timing === 'on_pickup')
+                        <div class="badge badge-info gap-1">
+                            <x-icon name="solar.upload-bold-duotone" class="w-3 h-3" />
+                            Bayar Saat Jemput
+                        </div>
+                    @else
+                        <div class="badge badge-warning gap-1">
+                            <x-icon name="solar.download-bold-duotone" class="w-3 h-3" />
+                            Bayar Saat Antar
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Action Buttons --}}
+                <div class="mt-3 space-y-2">
+                    @if ($transaction->workflow_status === 'pending_confirmation')
+                        {{-- Status: Pending Confirmation - Tampilkan Batalkan + Ambil Pesanan --}}
+                        <div class="grid grid-cols-2 gap-2">
+                            <button wire:click="cancelOrder"
+                                class="btn btn-error btn-sm">
+                                <x-icon name="solar.close-circle-bold-duotone" class="w-4 h-4" />
+                                Batalkan Pesanan
+                            </button>
+
+                            <button wire:click="confirmOrder"
+                                class="btn btn-accent btn-sm">
+                                <x-icon name="solar.check-circle-bold-duotone" class="w-4 h-4" />
+                                Ambil Pesanan
+                            </button>
+                        </div>
+                    @elseif ($transaction->workflow_status === 'confirmed')
+                        {{-- Status: Confirmed - Tampilkan Input Berat + Upload Bukti (jika bayar saat jemput) + WhatsApp + Sudah Dijemput --}}
+                        <div class="bg-base-200 rounded-lg p-3 mb-2 space-y-3">
+                            {{-- Input Berat --}}
+                            <x-input wire:model.blur="weight" type="number" step="0.01"
+                                min="0.01" label="Berat Cucian (kg)" placeholder="Contoh: 8.92"
+                                icon="solar.scale-bold-duotone"
+                                hint="{{ $this->getTotalPriceHint() }}" />
+
+                            {{-- Upload Bukti Pembayaran - Hanya untuk bayar saat jemput --}}
+                            @if ($transaction->payment_timing === 'on_pickup')
+                                <x-file wire:model="paymentProof"
+                                    label="Bukti Pembayaran" hint="Upload foto/screenshot bukti pembayaran"
+                                    accept="image/png, image/jpeg, image/jpg" />
+                            @endif
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            @if ($transaction->customer?->phone && $transaction->customer?->name)
+                                <a href="{{ $this->getWhatsAppUrl() }}"
+                                    target="_blank" class="btn btn-success btn-sm">
+                                    <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
+                                    WhatsApp
+                                </a>
+                            @endif
+
+                            <button wire:click="markAsPickedUp"
+                                class="btn btn-warning btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}"
+                                @php
+                                    $disabled = empty($weight) || $weight <= 0;
+                                    // Jika bayar saat jemput, bukti pembayaran harus ada
+                                    if ($transaction->payment_timing === 'on_pickup') {
+                                        $disabled = $disabled || empty($paymentProof);
+                                    }
+                                @endphp
+                                @if ($disabled) disabled @endif>
+                                <x-icon name="solar.box-bold-duotone" class="w-4 h-4" />
+                                Sudah Dijemput
+                            </button>
+                        </div>
+                    @elseif ($transaction->workflow_status === 'picked_up')
+                        {{-- Status: Picked Up - Tampilkan Sudah di Pos + Kembali --}}
+                        <div class="grid grid-cols-2 gap-2">
+                            <button wire:click="markAsAtLoadingPost"
+                                class="btn btn-warning btn-sm">
+                                <x-icon name="solar.map-point-bold-duotone" class="w-4 h-4" />
+                                Sudah di Pos
+                            </button>
+
+                            <a href="{{ route('kurir.pesanan') }}" class="btn btn-primary btn-sm">
+                                <x-icon name="solar.undo-left-linear" class="w-4 h-4" />
+                                Kembali
+                            </a>
+                        </div>
+                    @elseif ($transaction->workflow_status === 'washing_completed')
+                        {{-- Status: Washing Completed - Tampilkan WhatsApp + Dalam Pengiriman --}}
+                        <div class="grid grid-cols-2 gap-2">
+                            @if ($transaction->customer?->phone && $transaction->customer?->name)
+                                <a href="{{ $this->getWhatsAppUrlForDelivery() }}"
+                                    target="_blank" class="btn btn-success btn-sm">
+                                    <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
+                                    WhatsApp
+                                </a>
+                            @endif
+
+                            <button wire:click="markAsOutForDelivery"
+                                class="btn btn-accent btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}">
+                                <x-icon name="solar.delivery-bold-duotone" class="w-4 h-4" />
+                                Dalam Pengiriman
+                            </button>
+                        </div>
+                    @elseif ($transaction->workflow_status === 'out_for_delivery')
+                        {{-- Status: Out for Delivery - Tampilkan Upload Bukti (jika bayar saat antar) + Terkirim --}}
+                        @if ($transaction->payment_timing === 'on_delivery')
+                            <div class="bg-base-200 rounded-lg p-3 mb-2">
+                                {{-- Upload Bukti Pembayaran - Hanya untuk bayar saat antar --}}
+                                <x-file wire:model="paymentProof"
+                                    label="Bukti Pembayaran" hint="Upload foto/screenshot bukti pembayaran"
+                                    accept="image/png, image/jpeg, image/jpg" />
+                            </div>
+                        @endif
+
+                        <button wire:click="markAsDelivered"
+                            class="btn btn-success btn-sm w-full"
+                            @php
+                                $disabled = false;
+                                // Jika bayar saat antar, bukti pembayaran harus ada
+                                if ($transaction->payment_timing === 'on_delivery') {
+                                    $disabled = empty($paymentProof);
+                                }
+                            @endphp
+                            @if ($disabled) disabled @endif>
+                            <x-icon name="solar.check-circle-bold-duotone" class="w-4 h-4" />
+                            Terkirim
+                        </button>
+                    @else
+                        {{-- Status lain (at_loading_post, in_washing, delivered, cancelled) - Hanya tampilkan Kembali --}}
+                        <a href="{{ route('kurir.pesanan') }}" class="btn btn-primary btn-sm w-full">
+                            <x-icon name="solar.undo-left-linear" class="w-4 h-4" />
+                            Kembali
+                        </a>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
