@@ -220,6 +220,7 @@ class Pesanan extends Component
 
         // Format harga dan detail
         $totalPrice = number_format((float) $transaction->total_price, 0, ',', '.');
+        $pricePerKg = number_format((float) $transaction->price_per_kg, 0, ',', '.');
         $weight = $transaction->weight;
         $serviceName = $transaction->service?->name ?? 'Layanan';
         $invoiceNumber = $transaction->invoice_number;
@@ -234,15 +235,17 @@ class Pesanan extends Component
         $message .= "*Detail Pesanan:*\n";
         $message .= "• Invoice: {$invoiceNumber}\n";
         $message .= "• Layanan: {$serviceName}\n";
+        $message .= "• Harga: Rp {$pricePerKg}/kg\n";
         $message .= "• Berat: {$weight} kg\n";
-        $message .= "• Total: Rp {$totalPrice}\n";
         $message .= "• Pembayaran: {$paymentTiming}\n";
 
         if ($isPaid) {
-            $message .= "• Status: *Sudah Lunas*\n\n";
+            $message .= "• Status: *Sudah Lunas*\n";
+            $message .= "• Total Tagihan: Rp {$totalPrice}\n\n";
         } else {
-            $message .= "• Status: *Belum Lunas*\n\n";
-            $message .= "Mohon siapkan uang cash Rp {$totalPrice} ya Kak.\n\n";
+            $message .= "• Status: *Belum Lunas*\n";
+            $message .= "• Total Tagihan: Rp {$totalPrice}\n\n";
+            $message .= "Pembayaran bisa dilakukan saat pengantaran via QRIS.\n\n";
         }
 
         $message .= "*Alamat Pengantaran:*\n";
