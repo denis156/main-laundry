@@ -13,8 +13,6 @@
     {{-- Vite --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- PWA Head --}}
-    @PwaHead
 </head>
 
 <body class="antialiased">
@@ -22,9 +20,7 @@
 
     {{--  TOAST area --}}
     <x-toast />
-
-    {{-- Register Service Worker --}}
-    @RegisterServiceWorkerScript
+    
 </body>
 
 </html>

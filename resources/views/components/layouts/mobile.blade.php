@@ -13,9 +13,6 @@
     {{-- Vite --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- PWA Head --}}
-    @PwaHead
-
     {{-- Kurir Style --}}
     @include('components.kurir.style')
 </head>
@@ -50,8 +47,6 @@
         </audio>
     @endpersist
 
-    {{-- Register Service Worker --}}
-    @RegisterServiceWorkerScript
 </body>
 
 @include('components.kurir.script')
