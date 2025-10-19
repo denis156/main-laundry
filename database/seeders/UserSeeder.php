@@ -20,7 +20,35 @@ class UserSeeder extends Seeder
             'email' => 'admin@laundry.com',
         ]);
 
-        // Buat staff users
-        // User::factory()->count(13)->create();
+        // Buat staff users spesifik
+        User::factory()->create([
+            'name' => 'Denis',
+            'email' => 'denis@laundry.com',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Galih',
+            'email' => 'galih@laundry.com',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Meli',
+            'email' => 'meli@laundry.com',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Ahmad',
+            'email' => 'ahmad@laundry.com',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Riski',
+            'email' => 'riski@laundry.com',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Onda',
+            'email' => 'onda@laundry.com',
+        ]);
     }
 }
