@@ -17,7 +17,15 @@ return new class extends Migration
             $table->id()->comment('ID unik pos');
             $table->foreignId('resort_id')->nullable()->constrained('resorts')->nullOnDelete()->comment('ID resort induk (null jika pos berdiri sendiri)');
             $table->string('name')->comment('Nama pos');
-            $table->text('address')->comment('Alamat lengkap pos');
+
+            // Wilayah (Kota Kendari, Sulawesi Tenggara)
+            $table->string('district_code')->nullable()->comment('Kode kecamatan (dari API wilayah.id)');
+            $table->string('district_name')->nullable()->comment('Nama kecamatan');
+            $table->string('village_code')->nullable()->comment('Kode kelurahan (dari API wilayah.id)');
+            $table->string('village_name')->nullable()->comment('Nama kelurahan');
+            $table->text('detail_address')->nullable()->comment('Detail alamat (Jl, RT/RW, nomor rumah, patokan)');
+            $table->text('address')->nullable()->comment('Alamat lengkap gabungan (untuk display & backward compatibility)');
+
             $table->string('phone')->comment('Nomor telepon pos');
             $table->string('pic_name')->comment('Nama penanggung jawab pos');
             $table->string('area')->nullable()->comment('Area yang dilayani pos ini');

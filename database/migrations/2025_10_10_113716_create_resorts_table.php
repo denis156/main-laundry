@@ -13,7 +13,15 @@ return new class extends Migration
         Schema::create('resorts', function (Blueprint $table) {
             $table->id()->comment('ID unik resort');
             $table->string('name')->comment('Nama resort (Resort Jakarta Selatan)');
-            $table->text('address')->comment('Alamat lengkap resort');
+
+            // Wilayah (Kota Kendari, Sulawesi Tenggara)
+            $table->string('district_code')->nullable()->comment('Kode kecamatan (dari API wilayah.id)');
+            $table->string('district_name')->nullable()->comment('Nama kecamatan');
+            $table->string('village_code')->nullable()->comment('Kode kelurahan (dari API wilayah.id)');
+            $table->string('village_name')->nullable()->comment('Nama kelurahan');
+            $table->text('detail_address')->nullable()->comment('Detail alamat (Jl, RT/RW, nomor rumah, patokan)');
+            $table->text('address')->nullable()->comment('Alamat lengkap gabungan (untuk display & backward compatibility)');
+
             $table->string('phone')->comment('Nomor telepon resort');
             $table->string('pic_name')->comment('Nama penanggung jawab resort');
             $table->boolean('is_active')->default(true)->comment('Status aktif resort (true/false)');

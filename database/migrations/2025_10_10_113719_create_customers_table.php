@@ -18,7 +18,15 @@ return new class extends Migration
             $table->string('name')->comment('Nama lengkap customer');
             $table->string('phone')->unique()->comment('Nomor telepon/WhatsApp customer (unik)');
             $table->string('email')->nullable()->comment('Email customer');
-            $table->text('address')->nullable()->comment('Alamat lengkap customer');
+
+            // Wilayah (Kota Kendari, Sulawesi Tenggara)
+            $table->string('district_code')->nullable()->comment('Kode kecamatan (dari API wilayah.id)');
+            $table->string('district_name')->nullable()->comment('Nama kecamatan');
+            $table->string('village_code')->nullable()->comment('Kode kelurahan (dari API wilayah.id)');
+            $table->string('village_name')->nullable()->comment('Nama kelurahan');
+            $table->text('detail_address')->nullable()->comment('Detail alamat (Jl, RT/RW, nomor rumah, patokan)');
+            $table->text('address')->nullable()->comment('Alamat lengkap gabungan (untuk display & backward compatibility)');
+
             $table->boolean('member')->default(false)->comment('Status member customer (true/false)');
             $table->timestamps();
             $table->softDeletes();

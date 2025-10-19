@@ -17,6 +17,11 @@ class Customer extends Model
         'name',
         'phone',
         'email',
+        'district_code',
+        'district_name',
+        'village_code',
+        'village_name',
+        'detail_address',
         'address',
         'member',
     ];

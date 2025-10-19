@@ -15,6 +15,11 @@ class Resort extends Model
 
     protected $fillable = [
         'name',
+        'district_code',
+        'district_name',
+        'village_code',
+        'village_name',
+        'detail_address',
         'address',
         'phone',
         'pic_name',

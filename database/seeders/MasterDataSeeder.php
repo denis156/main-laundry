@@ -70,23 +70,11 @@ class MasterDataSeeder extends Seeder
         ]);
 
         // Buat resorts (6 resort untuk Kendari)
-        $areas = [
-            'Kendari Barat',
-            'Kendari',
-            'Kambu',
-            'Kadia',
-            'Abeli',
-            'Wua-Wua',
-        ];
+        // Factory akan otomatis generate data wilayah yang sesuai
+        $resorts = Resort::factory()->count(6)->create();
 
-        $resorts = [];
-        foreach ($areas as $area) {
-            $resort = Resort::factory()->create([
-                'name' => 'Resort ' . $area,
-            ]);
-            $resorts[] = $resort;
-
-            // Buat 2-3 pos untuk setiap resort
+        // Buat 2-3 pos untuk setiap resort
+        foreach ($resorts as $resort) {
             Pos::factory()->count(fake()->numberBetween(2, 3))->create([
                 'resort_id' => $resort->id,
             ]);
