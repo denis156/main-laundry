@@ -46,10 +46,10 @@
                         <x-icon name="mdi.phone" class="h-6 w-6" />
                         Pesan Sekarang
                     </a>
-                    <a href="#cara-kerja"
+                    <a href="#untuk-mu"
                         class="btn btn-secondary btn-outline btn-lg rounded-full gap-2 hover:scale-105 transition-all">
                         <x-icon name="mdi.information" class="h-6 w-6" />
-                        Cara Kerja
+                        Untuk Mu
                     </a>
                 </div>
             </div>

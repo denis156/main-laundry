@@ -18,9 +18,15 @@
     </nav>
     <nav>
         <h6 class="footer-title opacity-100">Hubungi Kami</h6>
-        <a href="tel:+6281234567890" class="link link-hover hover:text-primary">+62 812-3456-7890</a>
-        <a href="mailto:info@mainlaundry.com" class="link link-hover hover:text-primary">info@mainlaundry.com</a>
-        <a href="https://wa.me/6281234567890" target="_blank" class="link link-hover hover:text-primary">WhatsApp</a>
+        @if($phone)
+            <a href="tel:{{ str_replace([' ', '-'], '', $phone) }}" class="link link-hover hover:text-primary">{{ $phone }}</a>
+        @endif
+        @if($email)
+            <a href="mailto:{{ $email }}" class="link link-hover hover:text-primary">{{ $email }}</a>
+        @endif
+        @if($phone)
+            <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $phone) }}" target="_blank" class="link link-hover hover:text-primary">WhatsApp</a>
+        @endif
         <p class="text-sm">Kota Kendari</p>
     </nav>
     <nav>

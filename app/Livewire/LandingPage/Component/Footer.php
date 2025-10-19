@@ -10,6 +10,11 @@ class Footer extends Component
 {
     public function render()
     {
-        return view('livewire.landing-page.component.footer');
+        return view('livewire.landing-page.component.footer', [
+            'phone' => config('sosmed.phone'),
+            'email' => config('sosmed.email'),
+            'instagram' => config('sosmed.instagram'),
+            'github' => config('sosmed.github'),
+        ]);
     }
 }
