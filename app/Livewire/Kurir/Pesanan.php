@@ -151,7 +151,7 @@ class Pesanan extends Component
     /**
      * Generate WhatsApp URL dengan message untuk customer (pickup)
      */
-    public function getWhatsAppUrl(string $phone, string $customerName): string
+    public function getWhatsAppUrl(string $phone, string $customerName, Transaction $transaction): string
     {
         $courier = Auth::guard('courier')->user();
 
@@ -170,11 +170,24 @@ class Pesanan extends Component
             $cleanPhone = '62' . $cleanPhone;
         }
 
-        // Message template (lebih santai)
+        // Format harga
+        $pricePerKg = number_format((float) $transaction->price_per_kg, 0, ',', '.');
+        $serviceName = $transaction->service?->name ?? 'Layanan';
+        $invoiceNumber = $transaction->invoice_number;
+        $customerAddress = $transaction->customer?->address ?? 'Alamat belum tersedia';
+
+        // Message template dengan info layanan dan harga
         $message = "Halo Kak *{$customerName}*\n\n";
         $message .= "Perkenalkan, saya *{$courier->name}* dari *Main Laundry*. ";
         $message .= "Saya akan mengambil cucian Kakak hari ini.\n\n";
-        $message .= "Boleh minta tolong kirim *share lokasi* Kakak ya, biar saya gak nyasar.\n\n";
+        $message .= "*Detail Pesanan:*\n";
+        $message .= "• Invoice: {$invoiceNumber}\n";
+        $message .= "• Layanan: {$serviceName}\n";
+        $message .= "• Harga: Rp {$pricePerKg}/kg\n\n";
+        $message .= "*Alamat Penjemputan:*\n";
+        $message .= "{$customerAddress}\n\n";
+        $message .= "Nanti cucian akan ditimbang terlebih dahulu ya Kak.\n\n";
+        $message .= "Boleh minta tolong kirim *share lokasi* Kakak ya, agar saya bisa sampai dengan tepat.\n\n";
         $message .= "Terima kasih";
 
         // Encode message untuk URL
@@ -186,7 +199,7 @@ class Pesanan extends Component
     /**
      * Generate WhatsApp URL dengan message untuk customer (delivery)
      */
-    public function getWhatsAppUrlForDelivery(string $phone, string $customerName): string
+    public function getWhatsAppUrlForDelivery(string $phone, string $customerName, Transaction $transaction): string
     {
         $courier = Auth::guard('courier')->user();
 
@@ -205,11 +218,36 @@ class Pesanan extends Component
             $cleanPhone = '62' . $cleanPhone;
         }
 
-        // Message template untuk pengantaran
+        // Format harga dan detail
+        $totalPrice = number_format((float) $transaction->total_price, 0, ',', '.');
+        $weight = $transaction->weight;
+        $serviceName = $transaction->service?->name ?? 'Layanan';
+        $invoiceNumber = $transaction->invoice_number;
+        $isPaid = $transaction->payment_status === 'paid';
+        $paymentTiming = $transaction->payment_timing === 'on_delivery' ? 'Bayar Saat Antar' : 'Bayar Saat Jemput';
+        $customerAddress = $transaction->customer?->address ?? 'Alamat belum tersedia';
+
+        // Message template untuk pengantaran dengan detail lengkap
         $message = "Halo Kak *{$customerName}*\n\n";
         $message .= "Kabar baik! Cucian Kakak sudah selesai dan siap diantar.\n\n";
         $message .= "Saya *{$courier->name}* dari *Main Laundry* akan mengantar cucian Kakak hari ini.\n\n";
-        $message .= "Boleh minta tolong kirim *share lokasi* Kakak ya, biar saya gak nyasar.\n\n";
+        $message .= "*Detail Pesanan:*\n";
+        $message .= "• Invoice: {$invoiceNumber}\n";
+        $message .= "• Layanan: {$serviceName}\n";
+        $message .= "• Berat: {$weight} kg\n";
+        $message .= "• Total: Rp {$totalPrice}\n";
+        $message .= "• Pembayaran: {$paymentTiming}\n";
+
+        if ($isPaid) {
+            $message .= "• Status: *Sudah Lunas*\n\n";
+        } else {
+            $message .= "• Status: *Belum Lunas*\n\n";
+            $message .= "Mohon siapkan uang cash Rp {$totalPrice} ya Kak.\n\n";
+        }
+
+        $message .= "*Alamat Pengantaran:*\n";
+        $message .= "{$customerAddress}\n\n";
+        $message .= "Boleh minta tolong kirim *share lokasi* Kakak ya, agar saya bisa sampai dengan tepat.\n\n";
         $message .= "Terima kasih";
 
         // Encode message untuk URL

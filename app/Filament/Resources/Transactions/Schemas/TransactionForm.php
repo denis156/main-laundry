@@ -111,18 +111,18 @@ class TransactionForm
                                     ->label('Berat')
                                     ->numeric()
                                     ->suffix('Kg')
-                                    ->minValue(0.1)
+                                    ->minValue(0.01)
                                     ->maxValue(1000)
-                                    ->step(0.1)
+                                    ->step(0.01)
+                                    ->inputMode('decimal')
                                     ->validationAttribute('berat')
                                     ->validationMessages([
                                         'numeric' => 'Berat harus berupa angka.',
-                                        'min' => 'Berat minimal 0.1 kg.',
+                                        'min' => 'Berat minimal 0.01 kg.',
                                         'max' => 'Berat maksimal 1000 kg.',
                                     ])
-                                    ->placeholder('5.0')
-                                    ->hint('Opsional')
-                                    ->helperText('Berat cucian ditimbang kurir (kg)'),
+                                    ->placeholder('8.92')
+                                    ->hint('Opsional'),
 
                                 TextInput::make('price_per_kg')
                                     ->label('Harga per Kg')
@@ -136,8 +136,7 @@ class TransactionForm
                                         'numeric' => 'Harga per kg harus berupa angka.',
                                         'min' => 'Harga per kg minimal Rp 0.',
                                     ])
-                                    ->placeholder('7000')
-                                    ->helperText('Harga per kilogram saat transaksi'),
+                                    ->placeholder('7000'),
 
                                 TextInput::make('total_price')
                                     ->label('Total Bayar')
@@ -153,7 +152,7 @@ class TransactionForm
                                         'min' => 'Total bayar minimal Rp 0.',
                                     ])
                                     ->placeholder('35000')
-                                    ->helperText('Total harga (weight × price_per_kg)'),
+                                    ->helperText('Berat × Harga/kg'),
                             ])
                     ])
                     ->aside()

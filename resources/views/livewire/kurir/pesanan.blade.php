@@ -264,10 +264,10 @@
                                 {{-- Status: Confirmed - Tampilkan Input Berat + Upload Bukti (jika bayar saat jemput) + WhatsApp + Sudah Dijemput --}}
                                 <div class="bg-base-200 rounded-lg p-3 mb-2 space-y-3">
                                     {{-- Input Berat --}}
-                                    <x-input wire:model.live="weights.{{ $transaction->id }}" type="number" step="0.01"
-                                        min="0" label="Berat Cucian (kg)" placeholder="Masukkan berat cucian..."
+                                    <x-input wire:model.blur="weights.{{ $transaction->id }}" type="number" step="0.01"
+                                        min="0.01" label="Berat Cucian (kg)" placeholder="Contoh: 8.92"
                                         icon="solar.scale-bold-duotone"
-                                        hint="{{ $this->getTotalPriceHint($transaction) }}" />
+                                        hint="Hint total harga akan muncul setelah input berat" />
 
                                     {{-- Upload Bukti Pembayaran - Hanya untuk bayar saat jemput --}}
                                     @if ($transaction->payment_timing === 'on_pickup')
@@ -279,7 +279,7 @@
 
                                 <div class="grid grid-cols-2 gap-2">
                                     @if ($transaction->customer?->phone && $transaction->customer?->name)
-                                        <a href="{{ $this->getWhatsAppUrl($transaction->customer->phone, $transaction->customer->name) }}"
+                                        <a href="{{ $this->getWhatsAppUrl($transaction->customer->phone, $transaction->customer->name, $transaction) }}"
                                             target="_blank" class="btn btn-success btn-sm">
                                             <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
                                             WhatsApp
@@ -318,7 +318,7 @@
                                 {{-- Status: Washing Completed - Tampilkan WhatsApp + Dalam Pengiriman --}}
                                 <div class="grid grid-cols-2 gap-2">
                                     @if ($transaction->customer?->phone && $transaction->customer?->name)
-                                        <a href="{{ $this->getWhatsAppUrlForDelivery($transaction->customer->phone, $transaction->customer->name) }}"
+                                        <a href="{{ $this->getWhatsAppUrlForDelivery($transaction->customer->phone, $transaction->customer->name, $transaction) }}"
                                             target="_blank" class="btn btn-success btn-sm">
                                             <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
                                             WhatsApp
