@@ -67,29 +67,6 @@
                                     placeholder="--- Pilih Layanan ---"
                                     hint="Pilih jenis layanan yang Anda inginkan" />
 
-                                {{-- Display selected service info --}}
-                                @if($service_id)
-                                    <div class="md:col-span-2">
-                                        @php
-                                            $selectedService = $services->firstWhere('id', $service_id);
-                                        @endphp
-                                        @if($selectedService)
-                                            <div class="p-3 bg-accent/10 rounded-lg border border-accent/30">
-                                                <div class="flex items-center justify-between text-sm">
-                                                    <div>
-                                                        <span class="font-semibold text-accent">Harga:</span>
-                                                        <span class="ml-2">Rp {{ number_format($selectedService->price_per_kg, 0, ',', '.') }}/kg</span>
-                                                    </div>
-                                                    <div>
-                                                        <span class="font-semibold text-accent">Estimasi:</span>
-                                                        <span class="ml-2">{{ $selectedService->duration_days }} hari</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
-                                @endif
-
                                 {{-- Kecamatan --}}
                                 <x-select
                                     label="Kecamatan"

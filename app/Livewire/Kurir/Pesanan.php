@@ -32,11 +32,15 @@ class Pesanan extends Component
     /**
      * Get transaksi yang di-handle oleh kurir yang sedang login
      * atau transaksi yang belum ada kurirnya (untuk bisa diambil)
+     * Hanya menampilkan transaksi di area layanan pos kurir
      */
     #[Computed]
     public function transactions(): Collection
     {
         $courier = Auth::guard('courier')->user();
+
+        // Load pos dengan area layanan
+        $assignedPos = $courier->assignedPos;
 
         $query = Transaction::with(['customer', 'service', 'pos'])
             ->where(function ($q) use ($courier) {
@@ -49,6 +53,20 @@ class Pesanan extends Component
             ->whereNotNull('service_id')
             ->whereHas('customer')
             ->whereHas('service');
+
+        // Filter berdasarkan area layanan pos (hanya tampilkan transaksi yang customernya di area pos)
+        if ($assignedPos && !empty($assignedPos->area)) {
+            $query->whereHas('customer', function ($q) use ($assignedPos) {
+                $q->where(function ($subQ) use ($assignedPos) {
+                    // Customer village_name harus ada dalam pos.area (JSON array)
+                    foreach ($assignedPos->area as $kelurahan) {
+                        $subQ->orWhere('village_name', $kelurahan);
+                    }
+                    // ATAU customer belum ada village_name (backward compatibility)
+                    $subQ->orWhereNull('village_name');
+                });
+            });
+        }
 
         // Filter berdasarkan workflow_status
         if ($this->filter !== 'all') {
@@ -70,29 +88,55 @@ class Pesanan extends Component
     }
 
     /**
-     * Get statistik pesanan
+     * Get statistik pesanan (hanya dari area layanan pos kurir)
      */
     #[Computed]
     public function stats(): array
     {
         $courier = Auth::guard('courier')->user();
 
-        $pendingCount = Transaction::where(function ($q) use ($courier) {
+        // Load pos dengan area layanan
+        $assignedPos = $courier->assignedPos;
+
+        // Base query dengan filter area
+        $baseQuery = function () use ($courier, $assignedPos) {
+            $query = Transaction::query();
+
+            // Filter berdasarkan area layanan pos
+            if ($assignedPos && !empty($assignedPos->area)) {
+                $query->whereHas('customer', function ($q) use ($assignedPos) {
+                    $q->where(function ($subQ) use ($assignedPos) {
+                        foreach ($assignedPos->area as $kelurahan) {
+                            $subQ->orWhere('village_name', $kelurahan);
+                        }
+                        $subQ->orWhereNull('village_name');
+                    });
+                });
+            }
+
+            return $query;
+        };
+
+        $pendingCount = $baseQuery()
+            ->where(function ($q) use ($courier) {
                 $q->where('courier_motorcycle_id', $courier->id)
                     ->orWhereNull('courier_motorcycle_id');
             })
             ->where('workflow_status', 'pending_confirmation')
             ->count();
 
-        $activeCount = Transaction::where('courier_motorcycle_id', $courier->id)
+        $activeCount = $baseQuery()
+            ->where('courier_motorcycle_id', $courier->id)
             ->whereIn('workflow_status', ['confirmed', 'picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery'])
             ->count();
 
-        $deliveredCount = Transaction::where('courier_motorcycle_id', $courier->id)
+        $deliveredCount = $baseQuery()
+            ->where('courier_motorcycle_id', $courier->id)
             ->where('workflow_status', 'delivered')
             ->count();
 
-        $cancelledCount = Transaction::where('courier_motorcycle_id', $courier->id)
+        $cancelledCount = $baseQuery()
+            ->where('courier_motorcycle_id', $courier->id)
             ->where('workflow_status', 'cancelled')
             ->count();
 
@@ -177,22 +221,37 @@ class Pesanan extends Component
     /**
      * Konfirmasi dan ambil pesanan (ubah status dari pending_confirmation ke confirmed)
      * Jika belum ada kurir, assign kurir ini ke pesanan tersebut
+     * Validasi: pesanan harus di area layanan pos kurir
      */
     public function confirmOrder(int $transactionId): void
     {
         $courier = Auth::guard('courier')->user();
+        $assignedPos = $courier->assignedPos;
 
-        $transaction = Transaction::where('id', $transactionId)
+        $query = Transaction::where('id', $transactionId)
             ->where(function ($q) use ($courier) {
                 // Transaksi yang sudah di-assign ke kurir ini ATAU belum ada kurirnya
                 $q->where('courier_motorcycle_id', $courier->id)
                     ->orWhereNull('courier_motorcycle_id');
             })
-            ->where('workflow_status', 'pending_confirmation')
-            ->first();
+            ->where('workflow_status', 'pending_confirmation');
+
+        // Filter berdasarkan area layanan pos (security)
+        if ($assignedPos && !empty($assignedPos->area)) {
+            $query->whereHas('customer', function ($q) use ($assignedPos) {
+                $q->where(function ($subQ) use ($assignedPos) {
+                    foreach ($assignedPos->area as $kelurahan) {
+                        $subQ->orWhere('village_name', $kelurahan);
+                    }
+                    $subQ->orWhereNull('village_name');
+                });
+            });
+        }
+
+        $transaction = $query->first();
 
         if (!$transaction) {
-            $this->error('Pesanan tidak ditemukan atau tidak bisa dikonfirmasi.');
+            $this->error('Pesanan tidak ditemukan, tidak bisa dikonfirmasi, atau di luar area layanan Anda.');
             return;
         }
 
@@ -210,22 +269,37 @@ class Pesanan extends Component
 
     /**
      * Batalkan pesanan (ubah status dari pending_confirmation ke cancelled)
+     * Validasi: pesanan harus di area layanan pos kurir
      */
     public function cancelOrder(int $transactionId): void
     {
         $courier = Auth::guard('courier')->user();
+        $assignedPos = $courier->assignedPos;
 
-        $transaction = Transaction::where('id', $transactionId)
+        $query = Transaction::where('id', $transactionId)
             ->where(function ($q) use ($courier) {
                 // Transaksi yang sudah di-assign ke kurir ini ATAU belum ada kurirnya
                 $q->where('courier_motorcycle_id', $courier->id)
                     ->orWhereNull('courier_motorcycle_id');
             })
-            ->where('workflow_status', 'pending_confirmation')
-            ->first();
+            ->where('workflow_status', 'pending_confirmation');
+
+        // Filter berdasarkan area layanan pos (security)
+        if ($assignedPos && !empty($assignedPos->area)) {
+            $query->whereHas('customer', function ($q) use ($assignedPos) {
+                $q->where(function ($subQ) use ($assignedPos) {
+                    foreach ($assignedPos->area as $kelurahan) {
+                        $subQ->orWhere('village_name', $kelurahan);
+                    }
+                    $subQ->orWhereNull('village_name');
+                });
+            });
+        }
+
+        $transaction = $query->first();
 
         if (!$transaction) {
-            $this->error('Pesanan tidak ditemukan atau tidak bisa dibatalkan.');
+            $this->error('Pesanan tidak ditemukan, tidak bisa dibatalkan, atau di luar area layanan Anda.');
             return;
         }
 
