@@ -28,7 +28,7 @@ return new class extends Migration
 
             $table->string('phone')->comment('Nomor telepon pos');
             $table->string('pic_name')->comment('Nama penanggung jawab pos');
-            $table->string('area')->nullable()->comment('Area yang dilayani pos ini');
+            $table->json('area')->nullable()->comment('Array kelurahan yang dilayani pos ini');
             $table->boolean('is_active')->default(true)->comment('Status aktif pos (true/false)');
             $table->timestamps();
             $table->softDeletes();

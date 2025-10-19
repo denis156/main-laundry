@@ -24,6 +24,7 @@ return new class extends Migration
 
             $table->string('phone')->comment('Nomor telepon resort');
             $table->string('pic_name')->comment('Nama penanggung jawab resort');
+            $table->json('area')->nullable()->comment('Array kecamatan yang dilayani resort ini');
             $table->boolean('is_active')->default(true)->comment('Status aktif resort (true/false)');
             $table->timestamps();
             $table->softDeletes();

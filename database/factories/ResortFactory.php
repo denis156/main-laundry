@@ -69,6 +69,27 @@ class ResortFactory extends Factory
     }
 
     /**
+     * Generate coverage area (kecamatan yang dilayani resort)
+     */
+    private function generateCoverageArea(array $currentDistrict, array $allDistricts): array
+    {
+        $coverageDistricts = [];
+
+        // Tambahkan kecamatan resort itu sendiri
+        $coverageDistricts[] = $currentDistrict['district_name'];
+
+        // Tambahkan 2-4 kecamatan tetangga
+        $neighborDistricts = array_filter($allDistricts, fn($d) => $d['district_code'] !== $currentDistrict['district_code']);
+        $selectedNeighbors = fake()->randomElements($neighborDistricts, fake()->numberBetween(2, 4));
+
+        foreach ($selectedNeighbors as $neighbor) {
+            $coverageDistricts[] = $neighbor['district_name'];
+        }
+
+        return array_unique($coverageDistricts);
+    }
+
+    /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
@@ -96,6 +117,9 @@ class ResortFactory extends Factory
             $selectedDistrict['district_name']
         );
 
+        // Generate coverage area (kecamatan yang dilayani)
+        $coverageArea = $this->generateCoverageArea($selectedDistrict, $districts);
+
         return [
             'name' => 'Resort ' . $selectedDistrict['district_name'],
             'district_code' => $selectedDistrict['district_code'],
@@ -106,6 +130,7 @@ class ResortFactory extends Factory
             'address' => $fullAddress,
             'phone' => fake()->numerify('8##########'),
             'pic_name' => fake()->name(),
+            'area' => $coverageArea, // Array kecamatan yang dilayani
             'is_active' => fake()->boolean(90),
         ];
     }

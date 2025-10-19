@@ -103,6 +103,33 @@ class PosFactory extends Factory
     }
 
     /**
+     * Generate coverage area (kelurahan yang dilayani pos)
+     */
+    private function generateCoverageArea(array $currentDistrict, array $allDistricts): array
+    {
+        $coverageVillages = [];
+
+        // Tambahkan semua kelurahan dari district pos ini
+        foreach ($currentDistrict['villages'] as $village) {
+            $coverageVillages[] = $village['name'];
+        }
+
+        // Tambahkan beberapa kelurahan dari district tetangga (random 1-2 district)
+        $neighborDistricts = array_filter($allDistricts, fn($d) => $d['district_code'] !== $currentDistrict['district_code']);
+        $selectedNeighbors = fake()->randomElements($neighborDistricts, fake()->numberBetween(1, 2));
+
+        foreach ($selectedNeighbors as $neighbor) {
+            // Ambil 1-2 kelurahan dari district tetangga
+            $neighborVillages = fake()->randomElements($neighbor['villages'], fake()->numberBetween(1, 2));
+            foreach ($neighborVillages as $village) {
+                $coverageVillages[] = $village['name'];
+            }
+        }
+
+        return array_unique($coverageVillages);
+    }
+
+    /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
@@ -130,6 +157,9 @@ class PosFactory extends Factory
             $selectedDistrict['district_name']
         );
 
+        // Generate coverage area (kelurahan yang dilayani)
+        $coverageArea = $this->generateCoverageArea($selectedDistrict, $districts);
+
         return [
             'resort_id' => null, // Default pos berdiri sendiri
             'name' => 'Pos ' . $selectedVillage['name'],
@@ -141,7 +171,7 @@ class PosFactory extends Factory
             'address' => $fullAddress,
             'phone' => fake()->numerify('8##########'),
             'pic_name' => fake()->name(),
-            'area' => $selectedVillage['name'], // Area based on village name
+            'area' => $coverageArea, // Array kelurahan yang dilayani
             'is_active' => fake()->boolean(90),
         ];
     }

@@ -23,12 +23,14 @@ class Resort extends Model
         'address',
         'phone',
         'pic_name',
+        'area',
         'is_active',
     ];
 
     protected function casts(): array
     {
         return [
+            'area' => 'array',
             'is_active' => 'boolean',
         ];
     }
