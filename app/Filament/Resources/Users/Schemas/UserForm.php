@@ -81,15 +81,29 @@ class UserForm
                                             ->tel()
                                             ->maxLength(20)
                                             ->minLength(10)
-                                            ->regex('/^(\+62|62|0)8[1-9][0-9]{6,11}$/')
+                                            ->regex('/^(0)?8[1-9][0-9]{6,11}$/')
+                                            ->prefix('+62')
+                                            ->dehydrateStateUsing(function ($state) {
+                                                if (empty($state)) {
+                                                    return null;
+                                                }
+                                                // Hapus karakter non-numeric
+                                                $cleanPhone = preg_replace('/[^0-9]/', '', $state);
+                                                // Hapus leading 0 jika ada
+                                                if (str_starts_with($cleanPhone, '0')) {
+                                                    $cleanPhone = substr($cleanPhone, 1);
+                                                }
+                                                return $cleanPhone;
+                                            })
                                             ->validationAttribute('telepon')
                                             ->validationMessages([
                                                 'max' => 'telepon tidak boleh lebih dari 20 karakter.',
                                                 'min' => 'telepon minimal 10 karakter.',
                                                 'regex' => 'Format telepon tidak valid. Gunakan format Indonesia yang benar.',
                                             ])
+                                            ->helperText('Bisa tulis dengan 08 atau langsung 8')
                                             ->hint('Opsional')
-                                            ->placeholder('Contoh: 08123456789'),
+                                            ->placeholder('Contoh: 81234567890'),
 
                                         ToggleButtons::make('super_admin')
                                             ->label('Super Admin')
