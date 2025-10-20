@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\LandingPage;
 
-use App\Events\NewTransactionCreated;
+use App\Events\CreatedTransaction;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Transaction;
@@ -253,7 +253,7 @@ class Pesan extends Component
             ]);
 
             // Broadcast event untuk notifikasi real-time ke kurir
-            event(new NewTransactionCreated($transaction->load(['customer', 'service'])));
+            event(new CreatedTransaction($transaction->load(['customer', 'service'])));
 
             // Success toast
             $this->success(
