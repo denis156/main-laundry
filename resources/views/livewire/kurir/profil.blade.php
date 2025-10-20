@@ -2,14 +2,13 @@
     <x-header icon="solar.user-circle-bold-duotone" icon-classes="text-primary w-6 h-6" title="Profil"
         subtitle="Kelola Profil & Akun Anda" separator>
         <x-slot:actions>
-            <x-button label="Keluar" wire:click="logout"
-                class="btn-sm btn-error" icon="solar.logout-2-linear" />
+            <x-button label="Keluar" wire:click="logout" class="btn-sm btn-error" icon="solar.logout-2-linear" />
         </x-slot:actions>
     </x-header>
 
     <div class="space-y-4">
         {{-- Avatar Section --}}
-        <x-card class="bg-base-300" title="Foto Profil" subtitle="Upload dan kelola foto profil Anda" shadow separator >
+        <x-card class="bg-base-300" title="Foto Profil" subtitle="Upload dan kelola foto profil Anda" shadow separator>
             <div class="flex flex-col items-center gap-2 text-center">
                 <h3 class="text-lg font-bold">{{ $this->courier->name }}</h3>
                 <p class="text-sm text-secondary">{{ $this->courier->email }}</p>
@@ -26,7 +25,8 @@
         </x-card>
 
         {{-- Form Update Profil & Password --}}
-        <x-card class="bg-base-300" title="Informasi Akun" subtitle="Kelola data pribadi dan keamanan akun Anda" shadow separator >
+        <x-card class="bg-base-300" title="Informasi Akun" subtitle="Kelola data pribadi dan keamanan akun Anda" shadow
+            separator>
             <x-form wire:submit="save">
                 <x-input label="Nama Lengkap" wire:model.blur="name" icon="solar.user-bold-duotone" />
                 <x-input label="Email" wire:model.blur="email" type="email" icon="solar.letter-bold-duotone" />

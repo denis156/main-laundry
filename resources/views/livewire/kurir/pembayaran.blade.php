@@ -1,6 +1,7 @@
 <section class="bg-base-100 min-h-dvh w-full" wire:poll.25s.visible>
     {{-- Header --}}
-    <x-header icon="solar.wallet-money-bold-duotone" icon-classes="text-primary w-6 h-6" title="Pembayaran" subtitle="Verifikasi & Konfirmasi Pembayaran" separator progress-indicator>
+    <x-header icon="solar.wallet-money-bold-duotone" icon-classes="text-primary w-6 h-6" title="Pembayaran"
+        subtitle="Verifikasi & Konfirmasi Pembayaran" separator progress-indicator>
         <x-slot:middle class="!justify-end">
             <x-input wire:model.live.debounce.500ms="search" icon="solar.magnifer-bold-duotone"
                 placeholder="Cari invoice atau customer..." clearable />
@@ -14,8 +15,7 @@
                     wire:click="$set('filter', 'unpaid')" />
                 <x-menu-item title="Sudah Bayar" icon="solar.check-circle-bold-duotone"
                     wire:click="$set('filter', 'paid')" />
-                <x-menu-item title="Semua" icon="solar.widget-bold-duotone"
-                    wire:click="$set('filter', 'all')" />
+                <x-menu-item title="Semua" icon="solar.widget-bold-duotone" wire:click="$set('filter', 'all')" />
             </x-dropdown>
         </x-slot:actions>
     </x-header>
@@ -184,7 +184,8 @@
 
                         {{-- Action Button --}}
                         <div class="mt-3">
-                            <a href="{{ route('kurir.pembayaran.detail', $transaction->id) }}" class="btn btn-primary btn-sm w-full">
+                            <a href="{{ route('kurir.pembayaran.detail', $transaction->id) }}"
+                                class="btn btn-primary btn-sm w-full">
                                 <x-icon name="solar.wallet-bold-duotone" class="w-4 h-4" />
                                 Detail Pembayaran
                             </a>

@@ -1,6 +1,7 @@
 <section class="bg-base-100 min-h-dvh w-full">
     {{-- Header --}}
-    <x-header icon="solar.info-circle-bold-duotone" icon-classes="text-primary w-6 h-6" title="Informasi" subtitle="Pusat Informasi & Bantuan" separator />
+    <x-header icon="solar.info-circle-bold-duotone" icon-classes="text-primary w-6 h-6" title="Informasi"
+        subtitle="Pusat Informasi & Bantuan" separator />
 
     <div class="space-y-4">
         {{-- Quick Links --}}
@@ -42,8 +43,7 @@
                             </div>
                             <span class="text-sm">{{ config('sosmed.phone') }}</span>
                         </div>
-                        <a href="{{ $this->getWhatsAppCSUrl() }}" target="_blank"
-                            class="btn btn-success btn-sm w-full">
+                        <a href="{{ $this->getWhatsAppCSUrl() }}" target="_blank" class="btn btn-success btn-sm w-full">
                             <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
                             Hubungi via WhatsApp
                         </a>
@@ -58,8 +58,7 @@
                             </div>
                             <span class="text-sm">{{ config('sosmed.email') }}</span>
                         </div>
-                        <a href="mailto:{{ config('sosmed.email') }}"
-                            class="btn btn-info btn-sm w-full">
+                        <a href="mailto:{{ config('sosmed.email') }}" class="btn btn-info btn-sm w-full">
                             <x-icon name="solar.letter-bold-duotone" class="w-4 h-4" />
                             Kirim Email
                         </a>
@@ -88,9 +87,11 @@
                         <x-slot:content>
                             <div class="text-sm space-y-2">
                                 <p>1. Buka menu <strong>Pesanan</strong></p>
-                                <p>2. Cari pesanan dengan status <span class="badge badge-secondary badge-sm">Menunggu Konfirmasi</span></p>
+                                <p>2. Cari pesanan dengan status <span class="badge badge-secondary badge-sm">Menunggu
+                                        Konfirmasi</span></p>
                                 <p>3. Klik tombol <strong>Ambil Pesanan</strong></p>
-                                <p>4. Pesanan akan berubah status menjadi <span class="badge badge-info badge-sm">Terkonfirmasi</span></p>
+                                <p>4. Pesanan akan berubah status menjadi <span
+                                        class="badge badge-info badge-sm">Terkonfirmasi</span></p>
                             </div>
                         </x-slot:content>
                     </x-collapse>
@@ -105,7 +106,8 @@
                         </x-slot:heading>
                         <x-slot:content>
                             <div class="text-sm space-y-2">
-                                <p>1. Pastikan pesanan sudah <span class="badge badge-info badge-sm">Terkonfirmasi</span></p>
+                                <p>1. Pastikan pesanan sudah <span
+                                        class="badge badge-info badge-sm">Terkonfirmasi</span></p>
                                 <p>2. Input berat dalam kg (contoh: 8.5)</p>
                                 <p>3. Total harga akan muncul otomatis</p>
                                 <p>4. Jika bayar saat jemput, upload bukti pembayaran</p>
@@ -257,7 +259,8 @@
                                     @if ($this->assignedPos->pic_name)
                                         <div class="flex items-center gap-2">
                                             <x-icon name="solar.user-bold-duotone" class="w-4 h-4 text-primary" />
-                                            <span class="text-sm font-semibold">{{ $this->assignedPos->pic_name }}</span>
+                                            <span
+                                                class="text-sm font-semibold">{{ $this->assignedPos->pic_name }}</span>
                                         </div>
                                     @endif
                                     @if ($this->assignedPos->phone)
@@ -319,7 +322,8 @@
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-base-content/70">Environment</span>
-                        <span class="badge {{ config('app.env') === 'production' ? 'badge-success' : 'badge-warning' }}">
+                        <span
+                            class="badge {{ config('app.env') === 'production' ? 'badge-success' : 'badge-warning' }}">
                             {{ ucfirst(config('app.env')) }}
                         </span>
                     </div>

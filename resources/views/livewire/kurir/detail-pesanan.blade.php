@@ -1,6 +1,7 @@
 <section class="bg-base-100 min-h-dvh w-full" wire:poll.25s.visible>
     {{-- Header --}}
-    <x-header icon="solar.bill-list-bold-duotone" icon-classes="text-primary w-6 h-6" title="Detail Pesanan" subtitle="{{ $transaction->invoice_number }}" separator progress-indicator>
+    <x-header icon="solar.bill-list-bold-duotone" icon-classes="text-primary w-6 h-6" title="Detail Pesanan"
+        subtitle="{{ $transaction->invoice_number }}" separator progress-indicator>
         <x-slot:actions>
             <a href="{{ route('kurir.pesanan') }}" class="btn btn-circle btn-ghost">
                 <x-icon name="solar.undo-left-linear" class="w-6 h-6" />
@@ -125,7 +126,8 @@
                     @if ($transaction->price_per_kg)
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-base-content/70">Harga/kg</span>
-                            <span class="font-semibold">Rp {{ number_format($transaction->price_per_kg, 0, ',', '.') }}</span>
+                            <span class="font-semibold">Rp
+                                {{ number_format($transaction->price_per_kg, 0, ',', '.') }}</span>
                         </div>
                     @endif
                     @if ($transaction->total_price)
@@ -189,14 +191,12 @@
                     @if ($transaction->workflow_status === 'pending_confirmation')
                         {{-- Status: Pending Confirmation - Tampilkan Batalkan + Ambil Pesanan --}}
                         <div class="grid grid-cols-2 gap-2">
-                            <button wire:click="cancelOrder"
-                                class="btn btn-error btn-sm">
+                            <button wire:click="cancelOrder" class="btn btn-error btn-sm">
                                 <x-icon name="solar.close-circle-bold-duotone" class="w-4 h-4" />
                                 Batalkan Pesanan
                             </button>
 
-                            <button wire:click="confirmOrder"
-                                class="btn btn-accent btn-sm">
+                            <button wire:click="confirmOrder" class="btn btn-accent btn-sm">
                                 <x-icon name="solar.check-circle-bold-duotone" class="w-4 h-4" />
                                 Ambil Pesanan
                             </button>
@@ -205,23 +205,22 @@
                         {{-- Status: Confirmed - Tampilkan Input Berat + Upload Bukti (jika bayar saat jemput DAN belum bayar) + WhatsApp + Sudah Dijemput --}}
                         <div class="bg-base-200 rounded-lg p-3 mb-2 space-y-3">
                             {{-- Input Berat --}}
-                            <x-input wire:model.blur="weight" type="number" step="0.01"
-                                min="0.01" label="Berat Cucian (kg)" placeholder="Contoh: 8.92"
-                                icon="solar.scale-bold-duotone"
+                            <x-input wire:model.blur="weight" type="number" step="0.01" min="0.01"
+                                label="Berat Cucian (kg)" placeholder="Contoh: 8.92" icon="solar.scale-bold-duotone"
                                 hint="{{ $this->getTotalPriceHint() }}" />
 
                             {{-- Upload Bukti Pembayaran - Hanya untuk bayar saat jemput yang belum bayar --}}
                             @if ($transaction->payment_timing === 'on_pickup' && $transaction->payment_status === 'unpaid')
-                                <x-file wire:model="paymentProof"
-                                    label="Bukti Pembayaran" hint="Upload foto/screenshot bukti pembayaran"
+                                <x-file wire:model="paymentProof" label="Bukti Pembayaran"
+                                    hint="Upload foto/screenshot bukti pembayaran"
                                     accept="image/png, image/jpeg, image/jpg" />
                             @endif
                         </div>
 
                         <div class="grid grid-cols-2 gap-2">
                             @if ($transaction->customer?->phone && $transaction->customer?->name)
-                                <a href="{{ $this->getWhatsAppUrl() }}"
-                                    target="_blank" class="btn btn-success btn-sm">
+                                <a href="{{ $this->getWhatsAppUrl() }}" target="_blank"
+                                    class="btn btn-success btn-sm">
                                     <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
                                     WhatsApp
                                 </a>
@@ -230,12 +229,11 @@
                             <button wire:click="markAsPickedUp"
                                 class="btn btn-warning btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}"
                                 @php
-                                    $disabled = empty($weight) || $weight <= 0;
+$disabled = empty($weight) || $weight <= 0;
                                     // Jika bayar saat jemput DAN belum bayar, bukti pembayaran harus ada
                                     if ($transaction->payment_timing === 'on_pickup' && $transaction->payment_status === 'unpaid') {
                                         $disabled = $disabled || empty($paymentProof);
-                                    }
-                                @endphp
+                                    } @endphp
                                 @if ($disabled) disabled @endif>
                                 <x-icon name="solar.box-bold-duotone" class="w-4 h-4" />
                                 Sudah Dijemput
@@ -244,8 +242,7 @@
                     @elseif ($transaction->workflow_status === 'picked_up')
                         {{-- Status: Picked Up - Tampilkan Sudah di Pos + Kembali --}}
                         <div class="grid grid-cols-2 gap-2">
-                            <button wire:click="markAsAtLoadingPost"
-                                class="btn btn-warning btn-sm">
+                            <button wire:click="markAsAtLoadingPost" class="btn btn-warning btn-sm">
                                 <x-icon name="solar.map-point-bold-duotone" class="w-4 h-4" />
                                 Sudah di Pos
                             </button>
@@ -259,8 +256,8 @@
                         {{-- Status: Washing Completed - Tampilkan WhatsApp + Dalam Pengiriman --}}
                         <div class="grid grid-cols-2 gap-2">
                             @if ($transaction->customer?->phone && $transaction->customer?->name)
-                                <a href="{{ $this->getWhatsAppUrlForDelivery() }}"
-                                    target="_blank" class="btn btn-success btn-sm">
+                                <a href="{{ $this->getWhatsAppUrlForDelivery() }}" target="_blank"
+                                    class="btn btn-success btn-sm">
                                     <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
                                     WhatsApp
                                 </a>
@@ -277,21 +274,19 @@
                         @if ($transaction->payment_timing === 'on_delivery' && $transaction->payment_status === 'unpaid')
                             <div class="bg-base-200 rounded-lg p-3 mb-2">
                                 {{-- Upload Bukti Pembayaran - Hanya untuk bayar saat antar yang belum bayar --}}
-                                <x-file wire:model="paymentProof"
-                                    label="Bukti Pembayaran" hint="Upload foto/screenshot bukti pembayaran"
+                                <x-file wire:model="paymentProof" label="Bukti Pembayaran"
+                                    hint="Upload foto/screenshot bukti pembayaran"
                                     accept="image/png, image/jpeg, image/jpg" />
                             </div>
                         @endif
 
-                        <button wire:click="markAsDelivered"
-                            class="btn btn-success btn-sm w-full"
+                        <button wire:click="markAsDelivered" class="btn btn-success btn-sm w-full"
                             @php
-                                $disabled = false;
+$disabled = false;
                                 // Jika bayar saat antar DAN belum bayar, bukti pembayaran harus ada
                                 if ($transaction->payment_timing === 'on_delivery' && $transaction->payment_status === 'unpaid') {
                                     $disabled = empty($paymentProof);
-                                }
-                            @endphp
+                                } @endphp
                             @if ($disabled) disabled @endif>
                             <x-icon name="solar.check-circle-bold-duotone" class="w-4 h-4" />
                             Terkirim
@@ -307,4 +302,4 @@
             </div>
         </div>
     </div>
-</div>
+</section>

@@ -1,6 +1,7 @@
 <section class="bg-base-100 min-h-dvh w-full" wire:poll.25s.visible>
     {{-- Header --}}
-    <x-header icon="solar.wallet-money-bold-duotone" icon-classes="text-primary w-6 h-6" title="Detail Pembayaran" subtitle="{{ $transaction->invoice_number }}" separator progress-indicator>
+    <x-header icon="solar.wallet-money-bold-duotone" icon-classes="text-primary w-6 h-6" title="Detail Pembayaran"
+        subtitle="{{ $transaction->invoice_number }}" separator progress-indicator>
         <x-slot:actions>
             <a href="{{ route('kurir.pembayaran') }}" class="btn btn-circle btn-ghost">
                 <x-icon name="solar.undo-left-linear" class="w-6 h-6" />
@@ -104,7 +105,8 @@
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-base-content/70">Harga/kg</span>
-                        <span class="font-semibold">Rp {{ number_format($transaction->price_per_kg, 0, ',', '.') }}</span>
+                        <span class="font-semibold">Rp
+                            {{ number_format($transaction->price_per_kg, 0, ',', '.') }}</span>
                     </div>
                     <div class="divider my-1"></div>
                     <div class="flex justify-between items-center">
@@ -162,8 +164,7 @@
                     </h3>
 
                     <div class="bg-base-200 rounded-lg p-3">
-                        <img src="{{ asset('storage/' . $transaction->payment_proof_url) }}"
-                            alt="Bukti Pembayaran"
+                        <img src="{{ asset('storage/' . $transaction->payment_proof_url) }}" alt="Bukti Pembayaran"
                             class="w-full rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
                             onclick="document.getElementById('payment_proof_modal').showModal()" />
                     </div>
@@ -175,8 +176,7 @@
                                 <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
                             </form>
                             <h3 class="font-bold text-lg mb-4">Bukti Pembayaran</h3>
-                            <img src="{{ asset('storage/' . $transaction->payment_proof_url) }}"
-                                alt="Bukti Pembayaran"
+                            <img src="{{ asset('storage/' . $transaction->payment_proof_url) }}" alt="Bukti Pembayaran"
                                 class="w-full rounded-lg" />
                         </div>
                         <form method="dialog" class="modal-backdrop">
@@ -210,14 +210,12 @@
 
                     <div class="bg-base-200 rounded-lg p-3 space-y-3">
                         {{-- Upload File --}}
-                        <x-file wire:model="paymentProof"
-                            label="Bukti Pembayaran"
+                        <x-file wire:model="paymentProof" label="Bukti Pembayaran"
                             hint="Upload foto/screenshot bukti pembayaran"
                             accept="image/png, image/jpeg, image/jpg" />
 
                         {{-- Upload Button --}}
-                        <button wire:click="uploadPaymentProof"
-                            class="btn btn-success btn-sm w-full"
+                        <button wire:click="uploadPaymentProof" class="btn btn-success btn-sm w-full"
                             @if (empty($paymentProof)) disabled @endif>
                             <x-icon name="solar.upload-bold-duotone" class="w-4 h-4" />
                             Upload Bukti Pembayaran
@@ -230,8 +228,7 @@
                     @if ($transaction->payment_status === 'unpaid' && $transaction->customer?->phone && $transaction->customer?->name)
                         {{-- Grid 2 Kolom untuk WhatsApp dan Back --}}
                         <div class="grid grid-cols-2 gap-2">
-                            <a href="{{ $this->getWhatsAppReminderUrl() }}"
-                                target="_blank"
+                            <a href="{{ $this->getWhatsAppReminderUrl() }}" target="_blank"
                                 class="btn btn-warning btn-sm">
                                 <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
                                 WhatsApp
