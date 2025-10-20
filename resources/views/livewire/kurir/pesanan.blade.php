@@ -1,6 +1,6 @@
 <div class="bg-base-100 min-h-dvh w-full">
     {{-- Header --}}
-    <x-header title="Pesanan" subtitle="Kelola Pesanan Transaksi" separator progress-indicator>
+    <x-header title="Pesanan" subtitle="Monitor & Proses Pesanan Pelanggan" separator progress-indicator>
         <x-slot:middle class="!justify-end">
             <x-input wire:model.live.debounce.500ms="search" icon="solar.magnifer-bold-duotone"
                 placeholder="Cari invoice atau customer..." clearable />
