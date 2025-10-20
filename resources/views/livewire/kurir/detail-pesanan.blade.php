@@ -202,7 +202,7 @@
                             </button>
                         </div>
                     @elseif ($transaction->workflow_status === 'confirmed')
-                        {{-- Status: Confirmed - Tampilkan Input Berat + Upload Bukti (jika bayar saat jemput) + WhatsApp + Sudah Dijemput --}}
+                        {{-- Status: Confirmed - Tampilkan Input Berat + Upload Bukti (jika bayar saat jemput DAN belum bayar) + WhatsApp + Sudah Dijemput --}}
                         <div class="bg-base-200 rounded-lg p-3 mb-2 space-y-3">
                             {{-- Input Berat --}}
                             <x-input wire:model.blur="weight" type="number" step="0.01"
@@ -210,8 +210,8 @@
                                 icon="solar.scale-bold-duotone"
                                 hint="{{ $this->getTotalPriceHint() }}" />
 
-                            {{-- Upload Bukti Pembayaran - Hanya untuk bayar saat jemput --}}
-                            @if ($transaction->payment_timing === 'on_pickup')
+                            {{-- Upload Bukti Pembayaran - Hanya untuk bayar saat jemput yang belum bayar --}}
+                            @if ($transaction->payment_timing === 'on_pickup' && $transaction->payment_status === 'unpaid')
                                 <x-file wire:model="paymentProof"
                                     label="Bukti Pembayaran" hint="Upload foto/screenshot bukti pembayaran"
                                     accept="image/png, image/jpeg, image/jpg" />
@@ -231,8 +231,8 @@
                                 class="btn btn-warning btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}"
                                 @php
                                     $disabled = empty($weight) || $weight <= 0;
-                                    // Jika bayar saat jemput, bukti pembayaran harus ada
-                                    if ($transaction->payment_timing === 'on_pickup') {
+                                    // Jika bayar saat jemput DAN belum bayar, bukti pembayaran harus ada
+                                    if ($transaction->payment_timing === 'on_pickup' && $transaction->payment_status === 'unpaid') {
                                         $disabled = $disabled || empty($paymentProof);
                                     }
                                 @endphp
@@ -273,10 +273,10 @@
                             </button>
                         </div>
                     @elseif ($transaction->workflow_status === 'out_for_delivery')
-                        {{-- Status: Out for Delivery - Tampilkan Upload Bukti (jika bayar saat antar) + Terkirim --}}
-                        @if ($transaction->payment_timing === 'on_delivery')
+                        {{-- Status: Out for Delivery - Tampilkan Upload Bukti (jika bayar saat antar DAN belum bayar) + Terkirim --}}
+                        @if ($transaction->payment_timing === 'on_delivery' && $transaction->payment_status === 'unpaid')
                             <div class="bg-base-200 rounded-lg p-3 mb-2">
-                                {{-- Upload Bukti Pembayaran - Hanya untuk bayar saat antar --}}
+                                {{-- Upload Bukti Pembayaran - Hanya untuk bayar saat antar yang belum bayar --}}
                                 <x-file wire:model="paymentProof"
                                     label="Bukti Pembayaran" hint="Upload foto/screenshot bukti pembayaran"
                                     accept="image/png, image/jpeg, image/jpg" />
@@ -287,8 +287,8 @@
                             class="btn btn-success btn-sm w-full"
                             @php
                                 $disabled = false;
-                                // Jika bayar saat antar, bukti pembayaran harus ada
-                                if ($transaction->payment_timing === 'on_delivery') {
+                                // Jika bayar saat antar DAN belum bayar, bukti pembayaran harus ada
+                                if ($transaction->payment_timing === 'on_delivery' && $transaction->payment_status === 'unpaid') {
                                     $disabled = empty($paymentProof);
                                 }
                             @endphp

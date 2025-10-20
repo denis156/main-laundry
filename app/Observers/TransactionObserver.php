@@ -49,33 +49,30 @@ class TransactionObserver
 
     /**
      * Handle the Transaction "updated" event.
-     * Auto-create Payment record ketika pembayaran terkonfirmasi.
+     * Auto-create/update Payment record ketika pembayaran terkonfirmasi.
      */
     public function updated(Transaction $transaction): void
     {
         // Cek apakah payment_status berubah menjadi 'paid'
         if ($transaction->wasChanged('payment_status') && $transaction->payment_status === 'paid') {
-            // Validasi data lengkap untuk create payment
+            // Validasi data lengkap untuk create/update payment
             if (
                 !empty($transaction->payment_proof_url) &&
                 !empty($transaction->paid_at) &&
                 !empty($transaction->courier_motorcycle_id) &&
                 $transaction->total_price > 0
             ) {
-                // Cek apakah sudah ada payment record untuk transaksi ini
-                $existingPayment = Payment::where('transaction_id', $transaction->id)->first();
-
-                if (!$existingPayment) {
-                    // Create payment record
-                    Payment::create([
-                        'transaction_id' => $transaction->id,
+                // Update or create payment record
+                Payment::updateOrCreate(
+                    ['transaction_id' => $transaction->id],
+                    [
                         'courier_motorcycle_id' => $transaction->courier_motorcycle_id,
                         'amount' => $transaction->total_price,
                         'payment_proof_url' => $transaction->payment_proof_url,
                         'payment_date' => $transaction->paid_at,
                         'notes' => 'Pembayaran ' . ($transaction->payment_timing === 'on_pickup' ? 'saat jemput' : 'saat antar'),
-                    ]);
-                }
+                    ]
+                );
             }
         }
     }

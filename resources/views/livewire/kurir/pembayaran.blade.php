@@ -184,9 +184,9 @@
 
                         {{-- Action Button --}}
                         <div class="mt-3">
-                            <a href="{{ route('kurir.pesanan.detail', $transaction->id) }}" class="btn btn-primary btn-sm w-full">
-                                <x-icon name="solar.eye-bold-duotone" class="w-4 h-4" />
-                                Lihat Detail
+                            <a href="{{ route('kurir.pembayaran.detail', $transaction->id) }}" class="btn btn-primary btn-sm w-full">
+                                <x-icon name="solar.wallet-bold-duotone" class="w-4 h-4" />
+                                Detail Pembayaran
                             </a>
                         </div>
                     </div>

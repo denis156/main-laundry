@@ -466,8 +466,8 @@ class Pesanan extends Component
             return;
         }
 
-        // Validasi bukti pembayaran jika bayar saat antar
-        if ($transaction->payment_timing === 'on_delivery') {
+        // Validasi bukti pembayaran jika bayar saat antar DAN belum bayar
+        if ($transaction->payment_timing === 'on_delivery' && $transaction->payment_status === 'unpaid') {
             if (empty($this->paymentProofs[$transactionId])) {
                 $this->error('Bukti pembayaran harus diupload untuk pesanan yang bayar saat antar!');
                 return;
@@ -478,8 +478,8 @@ class Pesanan extends Component
             'workflow_status' => 'delivered',
         ];
 
-        // Handle upload bukti pembayaran jika bayar saat antar
-        if ($transaction->payment_timing === 'on_delivery' && !empty($this->paymentProofs[$transactionId])) {
+        // Handle upload bukti pembayaran jika bayar saat antar DAN belum bayar
+        if ($transaction->payment_timing === 'on_delivery' && $transaction->payment_status === 'unpaid' && !empty($this->paymentProofs[$transactionId])) {
             $file = $this->paymentProofs[$transactionId];
             $filename = 'payment-proof-' . $transaction->invoice_number . '-' . time() . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('payment-proofs', $filename, 'public');
@@ -492,7 +492,7 @@ class Pesanan extends Component
         $transaction->update($updateData);
 
         $message = 'Pesanan berhasil ditandai terkirim!';
-        if ($transaction->payment_timing === 'on_delivery') {
+        if ($transaction->payment_timing === 'on_delivery' && $transaction->payment_status === 'paid') {
             $message .= ' Pembayaran telah terkonfirmasi.';
         }
 

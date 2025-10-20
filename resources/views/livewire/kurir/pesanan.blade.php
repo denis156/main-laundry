@@ -246,7 +246,7 @@
                                     </button>
 
                                     <a href="{{ route('kurir.pesanan.detail', $transaction->id) }}" class="btn btn-primary btn-sm">
-                                        <x-icon name="solar.eye-bold-duotone" class="w-4 h-4" />
+                                        <x-icon name="solar.clipboard-list-bold-duotone" class="w-4 h-4" />
                                         Detail Pesanan
                                     </a>
                                 </div>
@@ -268,10 +268,10 @@
                                     </button>
                                 </div>
                             @elseif ($transaction->workflow_status === 'out_for_delivery')
-                                {{-- Status: Out for Delivery - Tampilkan Upload Bukti (jika bayar saat antar) + Terkirim --}}
-                                @if ($transaction->payment_timing === 'on_delivery')
+                                {{-- Status: Out for Delivery - Tampilkan Upload Bukti (jika bayar saat antar DAN belum bayar) + Terkirim --}}
+                                @if ($transaction->payment_timing === 'on_delivery' && $transaction->payment_status === 'unpaid')
                                     <div class="bg-base-200 rounded-lg p-3 mb-2">
-                                        {{-- Upload Bukti Pembayaran - Hanya untuk bayar saat antar --}}
+                                        {{-- Upload Bukti Pembayaran - Hanya untuk bayar saat antar yang belum bayar --}}
                                         <x-file wire:model="paymentProofs.{{ $transaction->id }}"
                                             label="Bukti Pembayaran" hint="Upload foto/screenshot bukti pembayaran"
                                             accept="image/png, image/jpeg, image/jpg" />
@@ -282,8 +282,8 @@
                                     class="btn btn-success btn-sm w-full"
                                     @php
                                         $disabled = false;
-                                        // Jika bayar saat antar, bukti pembayaran harus ada
-                                        if ($transaction->payment_timing === 'on_delivery') {
+                                        // Jika bayar saat antar DAN belum bayar, bukti pembayaran harus ada
+                                        if ($transaction->payment_timing === 'on_delivery' && $transaction->payment_status === 'unpaid') {
                                             $disabled = empty($paymentProofs[$transaction->id]);
                                         }
                                     @endphp
@@ -294,7 +294,7 @@
                             @else
                                 {{-- Status lain (at_loading_post, in_washing, delivered, cancelled) - Hanya tampilkan Detail --}}
                                 <a href="{{ route('kurir.pesanan.detail', $transaction->id) }}" class="btn btn-primary btn-sm w-full">
-                                    <x-icon name="solar.eye-bold-duotone" class="w-4 h-4" />
+                                    <x-icon name="solar.clipboard-list-bold-duotone" class="w-4 h-4" />
                                     Detail Pesanan
                                 </a>
                             @endif
