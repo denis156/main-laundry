@@ -1,4 +1,4 @@
-<div class="bg-base-100 min-h-dvh w-full" wire:poll.15s.visible>
+<div class="bg-base-100 min-h-dvh w-full" wire:poll.25s.visible>
     {{-- Header --}}
     <x-header title="Pembayaran" subtitle="Kelola Pembayaran Transaksi" separator progress-indicator>
         <x-slot:middle class="!justify-end">
