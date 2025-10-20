@@ -1,6 +1,6 @@
-<div class="bg-base-100 min-h-dvh w-full" wire:poll.25s.visible>
+<section class="bg-base-100 min-h-dvh w-full" wire:poll.25s.visible>
     {{-- Header --}}
-    <x-header title="Detail Pembayaran" subtitle="{{ $transaction->invoice_number }}" separator progress-indicator>
+    <x-header icon="solar.wallet-money-bold-duotone" icon-classes="text-primary w-6 h-6" title="Detail Pembayaran" subtitle="{{ $transaction->invoice_number }}" separator progress-indicator>
         <x-slot:actions>
             <a href="{{ route('kurir.pembayaran') }}" class="btn btn-circle btn-ghost">
                 <x-icon name="solar.undo-left-linear" class="w-6 h-6" />
@@ -252,4 +252,4 @@
             </div>
         </div>
     </div>
-</div>
+</section>
