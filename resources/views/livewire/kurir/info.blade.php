@@ -314,7 +314,7 @@
                 <div class="bg-base-200 rounded-lg p-3 space-y-2">
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-base-content/70">Nama Aplikasi</span>
-                        <span class="font-semibold">{{ config('app.name') }}</span>
+                        <span class="font-semibold">Kurir {{ config('app.name') }}</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-base-content/70">Versi Kurir</span>
