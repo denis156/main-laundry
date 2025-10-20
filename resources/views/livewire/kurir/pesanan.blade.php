@@ -1,6 +1,6 @@
-<div class="bg-base-100 min-h-dvh w-full">
+<section class="bg-base-100 min-h-dvh w-full">
     {{-- Header --}}
-    <x-header title="Pesanan" subtitle="Monitor & Proses Pesanan Pelanggan" separator progress-indicator>
+    <x-header icon="solar.bill-list-bold-duotone" icon-classes="text-primary w-6 h-6" title="Pesanan" subtitle="Monitor & Proses Pesanan Pelanggan" separator progress-indicator>
         <x-slot:middle class="!justify-end">
             <x-input wire:model.live.debounce.500ms="search" icon="solar.magnifer-bold-duotone"
                 placeholder="Cari invoice atau customer..." clearable />
@@ -246,7 +246,7 @@
                                     </button>
 
                                     <a href="{{ route('kurir.pesanan.detail', $transaction->id) }}" class="btn btn-primary btn-sm">
-                                        <x-icon name="solar.clipboard-list-bold-duotone" class="w-4 h-4" />
+                                        <x-icon name="solar.bill-list-bold-duotone" class="w-4 h-4" />
                                         Detail Pesanan
                                     </a>
                                 </div>
@@ -294,7 +294,7 @@
                             @else
                                 {{-- Status lain (at_loading_post, in_washing, delivered, cancelled) - Hanya tampilkan Detail --}}
                                 <a href="{{ route('kurir.pesanan.detail', $transaction->id) }}" class="btn btn-primary btn-sm w-full">
-                                    <x-icon name="solar.clipboard-list-bold-duotone" class="w-4 h-4" />
+                                    <x-icon name="solar.bill-list-bold-duotone" class="w-4 h-4" />
                                     Detail Pesanan
                                 </a>
                             @endif

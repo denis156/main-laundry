@@ -1,5 +1,5 @@
 <section class="bg-base-100">
-    <x-header title="Profil" subtitle="Halaman Profil" separator />
+    <x-header icon="solar.user-circle-bold-duotone" icon-classes="text-primary w-6 h-6" title="Profil" subtitle="Halaman Profil" separator />
 
     <x-card class="bg-base-300 mb-4">
         <article>

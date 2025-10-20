@@ -1,5 +1,5 @@
 <section class="bg-base-100">
-    <x-header title="Beranda" subtitle="Hal Utama App Kurir {{ config('app.name') }}" separator />
+    <x-header icon="solar.home-bold-duotone" icon-classes="text-primary w-6 h-6" title="Beranda" subtitle="Hal Utama App Kurir {{ config('app.name') }}" separator />
 
     <x-card class="bg-base-300 mb-4">
         <article>

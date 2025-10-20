@@ -1,6 +1,6 @@
-<div class="bg-base-100 min-h-dvh w-full" wire:poll.25s.visible>
+<section class="bg-base-100 min-h-dvh w-full" wire:poll.25s.visible>
     {{-- Header --}}
-    <x-header title="Pembayaran" subtitle="Verifikasi & Konfirmasi Pembayaran" separator progress-indicator>
+    <x-header icon="solar.wallet-money-bold-duotone" icon-classes="text-primary w-6 h-6" title="Pembayaran" subtitle="Verifikasi & Konfirmasi Pembayaran" separator progress-indicator>
         <x-slot:middle class="!justify-end">
             <x-input wire:model.live.debounce.500ms="search" icon="solar.magnifer-bold-duotone"
                 placeholder="Cari invoice atau customer..." clearable />
@@ -211,4 +211,4 @@
             @endforelse
         </div>
     </div>
-</div>
+</section>
