@@ -17,7 +17,6 @@
                 {{-- Invoice & Status Badge --}}
                 <div class="flex items-start justify-between mb-3">
                     <div>
-                        <p class="text-xs text-base-content/60">Invoice</p>
                         <p class="font-bold text-lg text-primary">{{ $transaction->invoice_number }}</p>
                     </div>
                     @php
@@ -34,7 +33,7 @@
                 {{-- Customer Info --}}
                 <h3 class="font-bold text-base mb-2 flex items-center gap-2">
                     <x-icon name="solar.user-bold-duotone" class="w-4 h-4 text-primary" />
-                    Informasi Customer
+                    Informasi Pelanggan
                 </h3>
 
                 <div class="bg-base-200 rounded-lg p-3 space-y-2 mb-3">
@@ -44,7 +43,7 @@
                     </div>
 
                     <div class="flex justify-between items-center">
-                        <span class="text-sm text-base-content/70">Phone</span>
+                        <span class="text-sm text-base-content/70">No. Telepon</span>
                         <span class="font-semibold">{{ $transaction->customer?->phone ?? '-' }}</span>
                     </div>
 
