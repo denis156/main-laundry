@@ -30,9 +30,9 @@
             <x-form wire:submit="save">
                 <x-input label="Nama Lengkap" wire:model.blur="name" icon="solar.user-bold-duotone" />
                 <x-input label="Email" wire:model.blur="email" type="email" icon="solar.letter-bold-duotone" />
-                <x-input label="No. Telepon/WhatsApp" wire:model.blur="phone" prefix="+62"
+                <x-input label="No. Telepon" wire:model.blur="phone" prefix="+62"
                     hint="Bisa tulis dengan 08 atau langsung 8" maxlength="15" />
-                <x-input label="Plat Nomor Kendaraan" wire:model.blur="vehicle_number"
+                <x-input label="Plat Nomor" wire:model.blur="vehicle_number"
                     icon="solar.transmission-bold-duotone" />
 
                 <x-password label="Password Lama" wire:model.blur="current_password" type="password"
