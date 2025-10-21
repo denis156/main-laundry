@@ -1,5 +1,5 @@
 @php use App\Helper\StatusTransactionHelper; @endphp
-<section class="bg-base-100 min-h-dvh w-full" wire:poll.25s.visible>
+<section class="bg-base-100" wire:poll.25s.visible>
     {{-- Header --}}
     <x-header icon="solar.wallet-money-bold-duotone" icon-classes="text-primary w-6 h-6" title="Detail Pembayaran"
         subtitle="{{ $transaction->invoice_number }}" separator progress-indicator>
