@@ -111,7 +111,7 @@
                                 <p>2. Input berat dalam kg (contoh: 8.5)</p>
                                 <p>3. Total harga akan muncul otomatis</p>
                                 <p>4. Jika bayar saat jemput, upload bukti pembayaran</p>
-                                <p>5. Klik <strong>Sudah Dijemput</strong></p>
+                                <p>5. Klik <strong>Dijemput</strong></p>
                             </div>
                         </x-slot:content>
                     </x-collapse>
@@ -128,11 +128,11 @@
                             <div class="text-sm space-y-2">
                                 <p><strong>Bayar Saat Jemput:</strong></p>
                                 <p>- Upload saat pesanan akan dijemput (status Terkonfirmasi)</p>
-                                <p>- Wajib upload sebelum klik "Sudah Dijemput"</p>
+                                <p>- Wajib upload sebelum klik "Dijemput"</p>
                                 <div class="divider my-2"></div>
                                 <p><strong>Bayar Saat Antar:</strong></p>
-                                <p>- Upload saat pesanan akan diantar (status Dalam Pengiriman)</p>
-                                <p>- Wajib upload sebelum klik "Terkirim"</p>
+                                <p>- Upload saat pesanan akan diantar (status Mengantar)</p>
+                                <p>- Wajib upload sebelum klik "Selesai"</p>
                                 <div class="divider my-2"></div>
                                 <p><strong>Tips:</strong> Pastikan foto bukti jelas dan terbaca!</p>
                             </div>
@@ -173,7 +173,7 @@
                         <x-slot:content>
                             <div class="text-sm space-y-2">
                                 <div class="flex items-center gap-2">
-                                    <span class="badge badge-secondary badge-xs">Menunggu Konfirmasi</span>
+                                    <span class="badge badge-secondary badge-xs">Konfirmasi?</span>
                                     <span>Belum diambil kurir</span>
                                 </div>
                                 <div class="flex items-center gap-2">
@@ -181,7 +181,7 @@
                                     <span>Siap dijemput ke customer</span>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="badge badge-warning badge-xs">Sudah Dijemput</span>
+                                    <span class="badge badge-warning badge-xs">Dijemput</span>
                                     <span>Dalam perjalanan ke pos</span>
                                 </div>
                                 <div class="flex items-center gap-2">
@@ -189,19 +189,19 @@
                                     <span>Sudah sampai pos loading</span>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="badge badge-primary badge-xs">Sedang Dicuci</span>
+                                    <span class="badge badge-primary badge-xs">Dicuci</span>
                                     <span>Proses pencucian</span>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="badge badge-success badge-xs">Cucian Selesai</span>
+                                    <span class="badge badge-success badge-xs">Siap Antar</span>
                                     <span>Siap diantar ke customer</span>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="badge badge-warning badge-xs">Dalam Pengiriman</span>
+                                    <span class="badge badge-warning badge-xs">Mengantar</span>
                                     <span>Sedang diantar ke customer</span>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="badge badge-success badge-xs">Terkirim</span>
+                                    <span class="badge badge-success badge-xs">Selesai</span>
                                     <span>Sudah diterima customer</span>
                                 </div>
                             </div>

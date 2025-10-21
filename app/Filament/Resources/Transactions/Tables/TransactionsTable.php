@@ -17,6 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ColumnGroup;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
+use App\Helper\StatusTransactionHelper;
 
 class TransactionsTable
 {
@@ -61,30 +62,16 @@ class TransactionsTable
                     TextColumn::make('workflow_status')
                         ->label('Status Workflow')
                         ->badge()
-                        ->color(fn(string $state): string => match ($state) {
-                            'pending_confirmation' => 'gray',
-                            'confirmed' => 'info',
-                            'picked_up' => 'warning',
-                            'at_loading_post' => 'warning',
-                            'in_washing' => 'primary',
-                            'washing_completed' => 'success',
-                            'out_for_delivery' => 'warning',
-                            'delivered' => 'success',
-                            'cancelled' => 'danger',
+                        ->color(fn(string $state): string => match (StatusTransactionHelper::getStatusBadgeColor($state)) {
+                            'badge-secondary' => 'gray',
+                            'badge-info' => 'info',
+                            'badge-warning' => 'warning',
+                            'badge-primary' => 'primary',
+                            'badge-success' => 'success',
+                            'badge-error' => 'danger',
                             default => 'gray',
                         })
-                        ->formatStateUsing(fn(string $state): string => match ($state) {
-                            'pending_confirmation' => 'Menunggu Konfirmasi',
-                            'confirmed' => 'Terkonfirmasi',
-                            'picked_up' => 'Sudah Dijemput',
-                            'at_loading_post' => 'Di Pos',
-                            'in_washing' => 'Sedang Dicuci',
-                            'washing_completed' => 'Cucian Selesai',
-                            'out_for_delivery' => 'Dalam Pengiriman',
-                            'delivered' => 'Terkirim',
-                            'cancelled' => 'Dibatalkan',
-                            default => $state,
-                        })
+                        ->formatStateUsing(fn(string $state): string => StatusTransactionHelper::getStatusText($state))
                         ->alignCenter()
                         ->searchable()
                         ->sortable()
@@ -240,17 +227,7 @@ class TransactionsTable
                 SelectFilter::make('workflow_status')
                     ->label('Status Workflow')
                     ->native(false)
-                    ->options([
-                        'pending_confirmation' => 'Menunggu Konfirmasi',
-                        'confirmed' => 'Terkonfirmasi',
-                        'picked_up' => 'Sudah Dijemput',
-                        'at_loading_post' => 'Di Pos',
-                        'in_washing' => 'Sedang Dicuci',
-                        'washing_completed' => 'Cucian Selesai',
-                        'out_for_delivery' => 'Dalam Pengiriman',
-                        'delivered' => 'Terkirim',
-                        'cancelled' => 'Dibatalkan',
-                    ])
+                    ->options(StatusTransactionHelper::getAllStatuses())
                     ->placeholder('Semua status workflow'),
                 SelectFilter::make('payment_status')
                     ->label('Status Pembayaran')

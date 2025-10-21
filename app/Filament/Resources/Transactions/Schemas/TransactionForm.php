@@ -15,6 +15,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Components\DateTimePicker;
+use App\Helper\StatusTransactionHelper;
 
 class TransactionForm
 {
@@ -172,17 +173,7 @@ class TransactionForm
                                     ->required()
                                     ->native(false)
                                     ->default('pending_confirmation')
-                                    ->options([
-                                        'pending_confirmation' => 'Menunggu Konfirmasi',
-                                        'confirmed' => 'Terkonfirmasi',
-                                        'picked_up' => 'Sudah Dijemput',
-                                        'at_loading_post' => 'Di Pos',
-                                        'in_washing' => 'Sedang Dicuci',
-                                        'washing_completed' => 'Cucian Selesai',
-                                        'out_for_delivery' => 'Dalam Pengiriman',
-                                        'delivered' => 'Terkirim',
-                                        'cancelled' => 'Dibatalkan',
-                                    ])
+                                    ->options(StatusTransactionHelper::getAllStatuses())
                                     ->validationAttribute('status workflow')
                                     ->validationMessages([
                                         'required' => 'Status workflow wajib dipilih.',

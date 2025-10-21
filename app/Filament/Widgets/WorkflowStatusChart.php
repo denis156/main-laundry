@@ -6,6 +6,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\Transaction;
 use Filament\Widgets\ChartWidget;
+use App\Helper\StatusTransactionHelper;
 
 class WorkflowStatusChart extends ChartWidget
 {
@@ -88,18 +89,8 @@ class WorkflowStatusChart extends ChartWidget
      */
     private function getWorkflowStatusDistribution(): array
     {
-        // Definisi semua status workflow (sesuai dengan form)
-        $statuses = [
-            'pending_confirmation' => 'Menunggu Konfirmasi',
-            'confirmed' => 'Terkonfirmasi',
-            'picked_up' => 'Sudah Dijemput',
-            'at_loading_post' => 'Di Pos',
-            'in_washing' => 'Sedang Dicuci',
-            'washing_completed' => 'Cucian Selesai',
-            'out_for_delivery' => 'Dalam Pengiriman',
-            'delivered' => 'Terkirim',
-            'cancelled' => 'Dibatalkan',
-        ];
+        // Definisi semua status workflow menggunakan helper
+        $statuses = StatusTransactionHelper::getAllStatuses();
 
         $labels = [];
         $counts = [];

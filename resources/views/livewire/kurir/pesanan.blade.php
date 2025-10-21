@@ -1,3 +1,4 @@
+@php use App\Helper\StatusTransactionHelper; @endphp
 <section class="bg-base-100 min-h-dvh w-full">
     {{-- Header --}}
     <x-header icon="solar.bill-list-bold-duotone" icon-classes="text-primary w-6 h-6" title="Pesanan" subtitle="Monitor & Proses Pesanan Pelanggan" separator progress-indicator>
@@ -12,23 +13,23 @@
                 </x-slot:trigger>
                 <x-menu-item title="Semua Status" icon="solar.widget-bold-duotone"
                     wire:click="$set('filter', 'all')" />
-                <x-menu-item title="Menunggu Konfirmasi" icon="solar.clock-circle-bold-duotone"
+                <x-menu-item title="Konfirmasi?" icon="solar.clock-circle-bold-duotone"
                     wire:click="$set('filter', 'pending_confirmation')" />
                 <x-menu-item title="Terkonfirmasi" icon="solar.check-circle-bold-duotone"
                     wire:click="$set('filter', 'confirmed')" />
-                <x-menu-item title="Sudah Dijemput" icon="solar.box-bold-duotone"
+                <x-menu-item title="Dijemput" icon="solar.box-bold-duotone"
                     wire:click="$set('filter', 'picked_up')" />
                 <x-menu-item title="Di Pos" icon="solar.map-point-bold-duotone"
                     wire:click="$set('filter', 'at_loading_post')" />
-                <x-menu-item title="Sedang Dicuci" icon="solar.washing-machine-bold-duotone"
+                <x-menu-item title="Dicuci" icon="solar.washing-machine-bold-duotone"
                     wire:click="$set('filter', 'in_washing')" />
-                <x-menu-item title="Cucian Selesai" icon="solar.check-read-bold-duotone"
+                <x-menu-item title="Siap Antar" icon="solar.check-read-bold-duotone"
                     wire:click="$set('filter', 'washing_completed')" />
-                <x-menu-item title="Dalam Pengiriman" icon="solar.delivery-bold-duotone"
+                <x-menu-item title="Mengantar" icon="solar.delivery-bold-duotone"
                     wire:click="$set('filter', 'out_for_delivery')" />
-                <x-menu-item title="Terkirim" icon="solar.star-bold-duotone"
+                <x-menu-item title="Selesai" icon="solar.star-bold-duotone"
                     wire:click="$set('filter', 'delivered')" />
-                <x-menu-item title="Dibatalkan" icon="solar.close-circle-bold-duotone"
+                <x-menu-item title="Batal" icon="solar.close-circle-bold-duotone"
                     wire:click="$set('filter', 'cancelled')" />
             </x-dropdown>
         </x-slot:actions>
@@ -54,31 +55,8 @@
                                 </p>
                             </div>
                             @php
-                                $statusColor = match ($transaction->workflow_status) {
-                                    'pending_confirmation' => 'badge-secondary',
-                                    'confirmed' => 'badge-info',
-                                    'picked_up' => 'badge-warning',
-                                    'at_loading_post' => 'badge-warning',
-                                    'in_washing' => 'badge-primary',
-                                    'washing_completed' => 'badge-success',
-                                    'out_for_delivery' => 'badge-warning',
-                                    'delivered' => 'badge-success',
-                                    'cancelled' => 'badge-error',
-                                    default => 'badge-secondary',
-                                };
-
-                                $statusText = match ($transaction->workflow_status) {
-                                    'pending_confirmation' => 'Menunggu Konfirmasi',
-                                    'confirmed' => 'Terkonfirmasi',
-                                    'picked_up' => 'Sudah Dijemput',
-                                    'at_loading_post' => 'Di Pos',
-                                    'in_washing' => 'Sedang Dicuci',
-                                    'washing_completed' => 'Cucian Selesai',
-                                    'out_for_delivery' => 'Dalam Pengiriman',
-                                    'delivered' => 'Terkirim',
-                                    'cancelled' => 'Dibatalkan',
-                                    default => $transaction->workflow_status,
-                                };
+                                $statusColor = StatusTransactionHelper::getStatusBadgeColor($transaction->workflow_status);
+                                $statusText = StatusTransactionHelper::getStatusText($transaction->workflow_status);
                             @endphp
                             <span class="badge {{ $statusColor }} gap-1">
                                 {{ $statusText }}
@@ -197,7 +175,7 @@
                                     </button>
                                 </div>
                             @elseif ($transaction->workflow_status === 'confirmed')
-                                {{-- Status: Confirmed - Tampilkan Input Berat + Upload Bukti (jika bayar saat jemput) + WhatsApp + Sudah Dijemput --}}
+                                {{-- Status: Confirmed - Tampilkan Input Berat + Upload Bukti (jika bayar saat jemput) + WhatsApp + Dijemput --}}
                                 <div class="bg-base-200 rounded-lg p-3 mb-2 space-y-3">
                                     {{-- Input Berat --}}
                                     <x-input wire:model.blur="weights.{{ $transaction->id }}" type="number" step="0.01"
@@ -233,7 +211,7 @@
                                         @endphp
                                         @if ($disabled) disabled @endif>
                                         <x-icon name="solar.box-bold-duotone" class="w-4 h-4" />
-                                        Sudah Dijemput
+                                        Dijemput
                                     </button>
                                 </div>
                             @elseif ($transaction->workflow_status === 'picked_up')
@@ -251,7 +229,7 @@
                                     </a>
                                 </div>
                             @elseif ($transaction->workflow_status === 'washing_completed')
-                                {{-- Status: Washing Completed - Tampilkan WhatsApp + Dalam Pengiriman --}}
+                                {{-- Status: Washing Completed - Tampilkan WhatsApp + Mengantar --}}
                                 <div class="grid grid-cols-2 gap-2">
                                     @if ($transaction->customer?->phone && $transaction->customer?->name)
                                         <a href="{{ $this->getWhatsAppUrlForDelivery($transaction->customer->phone, $transaction->customer->name, $transaction) }}"
@@ -264,11 +242,11 @@
                                     <button wire:click="markAsOutForDelivery({{ $transaction->id }})"
                                         class="btn btn-accent btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}">
                                         <x-icon name="solar.delivery-bold-duotone" class="w-4 h-4" />
-                                        Dalam Pengiriman
+                                        Mengantar
                                     </button>
                                 </div>
                             @elseif ($transaction->workflow_status === 'out_for_delivery')
-                                {{-- Status: Out for Delivery - Tampilkan Upload Bukti (jika bayar saat antar DAN belum bayar) + Terkirim --}}
+                                {{-- Status: Out for Delivery - Tampilkan Upload Bukti (jika bayar saat antar DAN belum bayar) + Selesai --}}
                                 @if ($transaction->payment_timing === 'on_delivery' && $transaction->payment_status === 'unpaid')
                                     <div class="bg-base-200 rounded-lg p-3 mb-2">
                                         {{-- Upload Bukti Pembayaran - Hanya untuk bayar saat antar yang belum bayar --}}
@@ -289,7 +267,7 @@
                                     @endphp
                                     @if ($disabled) disabled @endif>
                                     <x-icon name="solar.check-circle-bold-duotone" class="w-4 h-4" />
-                                    Terkirim
+                                    Selesai
                                 </button>
                             @else
                                 {{-- Status lain (at_loading_post, in_washing, delivered, cancelled) - Hanya tampilkan Detail --}}

@@ -1,3 +1,4 @@
+@php use App\Helper\StatusTransactionHelper; @endphp
 <section class="bg-base-100 min-h-dvh w-full" wire:poll.25s.visible>
     {{-- Header --}}
     <x-header icon="solar.bill-list-bold-duotone" icon-classes="text-primary w-6 h-6" title="Detail Pesanan"
@@ -20,31 +21,8 @@
                         <p class="font-bold text-lg text-primary">{{ $transaction->invoice_number }}</p>
                     </div>
                     @php
-                        $statusColor = match ($transaction->workflow_status) {
-                            'pending_confirmation' => 'badge-secondary',
-                            'confirmed' => 'badge-info',
-                            'picked_up' => 'badge-warning',
-                            'at_loading_post' => 'badge-warning',
-                            'in_washing' => 'badge-primary',
-                            'washing_completed' => 'badge-success',
-                            'out_for_delivery' => 'badge-warning',
-                            'delivered' => 'badge-success',
-                            'cancelled' => 'badge-error',
-                            default => 'badge-secondary',
-                        };
-
-                        $statusText = match ($transaction->workflow_status) {
-                            'pending_confirmation' => 'Menunggu Konfirmasi',
-                            'confirmed' => 'Terkonfirmasi',
-                            'picked_up' => 'Sudah Dijemput',
-                            'at_loading_post' => 'Di Pos',
-                            'in_washing' => 'Sedang Dicuci',
-                            'washing_completed' => 'Cucian Selesai',
-                            'out_for_delivery' => 'Dalam Pengiriman',
-                            'delivered' => 'Terkirim',
-                            'cancelled' => 'Dibatalkan',
-                            default => $transaction->workflow_status,
-                        };
+                        $statusColor = StatusTransactionHelper::getStatusBadgeColor($transaction->workflow_status);
+                        $statusText = StatusTransactionHelper::getStatusText($transaction->workflow_status);
                     @endphp
                     <span class="badge {{ $statusColor }} gap-1">
                         {{ $statusText }}

@@ -11,7 +11,7 @@
                 <x-icon name="solar.clock-circle-bold-duotone" class="w-10 h-10 opacity-50" />
             </div>
             <div class="text-xs mt-2 font-semibold">
-                Menunggu Konfirmasi
+                Konfirmasi?
             </div>
         </div>
     </div>
@@ -43,7 +43,7 @@
                 <x-icon name="solar.star-bold-duotone" class="w-10 h-10 opacity-50" />
             </div>
             <div class="text-xs mt-2 font-semibold">
-                Terkirim
+                Selesai
             </div>
         </div>
     </div>
@@ -59,7 +59,7 @@
                 <x-icon name="solar.close-circle-bold-duotone" class="w-10 h-10 opacity-50" />
             </div>
             <div class="text-xs mt-2 font-semibold">
-                Dibatalkan
+                Batal
             </div>
         </div>
     </div>
