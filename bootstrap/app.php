@@ -23,6 +23,26 @@ return Application::configure(basePath: dirname(__DIR__))
             // Default redirect untuk guard lain
             return route('login'); // Bisa disesuaikan dengan route login Anda
         });
+
+        // Trust proxies for Cloudflared tunnel
+        // SECURITY: Only trust Cloudflare IP ranges and local proxies
+        // For Cloudflared tunnel, we trust: localhost, private networks, and Cloudflare IPs
+        // Cloudflare IPs reference: https://www.cloudflare.com/ips/
+        $trustedProxies = env('TRUSTED_PROXIES', '*');
+
+        // Convert comma-separated string to array if needed
+        if (is_string($trustedProxies) && $trustedProxies !== '*') {
+            $trustedProxies = array_map('trim', explode(',', $trustedProxies));
+        }
+
+        $middleware->trustProxies(
+            at: $trustedProxies,
+            headers: Request::HEADER_X_FORWARDED_FOR |
+                    Request::HEADER_X_FORWARDED_HOST |
+                    Request::HEADER_X_FORWARDED_PORT |
+                    Request::HEADER_X_FORWARDED_PROTO |
+                    Request::HEADER_X_FORWARDED_AWS_ELB
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

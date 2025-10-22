@@ -12,6 +12,7 @@ use App\Observers\CustomerObserver;
 use App\Models\EquipmentMaintenance;
 use App\Models\MaterialStockHistory;
 use App\Observers\TransactionObserver;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use App\Observers\EquipmentMaintenanceObserver;
 use App\Observers\MaterialStockHistoryObserver;
@@ -31,6 +32,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force HTTPS URL generation when behind reverse proxy (Cloudflared)
+        // Check if request is coming through HTTPS proxy
+        if (request()->header('X-Forwarded-Proto') === 'https' || request()->header('CF-Visitor')) {
+            URL::forceScheme('https');
+        }
+
+        // Also force HTTPS in production environment
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         Customer::observe(CustomerObserver::class);
         Pos::observe(PosObserver::class);
         Resort::observe(ResortObserver::class);
