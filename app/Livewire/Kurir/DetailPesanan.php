@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Kurir;
 
 use Mary\Traits\Toast;
+use App\Helper\TransactionAreaFilter;
 use App\Models\Transaction;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -179,15 +180,13 @@ class DetailPesanan extends Component
             return;
         }
 
-        // Validasi area layanan
-        if ($assignedPos && !empty($assignedPos->area)) {
-            $customerVillage = $this->transaction->customer?->village_name;
-            $isInArea = in_array($customerVillage, $assignedPos->area) || empty($customerVillage);
+        // Validasi area layanan menggunakan helper
+        $customerVillage = $this->transaction->customer?->village_name;
+        $isInArea = TransactionAreaFilter::isCustomerInPosArea($customerVillage, $assignedPos);
 
-            if (!$isInArea) {
-                $this->error('Pesanan di luar area layanan Anda.');
-                return;
-            }
+        if (!$isInArea) {
+            $this->error('Pesanan di luar area layanan Anda.');
+            return;
         }
 
         $this->transaction->update([

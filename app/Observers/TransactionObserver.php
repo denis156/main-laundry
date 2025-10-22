@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Observers;
 
+use App\Events\TransactionEvents;
 use App\Models\Payment;
 use App\Models\Transaction;
 use Illuminate\Support\Str;
@@ -48,8 +49,19 @@ class TransactionObserver
     }
 
     /**
+     * Handle the Transaction "created" event.
+     * Broadcast event untuk real-time notifications.
+     */
+    public function created(Transaction $transaction): void
+    {
+        // Broadcast event dengan action 'created'
+        event(new TransactionEvents($transaction->load(['customer', 'service']), 'created'));
+    }
+
+    /**
      * Handle the Transaction "updated" event.
      * Auto-create/update Payment record ketika pembayaran terkonfirmasi.
+     * Broadcast event untuk real-time notifications.
      */
     public function updated(Transaction $transaction): void
     {
@@ -75,5 +87,18 @@ class TransactionObserver
                 );
             }
         }
+
+        // Broadcast event dengan action 'updated'
+        event(new TransactionEvents($transaction->load(['customer', 'service']), 'updated'));
+    }
+
+    /**
+     * Handle the Transaction "deleted" event.
+     * Broadcast event untuk real-time notifications.
+     */
+    public function deleted(Transaction $transaction): void
+    {
+        // Broadcast event dengan action 'deleted'
+        event(new TransactionEvents($transaction->load(['customer', 'service']), 'deleted'));
     }
 }

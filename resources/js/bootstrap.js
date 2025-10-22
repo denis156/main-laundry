@@ -12,6 +12,8 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 import './echo';
 
 /**
- * Import ringtone notification system untuk kurir
+ * Import transaction events handler
+ * Menangani Echo events dan dispatch Livewire refresh
  */
-import './ringtone';
+import './transactionEvents';
+

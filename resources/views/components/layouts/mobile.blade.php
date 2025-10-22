@@ -11,10 +11,13 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('image/favico.svg') }}">
 
     {{-- Vite --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/newOrderRingtone.js'])
 
     {{-- Kurir Style --}}
     @include('components.kurir.style')
+
+    {{-- Cdn Chart --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 
 <body class="min-h-dvh bg-base-100">

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Livewire\LandingPage;
 
-use App\Events\CreatedTransaction;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Transaction;
@@ -230,6 +229,7 @@ class Pesan extends Component
             $estimatedFinishDate = now()->addDays($service->duration_days);
 
             // Create transaction
+            // Event akan otomatis di-broadcast via TransactionObserver
             $transaction = Transaction::create([
                 'invoice_number' => app(InvoiceService::class)->generateInvoiceNumber(),
                 'customer_id' => $customer->id,
@@ -251,9 +251,6 @@ class Pesan extends Component
                 'form_loaded_at' => Carbon::createFromTimestamp($this->form_loaded_at),
                 // tracking_token, customer_ip, customer_user_agent akan di-set oleh Observer
             ]);
-
-            // Broadcast event untuk notifikasi real-time ke kurir
-            event(new CreatedTransaction($transaction->load(['customer', 'service'])));
 
             // Success toast
             $this->success(

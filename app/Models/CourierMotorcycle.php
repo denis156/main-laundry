@@ -13,11 +13,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class CourierMotorcycle extends Authenticatable implements FilamentUser
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasPushSubscriptions;
 
     protected $table = 'couriers_motorcycle';
 

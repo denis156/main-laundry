@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Kurir\Components;
 
+use App\Helper\TransactionAreaFilter;
 use Livewire\Component;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -43,19 +44,8 @@ class NewOrderCard extends Component
             ->whereHas('customer')
             ->whereHas('service');
 
-        // Filter berdasarkan area layanan pos (hanya tampilkan transaksi yang customernya di area pos)
-        if ($assignedPos && !empty($assignedPos->area)) {
-            $query->whereHas('customer', function ($q) use ($assignedPos) {
-                $q->where(function ($subQ) use ($assignedPos) {
-                    // Customer village_name harus ada dalam pos.area (JSON array)
-                    foreach ($assignedPos->area as $kelurahan) {
-                        $subQ->orWhere('village_name', $kelurahan);
-                    }
-                    // ATAU customer belum ada village_name (backward compatibility)
-                    $subQ->orWhereNull('village_name');
-                });
-            });
-        }
+        // Filter berdasarkan area layanan pos menggunakan helper
+        TransactionAreaFilter::applyFilter($query, $assignedPos);
 
         return $query->orderBy('order_date', 'desc')
             ->limit(5)

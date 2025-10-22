@@ -4,13 +4,25 @@ declare(strict_types=1);
 
 namespace App\Livewire\Kurir\Components;
 
+use App\Helper\TransactionAreaFilter;
 use App\Models\Transaction;
 use Livewire\Component;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Auth;
 
 class PesananStats extends Component
 {
+    /**
+     * Refresh stats - dipanggil dari JavaScript saat menerima broadcast event
+     */
+    #[On('refresh-stats')]
+    public function refreshStats(): void
+    {
+        // Refresh computed properties untuk load data terbaru
+        unset($this->stats);
+    }
+
     /**
      * Get statistik pesanan (hanya dari area layanan pos kurir)
      */
@@ -22,22 +34,10 @@ class PesananStats extends Component
         // Load pos dengan area layanan
         $assignedPos = $courier->assignedPos;
 
-        // Base query dengan filter area
+        // Base query dengan filter area menggunakan helper
         $baseQuery = function () use ($assignedPos) {
             $query = Transaction::query();
-
-            // Filter berdasarkan area layanan pos
-            if ($assignedPos && !empty($assignedPos->area)) {
-                $query->whereHas('customer', function ($q) use ($assignedPos) {
-                    $q->where(function ($subQ) use ($assignedPos) {
-                        foreach ($assignedPos->area as $kelurahan) {
-                            $subQ->orWhere('village_name', $kelurahan);
-                        }
-                        $subQ->orWhereNull('village_name');
-                    });
-                });
-            }
-
+            TransactionAreaFilter::applyFilter($query, $assignedPos);
             return $query;
         };
 

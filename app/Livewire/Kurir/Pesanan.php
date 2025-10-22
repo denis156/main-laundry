@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Kurir;
 
 use Mary\Traits\Toast;
+use App\Helper\TransactionAreaFilter;
 use App\Models\Transaction;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -65,19 +66,8 @@ class Pesanan extends Component
             ->whereHas('customer')
             ->whereHas('service');
 
-        // Filter berdasarkan area layanan pos (hanya tampilkan transaksi yang customernya di area pos)
-        if ($assignedPos && !empty($assignedPos->area)) {
-            $query->whereHas('customer', function ($q) use ($assignedPos) {
-                $q->where(function ($subQ) use ($assignedPos) {
-                    // Customer village_name harus ada dalam pos.area (JSON array)
-                    foreach ($assignedPos->area as $kelurahan) {
-                        $subQ->orWhere('village_name', $kelurahan);
-                    }
-                    // ATAU customer belum ada village_name (backward compatibility)
-                    $subQ->orWhereNull('village_name');
-                });
-            });
-        }
+        // Filter berdasarkan area layanan pos menggunakan helper
+        TransactionAreaFilter::applyFilter($query, $assignedPos);
 
         // Filter berdasarkan workflow_status
         if ($this->filter !== 'all') {
@@ -228,17 +218,8 @@ class Pesanan extends Component
             })
             ->where('workflow_status', 'pending_confirmation');
 
-        // Filter berdasarkan area layanan pos (security)
-        if ($assignedPos && !empty($assignedPos->area)) {
-            $query->whereHas('customer', function ($q) use ($assignedPos) {
-                $q->where(function ($subQ) use ($assignedPos) {
-                    foreach ($assignedPos->area as $kelurahan) {
-                        $subQ->orWhere('village_name', $kelurahan);
-                    }
-                    $subQ->orWhereNull('village_name');
-                });
-            });
-        }
+        // Filter berdasarkan area layanan pos menggunakan helper (security)
+        TransactionAreaFilter::applyFilter($query, $assignedPos);
 
         $transaction = $query->first();
 
@@ -276,17 +257,8 @@ class Pesanan extends Component
             })
             ->where('workflow_status', 'pending_confirmation');
 
-        // Filter berdasarkan area layanan pos (security)
-        if ($assignedPos && !empty($assignedPos->area)) {
-            $query->whereHas('customer', function ($q) use ($assignedPos) {
-                $q->where(function ($subQ) use ($assignedPos) {
-                    foreach ($assignedPos->area as $kelurahan) {
-                        $subQ->orWhere('village_name', $kelurahan);
-                    }
-                    $subQ->orWhereNull('village_name');
-                });
-            });
-        }
+        // Filter berdasarkan area layanan pos menggunakan helper (security)
+        TransactionAreaFilter::applyFilter($query, $assignedPos);
 
         $transaction = $query->first();
 
