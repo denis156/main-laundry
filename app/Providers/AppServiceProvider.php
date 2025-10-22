@@ -16,6 +16,10 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use App\Observers\EquipmentMaintenanceObserver;
 use App\Observers\MaterialStockHistoryObserver;
+use App\Helper\InvoiceHelper;
+use App\Helper\OrderRateLimiterHelper;
+use App\Helper\WilayahHelper;
+use App\Helper\TransactionAreaFilter;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,7 +28,25 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register WilayahHelper as singleton
+        $this->app->singleton(WilayahHelper::class, function () {
+            return new WilayahHelper();
+        });
+
+        // Register InvoiceHelper as singleton
+        $this->app->singleton(InvoiceHelper::class, function () {
+            return new InvoiceHelper();
+        });
+
+        // Register OrderRateLimiterHelper as singleton
+        $this->app->singleton(OrderRateLimiterHelper::class, function () {
+            return new OrderRateLimiterHelper();
+        });
+
+        // Register TransactionAreaFilter as singleton
+        $this->app->singleton(TransactionAreaFilter::class, function () {
+            return new TransactionAreaFilter();
+        });
     }
 
     /**
@@ -43,11 +65,11 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        Customer::observe(CustomerObserver::class);
         Pos::observe(PosObserver::class);
         Resort::observe(ResortObserver::class);
+        Customer::observe(CustomerObserver::class);
+        Transaction::observe(TransactionObserver::class);
         MaterialStockHistory::observe(MaterialStockHistoryObserver::class);
         EquipmentMaintenance::observe(EquipmentMaintenanceObserver::class);
-        Transaction::observe(TransactionObserver::class);
     }
 }

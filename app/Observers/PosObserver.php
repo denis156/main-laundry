@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Pos;
-use App\Services\WilayahService;
+use App\Helper\WilayahHelper;
 
 class PosObserver
 {
@@ -21,10 +21,8 @@ class PosObserver
 
     private function syncWilayahNames(Pos $pos): void
     {
-        $wilayahService = app(WilayahService::class);
-
         if (!empty($pos->district_code) && empty($pos->district_name)) {
-            $districts = $wilayahService->getKendariDistricts();
+            $districts = WilayahHelper::getKendariDistricts();
             $district = collect($districts)->firstWhere('code', $pos->district_code);
             if ($district) {
                 $pos->district_name = $district['name'];
@@ -32,7 +30,7 @@ class PosObserver
         }
 
         if (!empty($pos->village_code) && empty($pos->village_name) && !empty($pos->district_code)) {
-            $villages = $wilayahService->getVillagesByDistrict($pos->district_code);
+            $villages = WilayahHelper::getVillagesByDistrict($pos->district_code);
             $village = collect($villages)->firstWhere('code', $pos->village_code);
             if ($village) {
                 $pos->village_name = $village['name'];

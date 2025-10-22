@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Customer;
-use App\Services\WilayahService;
+use App\Helper\WilayahHelper;
 
 class CustomerObserver
 {
@@ -21,10 +21,8 @@ class CustomerObserver
 
     private function syncWilayahNames(Customer $customer): void
     {
-        $wilayahService = app(WilayahService::class);
-
         if (!empty($customer->district_code) && empty($customer->district_name)) {
-            $districts = $wilayahService->getKendariDistricts();
+            $districts = WilayahHelper::getKendariDistricts();
             $district = collect($districts)->firstWhere('code', $customer->district_code);
             if ($district) {
                 $customer->district_name = $district['name'];
@@ -32,7 +30,7 @@ class CustomerObserver
         }
 
         if (!empty($customer->village_code) && empty($customer->village_name) && !empty($customer->district_code)) {
-            $villages = $wilayahService->getVillagesByDistrict($customer->district_code);
+            $villages = WilayahHelper::getVillagesByDistrict($customer->district_code);
             $village = collect($villages)->firstWhere('code', $customer->village_code);
             if ($village) {
                 $customer->village_name = $village['name'];

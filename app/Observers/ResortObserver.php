@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Resort;
-use App\Services\WilayahService;
+use App\Helper\WilayahHelper;
 
 class ResortObserver
 {
@@ -21,10 +21,8 @@ class ResortObserver
 
     private function syncWilayahNames(Resort $resort): void
     {
-        $wilayahService = app(WilayahService::class);
-
         if (!empty($resort->district_code) && empty($resort->district_name)) {
-            $districts = $wilayahService->getKendariDistricts();
+            $districts = WilayahHelper::getKendariDistricts();
             $district = collect($districts)->firstWhere('code', $resort->district_code);
             if ($district) {
                 $resort->district_name = $district['name'];
@@ -32,7 +30,7 @@ class ResortObserver
         }
 
         if (!empty($resort->village_code) && empty($resort->village_name) && !empty($resort->district_code)) {
-            $villages = $wilayahService->getVillagesByDistrict($resort->district_code);
+            $villages = WilayahHelper::getVillagesByDistrict($resort->district_code);
             $village = collect($villages)->firstWhere('code', $resort->village_code);
             if ($village) {
                 $resort->village_name = $village['name'];

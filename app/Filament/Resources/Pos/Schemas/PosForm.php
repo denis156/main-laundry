@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Pos\Schemas;
 
-use App\Services\WilayahService;
+use App\Helper\WilayahHelper;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Utilities\Get;
@@ -97,8 +97,7 @@ class PosForm
                                 Select::make('district_code')
                                     ->label('Kecamatan')
                                     ->options(function () {
-                                        $wilayahService = app(WilayahService::class);
-                                        $districts = $wilayahService->getKendariDistricts();
+                                        $districts = WilayahHelper::getKendariDistricts();
                                         return collect($districts)->pluck('name', 'code')->toArray();
                                     })
                                     ->searchable()
@@ -108,8 +107,7 @@ class PosForm
                                         $set('village_code', null);
                                         $set('area', null); // Reset area layanan ketika kecamatan berubah
                                         if ($state) {
-                                            $wilayahService = app(WilayahService::class);
-                                            $districts = $wilayahService->getKendariDistricts();
+                                            $districts = WilayahHelper::getKendariDistricts();
                                             $district = collect($districts)->firstWhere('code', $state);
                                             $set('district_name', $district['name'] ?? null);
                                         }
@@ -124,8 +122,7 @@ class PosForm
                                         if (!$districtCode) {
                                             return [];
                                         }
-                                        $wilayahService = app(WilayahService::class);
-                                        $villages = $wilayahService->getVillagesByDistrict($districtCode);
+                                        $villages = WilayahHelper::getVillagesByDistrict($districtCode);
                                         return collect($villages)->pluck('name', 'code')->toArray();
                                     })
                                     ->searchable()
@@ -135,8 +132,7 @@ class PosForm
                                         if ($state) {
                                             $districtCode = $get('district_code');
                                             if ($districtCode) {
-                                                $wilayahService = app(WilayahService::class);
-                                                $villages = $wilayahService->getVillagesByDistrict($districtCode);
+                                                $villages = WilayahHelper::getVillagesByDistrict($districtCode);
                                                 $village = collect($villages)->firstWhere('code', $state);
                                                 $set('village_name', $village['name'] ?? null);
                                             }
@@ -165,8 +161,7 @@ class PosForm
                                         if (!$districtCode) {
                                             return [];
                                         }
-                                        $wilayahService = app(WilayahService::class);
-                                        $villages = $wilayahService->getVillagesByDistrict($districtCode);
+                                        $villages = WilayahHelper::getVillagesByDistrict($districtCode);
                                         return collect($villages)->pluck('name', 'name')->toArray();
                                     })
                                     ->multiple()

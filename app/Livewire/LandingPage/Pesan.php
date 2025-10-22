@@ -7,9 +7,9 @@ namespace App\Livewire\LandingPage;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Transaction;
-use App\Services\InvoiceService;
-use App\Services\OrderRateLimiterService;
-use App\Services\WilayahService;
+use App\Helper\InvoiceHelper;
+use App\Helper\OrderRateLimiterHelper;
+use App\Helper\WilayahHelper;
 use Carbon\Carbon;
 use Livewire\Component;
 use Mary\Traits\Toast;
@@ -43,7 +43,7 @@ class Pesan extends Component
     public array $districts = []; // List kecamatan di Kota Kendari
     public array $villages = []; // List kelurahan berdasarkan kecamatan
 
-    public function mount(WilayahService $wilayahService): void
+    public function mount(): void
     {
         // Load active services
         $this->services = Service::where('is_active', true)
@@ -51,7 +51,7 @@ class Pesan extends Component
             ->get();
 
         // Load districts (kecamatan) di Kota Kendari
-        $this->districts = $wilayahService->getKendariDistricts();
+        $this->districts = WilayahHelper::getKendariDistricts();
 
         // Set form loaded timestamp untuk bot detection
         $this->form_loaded_at = now()->timestamp;
@@ -77,14 +77,14 @@ class Pesan extends Component
     /**
      * Load villages saat user pilih kecamatan
      */
-    public function updatedDistrictCode(WilayahService $wilayahService): void
+    public function updatedDistrictCode(): void
     {
         // Reset village code
         $this->village_code = '';
 
         // Load villages berdasarkan district yang dipilih
         if (!empty($this->district_code)) {
-            $this->villages = $wilayahService->getVillagesByDistrict($this->district_code);
+            $this->villages = WilayahHelper::getVillagesByDistrict($this->district_code);
         } else {
             $this->villages = [];
         }
@@ -150,9 +150,7 @@ class Pesan extends Component
 
         // Rate limiting check - hanya aktif di production
         if (app()->environment('production')) {
-            $rateLimiter = app(OrderRateLimiterService::class);
-
-            $rateLimitResult = $rateLimiter->checkAllLimits(
+            $rateLimitResult = OrderRateLimiterHelper::checkAllLimits(
                 request()->ip() ?? '127.0.0.1',
                 $this->phone,
                 $this->form_loaded_at
@@ -171,8 +169,6 @@ class Pesan extends Component
 
         try {
             // Get district and village names from codes
-            $wilayahService = app(WilayahService::class);
-
             $district = collect($this->districts)->firstWhere('code', $this->district_code);
             $village = collect($this->villages)->firstWhere('code', $this->village_code);
 
@@ -180,7 +176,7 @@ class Pesan extends Component
             $villageName = $village['name'] ?? '';
 
             // Format full address
-            $fullAddress = $wilayahService->formatFullAddress(
+            $fullAddress = WilayahHelper::formatFullAddress(
                 $this->detail_address,
                 $villageName,
                 $districtName
@@ -231,7 +227,7 @@ class Pesan extends Component
             // Create transaction
             // Event akan otomatis di-broadcast via TransactionObserver
             $transaction = Transaction::create([
-                'invoice_number' => app(InvoiceService::class)->generateInvoiceNumber(),
+                'invoice_number' => InvoiceHelper::generateInvoiceNumber(),
                 'customer_id' => $customer->id,
                 'service_id' => $service->id,
                 'courier_motorcycle_id' => null, // Akan diassign oleh admin

@@ -2,12 +2,25 @@
 
 declare(strict_types=1);
 
-namespace App\Services;
+namespace App\Helper;
 
 use App\Models\Transaction;
 use Carbon\Carbon;
 
-class OrderRateLimiterService
+/**
+ * Order Rate Limiter Helper
+ *
+ * Helper untuk membatasi jumlah order (rate limiting) dan deteksi bot.
+ * Melindungi sistem dari spam order dan abuse.
+ *
+ * Limit yang diterapkan:
+ * - Maksimal 6 order per IP per jam
+ * - Maksimal 5 order per nomor telepon per hari
+ * - Minimum 3 detik antara load form dan submit (bot detection)
+ *
+ * @package App\Helper
+ */
+class OrderRateLimiterHelper
 {
     /**
      * Maximum orders per IP per hour
@@ -27,10 +40,10 @@ class OrderRateLimiterService
     /**
      * Check if IP address has exceeded rate limit
      *
-     * @param string $ip
+     * @param string $ip Alamat IP yang akan dicek
      * @return bool True jika masih dalam batas, false jika exceed
      */
-    public function checkIpRateLimit(string $ip): bool
+    public static function checkIpRateLimit(string $ip): bool
     {
         $hourAgo = Carbon::now()->subHour();
 
@@ -44,10 +57,10 @@ class OrderRateLimiterService
     /**
      * Check if phone number has exceeded rate limit
      *
-     * @param string $phone
+     * @param string $phone Nomor telepon yang akan dicek
      * @return bool True jika masih dalam batas, false jika exceed
      */
-    public function checkPhoneRateLimit(string $phone): bool
+    public static function checkPhoneRateLimit(string $phone): bool
     {
         $dayAgo = Carbon::now()->subDay();
 
@@ -66,7 +79,7 @@ class OrderRateLimiterService
      * @param int $formLoadedTimestamp Unix timestamp when form was loaded
      * @return bool True jika suspicious (terlalu cepat), false jika valid
      */
-    public function isSubmissionTooFast(int $formLoadedTimestamp): bool
+    public static function isSubmissionTooFast(int $formLoadedTimestamp): bool
     {
         if ($formLoadedTimestamp <= 0) {
             // Jika form_loaded_at tidak valid, anggap suspicious
@@ -86,10 +99,10 @@ class OrderRateLimiterService
     /**
      * Get remaining orders for IP address
      *
-     * @param string $ip
-     * @return int
+     * @param string $ip Alamat IP
+     * @return int Jumlah order yang masih bisa dilakukan
      */
-    public function getRemainingOrdersForIp(string $ip): int
+    public static function getRemainingOrdersForIp(string $ip): int
     {
         $hourAgo = Carbon::now()->subHour();
 
@@ -103,10 +116,10 @@ class OrderRateLimiterService
     /**
      * Get remaining orders for phone number
      *
-     * @param string $phone
-     * @return int
+     * @param string $phone Nomor telepon
+     * @return int Jumlah order yang masih bisa dilakukan
      */
-    public function getRemainingOrdersForPhone(string $phone): int
+    public static function getRemainingOrdersForPhone(string $phone): int
     {
         $dayAgo = Carbon::now()->subDay();
 
@@ -122,27 +135,27 @@ class OrderRateLimiterService
     /**
      * Check all rate limits at once
      *
-     * @param string $ip
-     * @param string $phone
+     * @param string $ip Alamat IP
+     * @param string $phone Nomor telepon
      * @param int $formLoadedTimestamp Unix timestamp when form was loaded
      * @return array ['passed' => bool, 'errors' => array]
      */
-    public function checkAllLimits(string $ip, string $phone, int $formLoadedTimestamp): array
+    public static function checkAllLimits(string $ip, string $phone, int $formLoadedTimestamp): array
     {
         $errors = [];
 
         // Check IP rate limit
-        if (!$this->checkIpRateLimit($ip)) {
+        if (!self::checkIpRateLimit($ip)) {
             $errors[] = 'Terlalu banyak pesanan dari alamat IP Anda. Silakan coba lagi dalam 1 jam.';
         }
 
         // Check phone rate limit
-        if (!$this->checkPhoneRateLimit($phone)) {
+        if (!self::checkPhoneRateLimit($phone)) {
             $errors[] = 'Nomor telepon Anda telah mencapai batas maksimal pesanan hari ini. Silakan coba lagi besok.';
         }
 
         // Check submission speed (bot detection)
-        if ($this->isSubmissionTooFast($formLoadedTimestamp)) {
+        if (self::isSubmissionTooFast($formLoadedTimestamp)) {
             $errors[] = 'Pengiriman form terlalu cepat. Silakan isi form dengan lebih teliti.';
         }
 

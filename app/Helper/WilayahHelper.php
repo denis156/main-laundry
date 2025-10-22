@@ -2,12 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\Services;
+namespace App\Helper;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
-class WilayahService
+/**
+ * Wilayah Helper
+ *
+ * Helper untuk menangani data wilayah Indonesia (kecamatan, kelurahan).
+ * Menggunakan API wilayah.id untuk data wilayah yang up-to-date.
+ *
+ * Scope: Kota Kendari, Sulawesi Tenggara
+ *
+ * @package App\Helper
+ */
+class WilayahHelper
 {
     private const BASE_URL = 'https://wilayah.id/api';
 
@@ -19,8 +29,10 @@ class WilayahService
 
     /**
      * Get all districts (kecamatan) di Kota Kendari
+     *
+     * @return array Array berisi data kecamatan
      */
-    public function getKendariDistricts(): array
+    public static function getKendariDistricts(): array
     {
         return Cache::remember('wilayah_kendari_districts', now()->addDays(30), function () {
             try {
@@ -44,8 +56,11 @@ class WilayahService
 
     /**
      * Get all villages (kelurahan) dari kecamatan tertentu
+     *
+     * @param string $districtCode Kode kecamatan
+     * @return array Array berisi data kelurahan
      */
-    public function getVillagesByDistrict(string $districtCode): array
+    public static function getVillagesByDistrict(string $districtCode): array
     {
         return Cache::remember('wilayah_villages_' . $districtCode, now()->addDays(30), function () use ($districtCode) {
             try {
@@ -70,24 +85,33 @@ class WilayahService
 
     /**
      * Get province name (Sulawesi Tenggara)
+     *
+     * @return string Nama provinsi
      */
-    public function getProvinceName(): string
+    public static function getProvinceName(): string
     {
         return 'Sulawesi Tenggara';
     }
 
     /**
      * Get regency name (Kota Kendari)
+     *
+     * @return string Nama kota/kabupaten
      */
-    public function getRegencyName(): string
+    public static function getRegencyName(): string
     {
         return 'Kota Kendari';
     }
 
     /**
      * Format full address
+     *
+     * @param string $detailAddress Alamat detail (jalan, nomor rumah, RT/RW, dll)
+     * @param string $villageName Nama kelurahan
+     * @param string $districtName Nama kecamatan
+     * @return string Alamat lengkap yang terformat
      */
-    public function formatFullAddress(
+    public static function formatFullAddress(
         string $detailAddress,
         string $villageName,
         string $districtName
@@ -97,8 +121,8 @@ class WilayahService
             $detailAddress,
             $villageName,
             $districtName,
-            $this->getRegencyName(),
-            $this->getProvinceName()
+            self::getRegencyName(),
+            self::getProvinceName()
         );
     }
 }

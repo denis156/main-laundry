@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Transactions\Schemas;
 
 use Filament\Schemas\Schema;
-use App\Services\InvoiceService;
+use App\Helper\InvoiceHelper;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
@@ -39,7 +39,7 @@ class TransactionForm
                                     ->unique(ignoreRecord: true)
                                     ->disabled()
                                     ->dehydrated()
-                                    ->default(fn() => app(InvoiceService::class)->generateInvoiceNumber())
+                                    ->default(fn() => InvoiceHelper::generateInvoiceNumber())
                                     ->validationAttribute('nomor invoice')
                                     ->validationMessages([
                                         'required' => 'Nomor invoice wajib diisi.',

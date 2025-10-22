@@ -2,19 +2,31 @@
 
 declare(strict_types=1);
 
-namespace App\Services;
+namespace App\Helper;
 
 use App\Models\Transaction;
 use Carbon\Carbon;
 
-class InvoiceService
+/**
+ * Invoice Helper
+ *
+ * Helper untuk generate dan manage nomor invoice transaksi.
+ * Format invoice: INV/YYYYMMDD/XXXX
+ * Contoh: INV/20251010/0001
+ *
+ * @package App\Helper
+ */
+class InvoiceHelper
 {
     /**
      * Generate nomor invoice unik
+     *
      * Format: INV/YYYYMMDD/XXXX
      * Contoh: INV/20251010/0001
+     *
+     * @return string Nomor invoice yang unik
      */
-    public function generateInvoiceNumber(): string
+    public static function generateInvoiceNumber(): string
     {
         $date = Carbon::now()->format('Ymd');
         $prefix = "INV/{$date}/";
@@ -37,16 +49,22 @@ class InvoiceService
 
     /**
      * Cek apakah nomor invoice sudah ada
+     *
+     * @param string $invoiceNumber Nomor invoice yang akan dicek
+     * @return bool True jika invoice sudah ada, false jika belum
      */
-    public function invoiceExists(string $invoiceNumber): bool
+    public static function invoiceExists(string $invoiceNumber): bool
     {
         return Transaction::where('invoice_number', $invoiceNumber)->exists();
     }
 
     /**
      * Dapatkan invoice berdasarkan nomor
+     *
+     * @param string $invoiceNumber Nomor invoice yang akan dicari
+     * @return Transaction|null Transaction jika ditemukan, null jika tidak
      */
-    public function getInvoice(string $invoiceNumber): ?Transaction
+    public static function getInvoice(string $invoiceNumber): ?Transaction
     {
         return Transaction::where('invoice_number', $invoiceNumber)->first();
     }
