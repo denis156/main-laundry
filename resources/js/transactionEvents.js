@@ -32,7 +32,6 @@ document.addEventListener('livewire:init', () => {
                 // Semua component akan refresh otomatis tanpa polling
                 Livewire.dispatch('refresh-orders');
                 Livewire.dispatch('refresh-new-orders');
-                Livewire.dispatch('refresh-chart');
                 Livewire.dispatch('refresh-dashboard');
                 Livewire.dispatch('refresh-stats');
 

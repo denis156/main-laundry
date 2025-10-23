@@ -57,9 +57,6 @@
                 class="btn-info btn-sm" />
         </x-card>
 
-        {{-- Chart Transactions --}}
-        <livewire:kurir.components.chart-transactions />
-
         {{-- New Order Cards Component --}}
         <livewire:kurir.components.new-order-card />
     </div>
