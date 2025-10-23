@@ -36,8 +36,8 @@
     </x-header>
 
     <div class="space-y-4">
-        {{-- Stats Cards dengan Polling (Component Terpisah) --}}
-        <livewire:kurir.components.pesanan-stats />
+        {{-- Stats Cards Component --}}
+        <livewire:kurir.components.stats-pesanan />
 
         {{-- Transaction Cards --}}
         <div class="space-y-3">

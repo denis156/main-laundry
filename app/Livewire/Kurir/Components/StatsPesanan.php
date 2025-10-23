@@ -11,7 +11,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Auth;
 
-class PesananStats extends Component
+class StatsPesanan extends Component
 {
     /**
      * Refresh stats - dipanggil dari JavaScript saat menerima broadcast event
@@ -25,6 +25,7 @@ class PesananStats extends Component
 
     /**
      * Get statistik pesanan (hanya dari area layanan pos kurir)
+     * Hanya tampilkan Selesai dan Batal
      */
     #[Computed]
     public function stats(): array
@@ -41,19 +42,6 @@ class PesananStats extends Component
             return $query;
         };
 
-        $pendingCount = $baseQuery()
-            ->where(function ($q) use ($courier) {
-                $q->where('courier_motorcycle_id', $courier->id)
-                    ->orWhereNull('courier_motorcycle_id');
-            })
-            ->where('workflow_status', 'pending_confirmation')
-            ->count();
-
-        $activeCount = $baseQuery()
-            ->where('courier_motorcycle_id', $courier->id)
-            ->whereIn('workflow_status', ['confirmed', 'picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery'])
-            ->count();
-
         $deliveredCount = $baseQuery()
             ->where('courier_motorcycle_id', $courier->id)
             ->where('workflow_status', 'delivered')
@@ -65,8 +53,6 @@ class PesananStats extends Component
             ->count();
 
         return [
-            'pending_count' => $pendingCount,
-            'active_count' => $activeCount,
             'delivered_count' => $deliveredCount,
             'cancelled_count' => $cancelledCount,
         ];
@@ -74,6 +60,6 @@ class PesananStats extends Component
 
     public function render()
     {
-        return view('livewire.kurir.components.pesanan-stats');
+        return view('livewire.kurir.components.stats-pesanan');
     }
 }
