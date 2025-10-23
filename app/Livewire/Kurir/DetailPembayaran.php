@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Kurir;
 
 use Mary\Traits\Toast;
+use App\Models\Payment;
 use App\Models\Transaction;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -20,7 +21,7 @@ class DetailPembayaran extends Component
 
     public Transaction $transaction;
 
-    // Bukti pembayaran untuk upload (jika belum ada)
+    // Bukti pembayaran untuk upload
     public $paymentProof;
 
     public function mount(int $id): void
@@ -33,6 +34,7 @@ class DetailPembayaran extends Component
             'service',
             'pos',
             'courierMotorcycle',
+            'payments',
         ])
             ->where('id', $id)
             ->where('courier_motorcycle_id', $courier->id)
@@ -52,7 +54,7 @@ class DetailPembayaran extends Component
     }
 
     /**
-     * Upload bukti pembayaran untuk transaksi yang belum bayar
+     * Upload bukti pembayaran ke Payment record
      */
     public function uploadPaymentProof(): void
     {
@@ -62,9 +64,11 @@ class DetailPembayaran extends Component
             return;
         }
 
-        // Validasi transaksi belum bayar
-        if ($this->transaction->payment_status === 'paid') {
-            $this->error('Transaksi sudah lunas!');
+        // Cari payment record untuk transaksi ini
+        $payment = Payment::where('transaction_id', $this->transaction->id)->first();
+
+        if (!$payment) {
+            $this->error('Record pembayaran belum dibuat! Payment akan otomatis dibuat saat status berubah.');
             return;
         }
 
@@ -72,14 +76,12 @@ class DetailPembayaran extends Component
         $filename = 'payment-proof-' . $this->transaction->invoice_number . '-' . time() . '.' . $this->paymentProof->getClientOriginalExtension();
         $path = $this->paymentProof->storeAs('payment-proofs', $filename, 'public');
 
-        // Update transaction
-        $this->transaction->update([
+        // Update payment record dengan bukti pembayaran
+        $payment->update([
             'payment_proof_url' => $path,
-            'payment_status' => 'paid',
-            'paid_at' => now(),
         ]);
 
-        $this->success('Bukti pembayaran berhasil diupload! Status pembayaran telah diperbarui.');
+        $this->success('Bukti pembayaran berhasil diupload!');
 
         // Clear inputs
         $this->paymentProof = null;
@@ -143,6 +145,7 @@ class DetailPembayaran extends Component
             'service',
             'pos',
             'courierMotorcycle',
+            'payments',
         ]);
 
         return view('livewire.kurir.detail-pembayaran');

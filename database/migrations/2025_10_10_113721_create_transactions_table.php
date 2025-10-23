@@ -26,8 +26,6 @@ return new class extends Migration
             $table->enum('workflow_status', ['pending_confirmation', 'confirmed', 'picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered', 'cancelled'])->default('pending_confirmation')->comment('Status workflow transaksi');
             $table->enum('payment_timing', ['on_pickup', 'on_delivery'])->comment('Kapan customer bayar');
             $table->enum('payment_status', ['unpaid', 'paid'])->default('unpaid')->comment('Status pembayaran');
-            $table->string('payment_proof_url')->nullable()->comment('URL bukti screenshot pembayaran');
-            $table->datetime('paid_at')->nullable()->comment('Waktu pembayaran dilakukan');
             $table->text('notes')->nullable()->comment('Catatan transaksi');
             $table->datetime('order_date')->comment('Tanggal order');
             $table->datetime('estimated_finish_date')->nullable()->comment('Estimasi selesai');

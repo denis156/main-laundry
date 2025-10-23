@@ -226,25 +226,6 @@ class TransactionForm
                                         'required' => 'Status pembayaran wajib dipilih.',
                                     ])
                                     ->helperText('Status pembayaran transaksi'),
-
-                                FileUpload::make('payment_proof_url')
-                                    ->label('Bukti Pembayaran')
-                                    ->image()
-                                    ->imageEditor()
-                                    ->maxSize(2048)
-                                    ->directory('payment-proofs')
-                                    ->visibility('public')
-                                    ->hint('Opsional')
-                                    ->helperText('Upload screenshot bukti pembayaran QRIS')
-                                    ->columnSpanFull(),
-
-                                DateTimePicker::make('paid_at')
-                                    ->label('Dibayar Pada')
-                                    ->native(false)
-                                    ->placeholder('Belum dibayar')
-                                    ->hint('Opsional')
-                                    ->helperText('Waktu pembayaran dilakukan')
-                                    ->columnSpanFull(),
                             ])
                     ])
                     ->aside()

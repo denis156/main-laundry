@@ -63,7 +63,6 @@ class TransactionSeeder extends Seeder
                 'workflow_status' => $workflowStatus,
                 'payment_timing' => $paymentTiming,
                 'payment_status' => $isPaid ? 'paid' : 'unpaid',
-                'paid_at' => $isPaid ? fake()->dateTimeBetween($orderDate, 'now') : null,
                 'order_date' => $orderDate,
             ]);
 
@@ -73,7 +72,7 @@ class TransactionSeeder extends Seeder
                     'transaction_id' => $transaction->id,
                     'courier_motorcycle_id' => $courier->id,
                     'amount' => $totalPrice,
-                    'payment_date' => $transaction->paid_at,
+                    'payment_date' => fake()->dateTimeBetween($orderDate, 'now'),
                 ]);
             }
         }

@@ -134,21 +134,6 @@ class TransactionsTable
                         ->weight('semibold')
                         ->toggleable(isToggledHiddenByDefault: false),
                 ]),
-                ColumnGroup::make('Pembayaran', [
-                    TextColumn::make('paid_at')
-                        ->label('Dibayar Pada')
-                        ->dateTime('d M Y H:i')
-                        ->placeholder('Belum dibayar')
-                        ->sortable()
-                        ->toggleable(isToggledHiddenByDefault: true),
-                    TextColumn::make('payment_proof_url')
-                        ->label('Bukti Bayar')
-                        ->placeholder('Tidak ada')
-                        ->formatStateUsing(fn($state) => $state ? 'Ada' : 'Tidak ada')
-                        ->badge()
-                        ->color(fn($state) => $state ? 'success' : 'gray')
-                        ->toggleable(isToggledHiddenByDefault: true),
-                ]),
                 ColumnGroup::make('Tanggal & Waktu', [
                     TextColumn::make('order_date')
                         ->label('Tgl Order')

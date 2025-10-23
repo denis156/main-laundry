@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('transaction_id')->constrained()->cascadeOnDelete()->comment('ID transaksi (cascade on delete)');
             $table->foreignId('courier_motorcycle_id')->constrained('couriers_motorcycle')->cascadeOnDelete()->comment('ID kurir motor yang upload bukti (cascade on delete)');
             $table->decimal('amount', 10, 2)->comment('Jumlah pembayaran (Rp)');
-            $table->string('payment_proof_url')->comment('URL screenshot bukti pembayaran');
+            $table->string('payment_proof_url')->nullable()->comment('URL screenshot bukti pembayaran');
             $table->datetime('payment_date')->comment('Tanggal dan waktu pembayaran');
             $table->text('notes')->nullable()->comment('Catatan pembayaran');
             $table->timestamps();

@@ -60,31 +60,69 @@ class TransactionObserver
 
     /**
      * Handle the Transaction "updated" event.
-     * Auto-create/update Payment record ketika pembayaran terkonfirmasi.
+     * Auto-create Payment record berdasarkan workflow_status dan payment_timing.
      * Broadcast event untuk real-time notifications.
      */
     public function updated(Transaction $transaction): void
     {
-        // Cek apakah payment_status berubah menjadi 'paid'
-        if ($transaction->wasChanged('payment_status') && $transaction->payment_status === 'paid') {
-            // Validasi data lengkap untuk create/update payment
+        // Auto-create Payment ketika workflow_status berubah ke status tertentu
+        if ($transaction->wasChanged('workflow_status')) {
+            // Bayar Saat Jemput: Payment dibuat saat status 'picked_up' + weight sudah diinput
             if (
-                !empty($transaction->payment_proof_url) &&
-                !empty($transaction->paid_at) &&
+                $transaction->payment_timing === 'on_pickup' &&
+                $transaction->workflow_status === 'picked_up' &&
+                !empty($transaction->courier_motorcycle_id) &&
+                $transaction->weight > 0 &&
+                $transaction->total_price > 0
+            ) {
+                // Cek apakah payment sudah ada
+                $existingPayment = Payment::where('transaction_id', $transaction->id)->first();
+
+                if (!$existingPayment) {
+                    Payment::create([
+                        'transaction_id' => $transaction->id,
+                        'courier_motorcycle_id' => $transaction->courier_motorcycle_id,
+                        'amount' => $transaction->total_price,
+                        'payment_date' => now(),
+                        'notes' => 'Pembayaran saat jemput - Auto-generated',
+                    ]);
+
+                    // Update payment_status jadi paid (tanpa trigger observer lagi)
+                    $transaction->updateQuietly(['payment_status' => 'paid']);
+                }
+            }
+
+            // Bayar Saat Antar: Payment dibuat saat status 'washing_completed' (siap antar)
+            if (
+                $transaction->payment_timing === 'on_delivery' &&
+                $transaction->workflow_status === 'washing_completed' &&
                 !empty($transaction->courier_motorcycle_id) &&
                 $transaction->total_price > 0
             ) {
-                // Update or create payment record
-                Payment::updateOrCreate(
-                    ['transaction_id' => $transaction->id],
-                    [
+                // Cek apakah payment sudah ada
+                $existingPayment = Payment::where('transaction_id', $transaction->id)->first();
+
+                if (!$existingPayment) {
+                    Payment::create([
+                        'transaction_id' => $transaction->id,
                         'courier_motorcycle_id' => $transaction->courier_motorcycle_id,
                         'amount' => $transaction->total_price,
-                        'payment_proof_url' => $transaction->payment_proof_url,
-                        'payment_date' => $transaction->paid_at,
-                        'notes' => 'Pembayaran ' . ($transaction->payment_timing === 'on_pickup' ? 'saat jemput' : 'saat antar'),
-                    ]
-                );
+                        'payment_date' => now(),
+                        'notes' => 'Pembayaran saat antar - Auto-generated',
+                    ]);
+
+                    // Payment_status tetap unpaid, nanti di-update saat delivered
+                }
+            }
+
+            // Bayar Saat Antar: Update payment_status jadi paid saat status 'delivered'
+            if (
+                $transaction->payment_timing === 'on_delivery' &&
+                $transaction->workflow_status === 'delivered' &&
+                $transaction->payment_status === 'unpaid'
+            ) {
+                // Update payment_status jadi paid (tanpa trigger observer lagi)
+                $transaction->updateQuietly(['payment_status' => 'paid']);
             }
         }
 

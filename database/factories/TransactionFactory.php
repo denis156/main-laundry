@@ -59,8 +59,6 @@ class TransactionFactory extends Factory
             'workflow_status' => $workflowStatus,
             'payment_timing' => $paymentTiming,
             'payment_status' => $isPaid ? 'paid' : 'unpaid',
-            'payment_proof_url' => $isPaid ? fake()->imageUrl(640, 480, 'payment', true) : null,
-            'paid_at' => $isPaid ? fake()->dateTimeBetween($orderDate, 'now') : null,
             'notes' => fake()->optional()->sentence(),
             'order_date' => $orderDate,
             'estimated_finish_date' => $estimatedFinishDate,
