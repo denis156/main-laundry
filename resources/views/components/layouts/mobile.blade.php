@@ -13,6 +13,20 @@
     {{-- Vite --}}
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/newOrderRingtone.js'])
 
+    {{-- Pass courier POS area data to JavaScript for filtering --}}
+    @auth('courier')
+        @php
+            $courier = Auth::guard('courier')->user();
+            $assignedPos = $courier?->assignedPos;
+            $posArea = $assignedPos && !empty($assignedPos->area) ? $assignedPos->area : [];
+        @endphp
+        <script>
+            // Global config untuk filtering transaction area
+            window.COURIER_POS_AREA = @json($posArea);
+            window.COURIER_POS_ID = @json($assignedPos?->id);
+        </script>
+    @endauth
+
     {{-- Kurir Style --}}
     @include('components.kurir.style')
 

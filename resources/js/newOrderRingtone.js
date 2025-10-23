@@ -13,7 +13,8 @@ document.addEventListener('livewire:init', () => {
     let pendingRingtone = false;
 
     // Define events array first so it can be accessed in unlockAudio
-    const events = ['click', 'touchstart', 'touchend', 'mousedown', 'keydown'];
+    // Tambahkan lebih banyak event untuk unlock audio lebih cepat
+    const events = ['click', 'touchstart', 'touchend', 'mousedown', 'keydown', 'scroll', 'mousemove', 'touchmove'];
 
     // Function to handle user interaction - defined early for reference
     function handleUserInteraction() {
@@ -73,8 +74,32 @@ document.addEventListener('livewire:init', () => {
     }
 
     // Add event listeners that will retry until audio is unlocked
-    events.forEach(eventName => {
-        document.addEventListener(eventName, handleUserInteraction, { passive: true });
+    // Gunakan once: true untuk click/touch agar lebih efficient
+    document.addEventListener('click', handleUserInteraction, { passive: true, once: false });
+    document.addEventListener('touchstart', handleUserInteraction, { passive: true, once: false });
+    document.addEventListener('touchend', handleUserInteraction, { passive: true, once: false });
+    document.addEventListener('mousedown', handleUserInteraction, { passive: true, once: false });
+    document.addEventListener('keydown', handleUserInteraction, { passive: true, once: false });
+
+    // Gunakan once: true untuk scroll/mousemove karena sering triggered
+    document.addEventListener('scroll', handleUserInteraction, { passive: true, once: true });
+    document.addEventListener('mousemove', handleUserInteraction, { passive: true, once: true });
+    document.addEventListener('touchmove', handleUserInteraction, { passive: true, once: true });
+
+    // Try unlock when Livewire navigates to new page
+    Livewire.hook('navigated', () => {
+        if (!audioUnlocked) {
+            console.log('[Ringtone] Livewire navigated, attempting unlock...');
+            unlockAudio();
+        }
+    });
+
+    // Try unlock when page becomes visible (for PWA or tab switching)
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && !audioUnlocked) {
+            console.log('[Ringtone] Page became visible, attempting unlock...');
+            unlockAudio();
+        }
     });
 
     function playRingtone() {
