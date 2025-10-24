@@ -68,6 +68,7 @@ class TransactionObserver
         // Auto-create Payment ketika workflow_status berubah ke status tertentu
         if ($transaction->wasChanged('workflow_status')) {
             // Bayar Saat Jemput: Payment dibuat saat status 'picked_up' + weight sudah diinput
+            // Payment_status tetap unpaid sampai kurir upload bukti pembayaran
             if (
                 $transaction->payment_timing === 'on_pickup' &&
                 $transaction->workflow_status === 'picked_up' &&
@@ -87,15 +88,15 @@ class TransactionObserver
                         'notes' => 'Pembayaran saat jemput - Auto-generated',
                     ]);
 
-                    // Update payment_status jadi paid (tanpa trigger observer lagi)
-                    $transaction->updateQuietly(['payment_status' => 'paid']);
+                    // Payment_status tetap unpaid, akan di-update saat upload bukti pembayaran
                 }
             }
 
-            // Bayar Saat Antar: Payment dibuat saat status 'washing_completed' (siap antar)
+            // Bayar Saat Antar: Payment dibuat saat status 'out_for_delivery' (mengantar)
+            // Payment_status tetap unpaid sampai kurir upload bukti pembayaran
             if (
                 $transaction->payment_timing === 'on_delivery' &&
-                $transaction->workflow_status === 'washing_completed' &&
+                $transaction->workflow_status === 'out_for_delivery' &&
                 !empty($transaction->courier_motorcycle_id) &&
                 $transaction->total_price > 0
             ) {
@@ -111,18 +112,8 @@ class TransactionObserver
                         'notes' => 'Pembayaran saat antar - Auto-generated',
                     ]);
 
-                    // Payment_status tetap unpaid, nanti di-update saat delivered
+                    // Payment_status tetap unpaid, akan di-update saat upload bukti pembayaran
                 }
-            }
-
-            // Bayar Saat Antar: Update payment_status jadi paid saat status 'delivered'
-            if (
-                $transaction->payment_timing === 'on_delivery' &&
-                $transaction->workflow_status === 'delivered' &&
-                $transaction->payment_status === 'unpaid'
-            ) {
-                // Update payment_status jadi paid (tanpa trigger observer lagi)
-                $transaction->updateQuietly(['payment_status' => 'paid']);
             }
         }
 

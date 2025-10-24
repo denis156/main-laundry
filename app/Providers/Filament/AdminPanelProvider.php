@@ -33,7 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarWidth('18rem')
             ->unsavedChangesAlerts()
             ->brandLogoHeight('4rem')
-            ->spa(hasPrefetching: true)
+            // ->spa(hasPrefetching: true)
             ->collapsibleNavigationGroups(false)
             ->favicon(asset('image/favico.svg'))
             ->brandLogo(asset('image/logo.png'))
