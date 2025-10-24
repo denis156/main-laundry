@@ -4,28 +4,30 @@
 // Menangani event transaction dari Laravel Echo
 // dan dispatch Livewire events untuk refresh components
 
+import { logger } from './utils/logger.js';
+
 document.addEventListener('livewire:init', () => {
     // Listen Echo channel untuk real-time transaction notifications
     if (window.Echo) {
-        console.log('[Echo] Subscribing to transactions channel...');
+        logger.log('[Echo] Subscribing to transactions channel...');
 
         window.Echo.channel('transactions')
             .listen('.transaction.event', (event) => {
-                console.log('[Echo] Transaction event received:', event);
-                console.log('[Echo] Action:', event.action);
+                logger.log('[Echo] Transaction event received:', event);
+                logger.log('[Echo] Action:', event.action);
 
                 // Check apakah transaction ini relevan untuk kurir yang login
                 const isRelevantForCourier = shouldPlayRingtone(event);
-                console.log('[Echo] Is relevant for this courier:', isRelevantForCourier);
+                logger.log('[Echo] Is relevant for this courier:', isRelevantForCourier);
 
                 // Dispatch event untuk play ringtone HANYA untuk orderan baru (created)
                 if (event.action === 'created' && isRelevantForCourier) {
-                    console.log('[Echo] Playing ringtone for NEW order');
+                    logger.log('[Echo] Playing ringtone for NEW order');
                     Livewire.dispatch('play-order-ringtone');
                 } else if (event.action === 'updated' && isRelevantForCourier) {
-                    console.log('[Echo] Skipping ringtone - status update only (not new order)');
+                    logger.log('[Echo] Skipping ringtone - status update only (not new order)');
                 } else if (!isRelevantForCourier) {
-                    console.log('[Echo] Skipping ringtone - transaction outside courier area');
+                    logger.log('[Echo] Skipping ringtone - transaction outside courier area');
                 }
 
                 // Dispatch Livewire events to refresh all components
@@ -34,12 +36,12 @@ document.addEventListener('livewire:init', () => {
                 Livewire.dispatch('refresh-new-orders');
                 Livewire.dispatch('refresh-stats');
 
-                console.log('[Echo] All components refreshed for action:', event.action);
+                logger.log('[Echo] All components refreshed for action:', event.action);
             });
 
-        console.log('[Echo] Successfully subscribed to transactions channel');
+        logger.log('[Echo] Successfully subscribed to transactions channel');
     } else {
-        console.error('[Echo] Echo not found! Make sure Laravel Echo is loaded.');
+        logger.error('[Echo] Echo not found! Make sure Laravel Echo is loaded.');
     }
 });
 
@@ -57,22 +59,22 @@ function shouldPlayRingtone(event) {
 
     // Jika tidak ada area filter (POS tidak punya area atau kosong), play ringtone untuk semua
     if (!posArea || posArea.length === 0) {
-        console.log('[Echo] No area filter configured, playing ringtone for all transactions');
+        logger.log('[Echo] No area filter configured, playing ringtone for all transactions');
         return true;
     }
 
     // Jika customer tidak punya village_name, include (backward compatibility)
     // Sesuai dengan TransactionAreaFilter.php line 61
     if (!customerVillage || customerVillage === null) {
-        console.log('[Echo] Customer has no village, including for backward compatibility');
+        logger.log('[Echo] Customer has no village, including for backward compatibility');
         return true;
     }
 
     // Check apakah village customer ada di area POS kurir
     const isInArea = posArea.includes(customerVillage);
-    console.log('[Echo] Customer village:', customerVillage);
-    console.log('[Echo] POS covers areas:', posArea);
-    console.log('[Echo] Is customer in area:', isInArea);
+    logger.log('[Echo] Customer village:', customerVillage);
+    logger.log('[Echo] POS covers areas:', posArea);
+    logger.log('[Echo] Is customer in area:', isInArea);
 
     return isInArea;
 }

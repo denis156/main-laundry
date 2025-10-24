@@ -3,6 +3,9 @@
 // ==========================================
 // Menangani audio ringtone untuk notifikasi pesanan baru masuk
 // File ini hanya fokus pada audio ringtone, bukan dispatch events
+
+import { logger } from './utils/logger.js';
+
 document.addEventListener('livewire:init', () => {
     const ringtone = document.getElementById('order-ringtone');
     const AUDIO_ENABLED_KEY = 'kurir_audio_enabled';
@@ -26,7 +29,7 @@ document.addEventListener('livewire:init', () => {
     function unlockAudio() {
         if (!ringtone || audioUnlocked) return;
 
-        console.log('[Ringtone] Unlocking audio context...');
+        logger.log('[Ringtone] Unlocking audio context...');
 
         // Load audio
         ringtone.load();
@@ -48,7 +51,7 @@ document.addEventListener('livewire:init', () => {
                     audioEnabled = true;
                     localStorage.setItem(AUDIO_ENABLED_KEY, 'true');
 
-                    console.log('[Ringtone] Audio unlocked successfully');
+                    logger.log('[Ringtone] Audio unlocked successfully');
 
                     // Remove event listeners after successful unlock
                     events.forEach(eventName => {
@@ -62,7 +65,7 @@ document.addEventListener('livewire:init', () => {
                     }
                 })
                 .catch(() => {
-                    console.log('[Ringtone] Audio not unlocked yet, waiting for user interaction...');
+                    logger.log('[Ringtone] Audio not unlocked yet, waiting for user interaction...');
                 });
         }
     }
@@ -89,7 +92,7 @@ document.addEventListener('livewire:init', () => {
     // Try unlock when Livewire navigates to new page
     Livewire.hook('navigated', () => {
         if (!audioUnlocked) {
-            console.log('[Ringtone] Livewire navigated, attempting unlock...');
+            logger.log('[Ringtone] Livewire navigated, attempting unlock...');
             unlockAudio();
         }
     });
@@ -97,22 +100,22 @@ document.addEventListener('livewire:init', () => {
     // Try unlock when page becomes visible (for PWA or tab switching)
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden && !audioUnlocked) {
-            console.log('[Ringtone] Page became visible, attempting unlock...');
+            logger.log('[Ringtone] Page became visible, attempting unlock...');
             unlockAudio();
         }
     });
 
     function playRingtone() {
-        console.log('[Ringtone] playRingtone() called');
+        logger.log('[Ringtone] playRingtone() called');
 
         if (!ringtone) {
-            console.error('[Ringtone] Audio element not found!');
+            logger.error('[Ringtone] Audio element not found!');
             return;
         }
 
         // Check if audio is unlocked
         if (!audioUnlocked) {
-            console.warn('[Ringtone] Audio not unlocked yet, setting as pending...');
+            logger.warn('[Ringtone] Audio not unlocked yet, setting as pending...');
             pendingRingtone = true;
 
             // Show visual notification to user
@@ -126,7 +129,7 @@ document.addEventListener('livewire:init', () => {
             return;
         }
 
-        console.log('[Ringtone] Audio element found, attempting to play...');
+        logger.log('[Ringtone] Audio element found, attempting to play...');
         ringtone.currentTime = 0;
         ringtone.volume = 1.0;
 
@@ -139,11 +142,11 @@ document.addEventListener('livewire:init', () => {
                         audioEnabled = true;
                         localStorage.setItem(AUDIO_ENABLED_KEY, 'true');
                     }
-                    console.log('[Ringtone] Played successfully');
+                    logger.log('[Ringtone] Played successfully');
                 })
                 .catch((error) => {
-                    console.error('[Ringtone] Cannot play ringtone:', error.name, error.message);
-                    console.warn('[Ringtone] Tip: Click/interact with page first to enable audio');
+                    logger.error('[Ringtone] Cannot play ringtone:', error.name, error.message);
+                    logger.warn('[Ringtone] Tip: Click/interact with page first to enable audio');
 
                     // Show visual notification
                     Livewire.dispatch('notify', {
@@ -165,7 +168,7 @@ document.addEventListener('livewire:init', () => {
     // Listen event dari Livewire untuk play ringtone
     // Event ini akan di-trigger dari transactionEvents.js
     Livewire.on('play-order-ringtone', () => {
-        console.log('[Ringtone] Play ringtone event received from Livewire');
+        logger.log('[Ringtone] Play ringtone event received from Livewire');
         playRingtone();
     });
 });
