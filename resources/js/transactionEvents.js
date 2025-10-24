@@ -7,7 +7,7 @@
 import { logger } from './utils/logger.js';
 
 document.addEventListener('livewire:init', () => {
-    // Listen Echo channel untuk real-time transaction notifications
+    // Listen channel Echo untuk real-time transaction notifications
     if (window.Echo) {
         logger.log('[Echo] Subscribing to transactions channel...');
 
@@ -16,7 +16,7 @@ document.addEventListener('livewire:init', () => {
                 logger.log('[Echo] Transaction event received:', event);
                 logger.log('[Echo] Action:', event.action);
 
-                // Check apakah transaction ini relevan untuk kurir yang login
+                // Cek apakah transaction ini relevan untuk kurir yang login
                 const isRelevantForCourier = shouldPlayRingtone(event);
                 logger.log('[Echo] Is relevant for this courier:', isRelevantForCourier);
 
@@ -30,7 +30,7 @@ document.addEventListener('livewire:init', () => {
                     logger.log('[Echo] Skipping ringtone - transaction outside courier area');
                 }
 
-                // Dispatch Livewire events to refresh all components
+                // Dispatch Livewire events untuk refresh semua components
                 // Semua component akan refresh otomatis tanpa polling
                 Livewire.dispatch('refresh-orders');
                 Livewire.dispatch('refresh-new-orders');
@@ -46,7 +46,7 @@ document.addEventListener('livewire:init', () => {
 });
 
 /**
- * Check apakah transaction harus membunyikan ringtone untuk kurir ini
+ * Cek apakah transaction harus membunyikan ringtone untuk kurir ini
  * Logika sama dengan TransactionAreaFilter::isCustomerInPosArea() di backend
  *
  * @param {Object} event - Transaction event dari broadcast
@@ -70,7 +70,7 @@ function shouldPlayRingtone(event) {
         return true;
     }
 
-    // Check apakah village customer ada di area POS kurir
+    // Cek apakah village customer ada di area POS kurir
     const isInArea = posArea.includes(customerVillage);
     logger.log('[Echo] Customer village:', customerVillage);
     logger.log('[Echo] POS covers areas:', posArea);

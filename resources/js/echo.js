@@ -1,8 +1,14 @@
+// ==========================================
+// KONFIGURASI LARAVEL ECHO & REVERB
+// ==========================================
+// Setup Laravel Echo dengan Reverb broadcaster untuk real-time events
+
 import Echo from 'laravel-echo';
 
 import Pusher from 'pusher-js';
 window.Pusher = Pusher;
 
+// Inisialisasi Echo instance dengan konfigurasi Reverb
 window.Echo = new Echo({
     broadcaster: 'reverb',
     key: import.meta.env.VITE_REVERB_APP_KEY,

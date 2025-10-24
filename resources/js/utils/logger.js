@@ -1,7 +1,7 @@
 /**
- * Development-only console logger
+ * Logger khusus untuk development
  * Console logs hanya muncul di development environment (npm run dev)
- * Di production (npm run build), semua console log akan di-strip
+ * Di production (npm run build), semua console log akan otomatis dihapus
  */
 
 const isDev = import.meta.env.DEV;
