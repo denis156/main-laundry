@@ -14,18 +14,20 @@
         {{-- Card Informasi Transaksi & Pembayaran --}}
         <div class="card bg-base-300 shadow-lg">
             <div class="card-body p-4">
-                {{-- Invoice & Status Badge --}}
+                {{-- Invoice & Payment Status Badge --}}
                 <div class="flex items-start justify-between mb-3">
                     <div>
                         <p class="font-bold text-lg text-primary">{{ $transaction->invoice_number }}</p>
                     </div>
-                    @php
-                        $statusColor = StatusTransactionHelper::getStatusBadgeColor($transaction->workflow_status);
-                        $statusText = StatusTransactionHelper::getStatusText($transaction->workflow_status);
-                    @endphp
-                    <span class="badge {{ $statusColor }} gap-1">
-                        {{ $statusText }}
-                    </span>
+                    @if ($transaction->payment_status === 'paid')
+                        <span class="badge badge-success">
+                            Lunas
+                        </span>
+                    @else
+                        <span class="badge badge-error">
+                            Belum Bayar
+                        </span>
+                    @endif
                 </div>
 
                 <div class="divider my-2"></div>
@@ -48,30 +50,23 @@
                     </div>
 
                     @if ($transaction->customer?->address)
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-base-content/70">Alamat</span>
-                            <span class="font-semibold text-right text-sm">{{ $transaction->customer->address }}</span>
+                        <div class="divider my-1"></div>
+                        <div>
+                            <p class="text-xs text-base-content/70 mb-1">Alamat</p>
+                            <p class="text-sm font-semibold text-primary leading-relaxed">{{ $transaction->customer->address }}</p>
                         </div>
                     @endif
                 </div>
 
                 <div class="divider my-2"></div>
 
-                {{-- Transaction Info --}}
+                {{-- Payment Summary --}}
                 <h3 class="font-bold text-base mb-2 flex items-center gap-2">
-                    <x-icon name="solar.bill-list-bold-duotone" class="w-4 h-4 text-primary" />
-                    Informasi Pesanan
+                    <x-icon name="solar.wallet-bold-duotone" class="w-4 h-4 text-primary" />
+                    Ringkasan Pembayaran
                 </h3>
 
                 <div class="bg-base-200 rounded-lg p-3 space-y-2 mb-3">
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-base-content/70">Tanggal Order</span>
-                        <span class="font-semibold">{{ $transaction->order_date->format('d M Y') }}</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-base-content/70">Jam Order</span>
-                        <span class="font-semibold">{{ $transaction->order_date->format('H:i') }}</span>
-                    </div>
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-base-content/70">Layanan</span>
                         <span class="font-semibold">{{ $transaction->service?->name ?? 'N/A' }}</span>
@@ -81,58 +76,28 @@
                         <span class="font-semibold">{{ $transaction->weight }} kg</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-sm text-base-content/70">Harga/kg</span>
-                        <span class="font-semibold">Rp
-                            {{ number_format($transaction->price_per_kg, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="divider my-1"></div>
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-base">Total</span>
-                        <span class="font-bold text-primary text-lg">
-                            Rp {{ number_format($transaction->total_price, 0, ',', '.') }}
-                        </span>
-                    </div>
-                </div>
-
-                <div class="divider my-2"></div>
-
-                {{-- Payment Info --}}
-                <h3 class="font-bold text-base mb-2 flex items-center gap-2">
-                    <x-icon name="solar.wallet-bold-duotone" class="w-4 h-4 text-primary" />
-                    Informasi Pembayaran
-                </h3>
-
-                <div class="bg-base-200 rounded-lg p-3 space-y-2 mb-3">
-                    <div class="flex justify-between items-center">
                         <span class="text-sm text-base-content/70">Metode Pembayaran</span>
                         <span class="font-semibold">
-                            {{ $transaction->payment_timing === 'on_pickup' ? 'Bayar Saat Jemput' : 'Bayar Saat Antar' }}
+                            {{ $transaction->payment_timing_text }}
                         </span>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-base-content/70">Status Pembayaran</span>
-                        @if ($transaction->payment_status === 'paid')
-                            <span class="badge badge-success gap-1">
-                                <x-icon name="solar.check-circle-bold-duotone" class="w-3 h-3" />
-                                Lunas
-                            </span>
-                        @else
-                            <span class="badge badge-error gap-1">
-                                <x-icon name="solar.close-circle-bold-duotone" class="w-3 h-3" />
-                                Belum Bayar
-                            </span>
-                        @endif
-                    </div>
-                    @if ($transaction->paid_at)
+                    @if ($this->payment?->payment_date)
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-base-content/70">Tanggal Bayar</span>
-                            <span class="font-semibold">{{ $transaction->paid_at->format('d M Y, H:i') }}</span>
+                            <span class="font-semibold">{{ $this->payment->formatted_payment_date }}</span>
                         </div>
                     @endif
+                    <div class="divider my-1"></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-base-content/70">Jumlah Bayar</span>
+                        <span class="font-semibold text-right text-primary text-base">
+                            {{ $transaction->formatted_total_price }}
+                        </span>
+                    </div>
                 </div>
 
                 {{-- Payment Proof Image --}}
-                @if ($transaction->payment_proof_url)
+                @if ($this->payment?->payment_proof_url)
                     <div class="divider my-2"></div>
 
                     <h3 class="font-bold text-base mb-2 flex items-center gap-2">
@@ -140,11 +105,9 @@
                         Bukti Pembayaran
                     </h3>
 
-                    <div class="bg-base-200 rounded-lg p-3">
-                        <img src="{{ asset('storage/' . $transaction->payment_proof_url) }}" alt="Bukti Pembayaran"
-                            class="w-full rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
-                            onclick="document.getElementById('payment_proof_modal').showModal()" />
-                    </div>
+                    <img src="{{ asset('storage/' . $this->payment->payment_proof_url) }}" alt="Bukti Pembayaran"
+                        class="w-full rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
+                        onclick="document.getElementById('payment_proof_modal').showModal()" />
 
                     {{-- Modal untuk preview image --}}
                     <dialog id="payment_proof_modal" class="modal">
@@ -153,13 +116,39 @@
                                 <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
                             </form>
                             <h3 class="font-bold text-lg mb-4">Bukti Pembayaran</h3>
-                            <img src="{{ asset('storage/' . $transaction->payment_proof_url) }}" alt="Bukti Pembayaran"
+                            <img src="{{ asset('storage/' . $this->payment->payment_proof_url) }}" alt="Bukti Pembayaran"
                                 class="w-full rounded-lg" />
                         </div>
                         <form method="dialog" class="modal-backdrop">
                             <button>close</button>
                         </form>
                     </dialog>
+                @endif
+
+                {{-- Upload Payment Proof Section (hanya jika Payment ada tapi belum ada bukti) --}}
+                @if ($this->payment && !$this->payment->payment_proof_url)
+                    <div class="divider my-2"></div>
+
+                    <h3 class="font-bold text-base mb-2 flex items-center gap-2">
+                        <x-icon name="solar.upload-bold-duotone" class="w-4 h-4 text-primary" />
+                        Pilih Bukti Pembayaran
+                    </h3>
+
+                    <div class="bg-base-200 rounded-lg p-3">
+                        {{-- Upload File --}}
+                        <x-file wire:model="paymentProof" label="Bukti Pembayaran"
+                            hint="Upload foto/screenshot bukti pembayaran" accept="image/png, image/jpeg, image/jpg" />
+                    </div>
+                @elseif (!$this->payment)
+                    {{-- Info jika Payment belum dibuat --}}
+                    <div class="divider my-2"></div>
+
+                    <div class="alert alert-info">
+                        <x-icon name="solar.info-circle-bold-duotone" class="w-5 h-5" />
+                        <span class="text-sm">
+                            Record pembayaran akan otomatis dibuat saat pesanan sudah dijemput atau siap diantar.
+                        </span>
+                    </div>
                 @endif
 
                 {{-- Notes --}}
@@ -176,47 +165,28 @@
                     </div>
                 @endif
 
-                {{-- Upload Payment Proof Section (hanya jika belum bayar) --}}
-                @if ($transaction->payment_status === 'unpaid')
-                    <div class="divider my-2"></div>
-
-                    <h3 class="font-bold text-base mb-2 flex items-center gap-2">
-                        <x-icon name="solar.upload-bold-duotone" class="w-4 h-4 text-primary" />
-                        Upload Bukti Pembayaran
-                    </h3>
-
-                    <div class="bg-base-200 rounded-lg p-3 space-y-3">
-                        {{-- Upload File --}}
-                        <x-file wire:model="paymentProof" label="Bukti Pembayaran"
-                            hint="Upload foto/screenshot bukti pembayaran"
-                            accept="image/png, image/jpeg, image/jpg" />
-
-                        {{-- Upload Button --}}
-                        <button wire:click="uploadPaymentProof" class="btn btn-success btn-sm w-full"
-                            @if (empty($paymentProof)) disabled @endif>
-                            <x-icon name="solar.upload-bold-duotone" class="w-4 h-4" />
-                            Upload Bukti Pembayaran
-                        </button>
-                    </div>
-                @endif
-
                 {{-- Action Buttons --}}
                 <div class="mt-3">
-                    @if ($transaction->payment_status === 'unpaid' && $transaction->customer?->phone && $transaction->customer?->name)
-                        {{-- Grid 2 Kolom untuk WhatsApp dan Back --}}
+                    @php
+                        $hasPayment = $this->payment !== null;
+                        $hasBukti = $this->payment?->payment_proof_url !== null;
+                    @endphp
+
+                    @if ($hasPayment && !$hasBukti)
+                        {{-- Ada Payment tapi belum ada bukti - Tampilkan Upload & Kembali --}}
                         <div class="grid grid-cols-2 gap-2">
-                            <a href="{{ $this->getWhatsAppReminderUrl() }}" target="_blank"
-                                class="btn btn-warning btn-sm">
-                                <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
-                                WhatsApp
-                            </a>
+                            <button wire:click="uploadPaymentProof" class="btn btn-success btn-sm"
+                                @if (empty($paymentProof)) disabled @endif>
+                                <x-icon name="solar.upload-bold-duotone" class="w-4 h-4" />
+                                Upload Bukti
+                            </button>
                             <a href="{{ route('kurir.pembayaran') }}" class="btn btn-primary btn-sm">
                                 <x-icon name="solar.undo-left-linear" class="w-4 h-4" />
                                 Kembali
                             </a>
                         </div>
                     @else
-                        {{-- Back Button Full Width --}}
+                        {{-- Sudah ada bukti atau belum ada Payment - Hanya Kembali --}}
                         <a href="{{ route('kurir.pembayaran') }}" class="btn btn-primary btn-sm w-full">
                             <x-icon name="solar.undo-left-linear" class="w-4 h-4" />
                             Kembali

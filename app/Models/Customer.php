@@ -40,4 +40,28 @@ class Customer extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
+    /**
+     * Generate initials dari nama customer
+     * - Satu kata: ambil 2 huruf pertama (contoh: "Budi" -> "BU")
+     * - Multiple kata: ambil huruf pertama dari kata pertama & terakhir (contoh: "Budi Santoso" -> "BS")
+     */
+    public function getInitials(): string
+    {
+        $name = trim($this->name ?? 'N/A');
+        $words = preg_split('/\s+/', $name);
+        $initials = '';
+
+        if (count($words) === 1) {
+            // Kalau cuma satu kata → ambil dua huruf pertama
+            $initials = strtoupper(substr($words[0], 0, 2));
+        } else {
+            // Kalau lebih dari satu kata → ambil huruf pertama dari kata pertama & terakhir
+            $first = strtoupper(substr($words[0], 0, 1));
+            $last = strtoupper(substr(end($words), 0, 1));
+            $initials = $first . $last;
+        }
+
+        return $initials;
+    }
 }

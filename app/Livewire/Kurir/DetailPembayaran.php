@@ -11,6 +11,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Auth;
 
 #[Title('Detail Pembayaran')]
@@ -54,7 +55,17 @@ class DetailPembayaran extends Component
     }
 
     /**
+     * Get first payment untuk transaksi ini
+     */
+    #[Computed]
+    public function payment(): ?Payment
+    {
+        return $this->transaction->payments->first();
+    }
+
+    /**
      * Upload bukti pembayaran ke Payment record
+     * Auto-update payment_status jadi paid setelah upload bukti
      */
     public function uploadPaymentProof(): void
     {
@@ -81,59 +92,17 @@ class DetailPembayaran extends Component
             'payment_proof_url' => $path,
         ]);
 
+        // Update payment_status jadi paid karena sudah ada bukti pembayaran
+        $this->transaction->update([
+            'payment_status' => 'paid',
+        ]);
+
         $this->success('Bukti pembayaran berhasil diupload!');
 
         // Clear inputs
         $this->paymentProof = null;
 
         $this->transaction->refresh();
-    }
-
-    /**
-     * Get URL WhatsApp untuk mengingatkan customer bayar
-     */
-    public function getWhatsAppReminderUrl(): ?string
-    {
-        if (!$this->transaction->customer?->phone || !$this->transaction->customer?->name) {
-            return null;
-        }
-
-        $courier = Auth::guard('courier')->user();
-
-        // Format nomor telepon (hapus karakter non-numeric)
-        $cleanPhone = preg_replace('/[^0-9]/', '', $this->transaction->customer->phone);
-
-        // Format nomor Indonesia untuk WhatsApp
-        if (str_starts_with($cleanPhone, '0')) {
-            $cleanPhone = '62' . substr($cleanPhone, 1);
-        } elseif (str_starts_with($cleanPhone, '8')) {
-            $cleanPhone = '62' . $cleanPhone;
-        } elseif (!str_starts_with($cleanPhone, '62')) {
-            $cleanPhone = '62' . $cleanPhone;
-        }
-
-        // Format harga dan detail
-        $totalPrice = number_format((float) $this->transaction->total_price, 0, ',', '.');
-        $serviceName = $this->transaction->service?->name ?? 'Layanan';
-        $invoiceNumber = $this->transaction->invoice_number;
-        $weight = $this->transaction->weight;
-
-        // Message template pengingat pembayaran
-        $message = "Halo Kak *{$this->transaction->customer->name}*\n\n";
-        $message .= "Ini pengingat pembayaran dari *Main Laundry*.\n\n";
-        $message .= "*Detail Pesanan:*\n";
-        $message .= "• Invoice: {$invoiceNumber}\n";
-        $message .= "• Layanan: {$serviceName}\n";
-        $message .= "• Berat: {$weight} kg\n";
-        $message .= "• Total Tagihan: Rp {$totalPrice}\n";
-        $message .= "• Status: *Belum Lunas*\n\n";
-        $message .= "Mohon segera melakukan pembayaran ya Kak. Pembayaran dapat dilakukan via QRIS atau transfer bank.\n\n";
-        $message .= "Terima kasih";
-
-        // Encode message untuk URL
-        $encodedMessage = urlencode($message);
-
-        return "https://wa.me/{$cleanPhone}?text={$encodedMessage}";
     }
 
     public function render()

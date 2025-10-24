@@ -8,7 +8,6 @@ use Mary\Traits\Toast;
 use App\Helper\TransactionAreaFilter;
 use App\Models\Transaction;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
@@ -20,16 +19,13 @@ use Illuminate\Database\Eloquent\Collection;
 #[Layout('components.layouts.mobile')]
 class Pesanan extends Component
 {
-    use Toast, WithFileUploads;
+    use Toast;
 
     public string $filter = 'all'; // all, pending_confirmation, confirmed, picked_up, at_loading_post, in_washing, washing_completed, out_for_delivery, delivered, cancelled
     public string $search = '';
 
     // Array untuk menyimpan berat per transaksi [transaction_id => weight]
     public array $weights = [];
-
-    // Array untuk menyimpan bukti pembayaran per transaksi [transaction_id => file]
-    public array $paymentProofs = [];
 
     /**
      * Refresh orders - dipanggil dari JavaScript saat menerima broadcast event
@@ -303,48 +299,21 @@ class Pesanan extends Component
             return;
         }
 
-        // Validasi bukti pembayaran jika bayar saat jemput
-        if ($transaction->payment_timing === 'on_pickup') {
-            if (empty($this->paymentProofs[$transactionId])) {
-                $this->error('Bukti pembayaran harus diupload untuk pesanan yang bayar saat jemput!');
-                return;
-            }
-        }
-
         $weight = (float) $this->weights[$transactionId];
         $pricePerKg = $transaction->price_per_kg;
         $totalPrice = $weight * $pricePerKg;
 
-        $updateData = [
+        $transaction->update([
             'workflow_status' => 'picked_up',
             'pos_id' => $courier->assigned_pos_id,
             'weight' => $weight,
             'total_price' => $totalPrice,
-        ];
+        ]);
 
-        // Handle upload bukti pembayaran jika bayar saat jemput
-        if ($transaction->payment_timing === 'on_pickup' && !empty($this->paymentProofs[$transactionId])) {
-            $file = $this->paymentProofs[$transactionId];
-            $filename = 'payment-proof-' . $transaction->invoice_number . '-' . time() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('payment-proofs', $filename, 'public');
-
-            $updateData['payment_proof_url'] = $path;
-            $updateData['payment_status'] = 'paid';
-            $updateData['paid_at'] = now();
-        }
-
-        $transaction->update($updateData);
-
-        $message = 'Pesanan berhasil ditandai sudah dijemput dengan berat ' . $weight . ' kg!';
-        if ($transaction->payment_timing === 'on_pickup') {
-            $message .= ' Pembayaran telah terkonfirmasi.';
-        }
-
-        $this->success($message);
+        $this->success('Pesanan berhasil ditandai sudah dijemput dengan berat ' . $weight . ' kg!');
 
         // Clear inputs setelah berhasil
         unset($this->weights[$transactionId]);
-        unset($this->paymentProofs[$transactionId]);
 
         // Refresh data
         unset($this->transactions);
@@ -438,40 +407,11 @@ class Pesanan extends Component
             return;
         }
 
-        // Validasi bukti pembayaran jika bayar saat antar DAN belum bayar
-        if ($transaction->payment_timing === 'on_delivery' && $transaction->payment_status === 'unpaid') {
-            if (empty($this->paymentProofs[$transactionId])) {
-                $this->error('Bukti pembayaran harus diupload untuk pesanan yang bayar saat antar!');
-                return;
-            }
-        }
-
-        $updateData = [
+        $transaction->update([
             'workflow_status' => 'delivered',
-        ];
+        ]);
 
-        // Handle upload bukti pembayaran jika bayar saat antar DAN belum bayar
-        if ($transaction->payment_timing === 'on_delivery' && $transaction->payment_status === 'unpaid' && !empty($this->paymentProofs[$transactionId])) {
-            $file = $this->paymentProofs[$transactionId];
-            $filename = 'payment-proof-' . $transaction->invoice_number . '-' . time() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('payment-proofs', $filename, 'public');
-
-            $updateData['payment_proof_url'] = $path;
-            $updateData['payment_status'] = 'paid';
-            $updateData['paid_at'] = now();
-        }
-
-        $transaction->update($updateData);
-
-        $message = 'Pesanan berhasil ditandai terkirim!';
-        if ($transaction->payment_timing === 'on_delivery' && $transaction->payment_status === 'paid') {
-            $message .= ' Pembayaran telah terkonfirmasi.';
-        }
-
-        $this->success($message);
-
-        // Clear inputs setelah berhasil
-        unset($this->paymentProofs[$transactionId]);
+        $this->success('Pesanan berhasil ditandai terkirim!');
 
         // Refresh data
         unset($this->transactions);

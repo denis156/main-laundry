@@ -8,7 +8,6 @@ use Mary\Traits\Toast;
 use App\Helper\TransactionAreaFilter;
 use App\Models\Transaction;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Auth;
@@ -17,15 +16,12 @@ use Illuminate\Support\Facades\Auth;
 #[Layout('components.layouts.mobile')]
 class DetailPesanan extends Component
 {
-    use Toast, WithFileUploads;
+    use Toast;
 
     public Transaction $transaction;
 
     // Berat untuk input (jika status confirmed)
     public ?float $weight = null;
-
-    // Bukti pembayaran untuk upload
-    public $paymentProof;
 
     public function mount(int $id): void
     {
@@ -239,46 +235,20 @@ class DetailPesanan extends Component
             return;
         }
 
-        // Validasi bukti pembayaran jika bayar saat jemput DAN belum bayar
-        if ($this->transaction->payment_timing === 'on_pickup' && $this->transaction->payment_status === 'unpaid') {
-            if (empty($this->paymentProof)) {
-                $this->error('Bukti pembayaran harus diupload untuk pesanan yang bayar saat jemput!');
-                return;
-            }
-        }
-
         $pricePerKg = $this->transaction->price_per_kg;
         $totalPrice = $this->weight * $pricePerKg;
 
-        $updateData = [
+        $this->transaction->update([
             'workflow_status' => 'picked_up',
             'pos_id' => $courier->assigned_pos_id,
             'weight' => $this->weight,
             'total_price' => $totalPrice,
-        ];
+        ]);
 
-        // Handle upload bukti pembayaran jika bayar saat jemput DAN belum bayar
-        if ($this->transaction->payment_timing === 'on_pickup' && $this->transaction->payment_status === 'unpaid' && !empty($this->paymentProof)) {
-            $filename = 'payment-proof-' . $this->transaction->invoice_number . '-' . time() . '.' . $this->paymentProof->getClientOriginalExtension();
-            $path = $this->paymentProof->storeAs('payment-proofs', $filename, 'public');
-
-            $updateData['payment_proof_url'] = $path;
-            $updateData['payment_status'] = 'paid';
-            $updateData['paid_at'] = now();
-        }
-
-        $this->transaction->update($updateData);
-
-        $message = 'Pesanan berhasil ditandai sudah dijemput dengan berat ' . $this->weight . ' kg!';
-        if ($this->transaction->payment_timing === 'on_pickup' && $this->transaction->payment_status === 'paid') {
-            $message .= ' Pembayaran telah terkonfirmasi.';
-        }
-
-        $this->success($message);
+        $this->success('Pesanan berhasil ditandai sudah dijemput dengan berat ' . $this->weight . ' kg!');
 
         // Clear inputs
         $this->weight = null;
-        $this->paymentProof = null;
 
         $this->transaction->refresh();
     }
@@ -343,39 +313,11 @@ class DetailPesanan extends Component
             return;
         }
 
-        // Validasi bukti pembayaran jika bayar saat antar DAN belum bayar
-        if ($this->transaction->payment_timing === 'on_delivery' && $this->transaction->payment_status === 'unpaid') {
-            if (empty($this->paymentProof)) {
-                $this->error('Bukti pembayaran harus diupload untuk pesanan yang bayar saat antar!');
-                return;
-            }
-        }
-
-        $updateData = [
+        $this->transaction->update([
             'workflow_status' => 'delivered',
-        ];
+        ]);
 
-        // Handle upload bukti pembayaran jika bayar saat antar DAN belum bayar
-        if ($this->transaction->payment_timing === 'on_delivery' && $this->transaction->payment_status === 'unpaid' && !empty($this->paymentProof)) {
-            $filename = 'payment-proof-' . $this->transaction->invoice_number . '-' . time() . '.' . $this->paymentProof->getClientOriginalExtension();
-            $path = $this->paymentProof->storeAs('payment-proofs', $filename, 'public');
-
-            $updateData['payment_proof_url'] = $path;
-            $updateData['payment_status'] = 'paid';
-            $updateData['paid_at'] = now();
-        }
-
-        $this->transaction->update($updateData);
-
-        $message = 'Pesanan berhasil ditandai terkirim!';
-        if ($this->transaction->payment_timing === 'on_delivery' && $this->transaction->payment_status === 'paid') {
-            $message .= ' Pembayaran telah terkonfirmasi.';
-        }
-
-        $this->success($message);
-
-        // Clear inputs
-        $this->paymentProof = null;
+        $this->success('Pesanan berhasil ditandai terkirim!');
 
         $this->transaction->refresh();
     }

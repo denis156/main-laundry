@@ -10,7 +10,7 @@
                             {{ $transaction->invoice_number }}
                         </h3>
                         <p class="text-xs text-base-content/60">
-                            {{ $transaction->order_date->format('d M Y, H:i') }}
+                            {{ $transaction->formatted_order_date }}
                         </p>
                     </div>
                     <span class="badge badge-secondary gap-1">
@@ -23,8 +23,9 @@
                 {{-- Customer Info --}}
                 <div class="flex items-center gap-3 mb-2">
                     <div class="avatar avatar-placeholder">
-                        <div class="bg-primary text-primary-content w-10 rounded-full">
-                            <span class="text-sm">{{ substr($transaction->customer?->name ?? 'N/A', 0, 2) }}</span>
+                        <div
+                            class="bg-primary text-primary-content w-10 h-10 flex items-center justify-center rounded-full">
+                            <span class="text-sm font-semibold">{{ $transaction->customer?->getInitials() ?? 'NA' }}</span>
                         </div>
                     </div>
                     <div class="flex-1">
@@ -33,9 +34,15 @@
                     </div>
                 </div>
 
-                {{-- Service & Info --}}
-                @if ($transaction->service_id || $transaction->customer?->address)
-                    <div class="mt-2 bg-base-200 rounded-lg p-3 space-y-2">
+                {{-- Order Info --}}
+                @if (
+                    $transaction->service_id ||
+                        $transaction->pos_id ||
+                        $transaction->weight ||
+                        $transaction->payment_timing ||
+                        $transaction->customer?->address)
+                    <div class="bg-base-200 rounded-lg p-3 space-y-2">
+                        {{-- Layanan --}}
                         @if ($transaction->service_id)
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-base-content/70">Layanan</span>
@@ -43,14 +50,41 @@
                             </div>
                         @endif
 
+                        {{-- Berat --}}
+                        @if ($transaction->weight)
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-base-content/70">Berat</span>
+                                <span class="font-semibold">{{ $transaction->weight }} kg</span>
+                            </div>
+                        @endif
+
+                        {{-- Pos --}}
+                        @if ($transaction->pos_id)
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-base-content/70">Pos</span>
+                                <span class="font-semibold">{{ $transaction->pos?->name ?? 'N/A' }}</span>
+                            </div>
+                        @endif
+
+                        {{-- Metode Pembayaran --}}
+                        @if ($transaction->payment_timing)
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-base-content/70">Metode Pembayaran</span>
+                                <span class="font-semibold">
+                                    {{ $transaction->payment_timing_text }}
+                                </span>
+                            </div>
+                        @endif
+
+                        {{-- Alamat --}}
                         @if ($transaction->customer?->address)
-                            @if ($transaction->service_id)
+                            @if ($transaction->service_id || $transaction->pos_id || $transaction->weight || $transaction->payment_timing)
                                 <div class="divider my-1"></div>
                             @endif
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-base-content/70">Alamat</span>
-                                <span
-                                    class="font-semibold text-right text-primary text-sm">{{ $transaction->customer->address }}</span>
+                            <div>
+                                <p class="text-xs text-base-content/70 mb-1">Alamat</p>
+                                <p class="text-sm font-semibold text-primary leading-relaxed">
+                                    {{ $transaction->customer->address }}</p>
                             </div>
                         @endif
                     </div>
@@ -59,45 +93,16 @@
                 {{-- Notes --}}
                 @if ($transaction->notes)
                     <div class="mt-2 p-3 bg-base-200 rounded-lg">
-                        <p class="text-xs text-base-content/70 mb-1">Catatan:</p>
+                        <p class="text-xs text-base-content/70 mb-1">Catatan</p>
                         <p class="text-sm">{{ $transaction->notes }}</p>
                     </div>
                 @endif
-
-                {{-- Payment & Timing Info --}}
-                <div class="mt-3 flex gap-2 flex-wrap justify-center">
-                    {{-- Payment Status --}}
-                    @if ($transaction->payment_status === 'paid')
-                        <div class="badge badge-success gap-1">
-                            <x-icon name="solar.check-circle-bold-duotone" class="w-3 h-3" />
-                            Lunas
-                        </div>
-                    @else
-                        <div class="badge badge-error gap-1">
-                            <x-icon name="solar.close-circle-bold-duotone" class="w-3 h-3" />
-                            Belum Bayar
-                        </div>
-                    @endif
-
-                    {{-- Payment Timing --}}
-                    @if ($transaction->payment_timing === 'on_pickup')
-                        <div class="badge badge-info gap-1">
-                            <x-icon name="solar.upload-bold-duotone" class="w-3 h-3" />
-                            Bayar Saat Jemput
-                        </div>
-                    @else
-                        <div class="badge badge-warning gap-1">
-                            <x-icon name="solar.download-bold-duotone" class="w-3 h-3" />
-                            Bayar Saat Antar
-                        </div>
-                    @endif
-                </div>
 
                 {{-- Action Button --}}
                 <div class="mt-3">
                     <a href="{{ route('kurir.pesanan.detail', $transaction->id) }}"
                         class="btn btn-primary btn-sm w-full">
-                        <x-icon name="solar.eye-linear" class="w-4 h-4" />
+                        <x-icon name="solar.bill-list-bold-duotone" class="w-4 h-4" />
                         Detail Pesanan
                     </a>
                 </div>

@@ -6,7 +6,8 @@ namespace App\Livewire\Kurir;
 
 use Mary\Traits\Toast;
 use Livewire\Component;
-use App\Models\Transaction;
+use App\Models\Payment;
+use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
@@ -18,50 +19,43 @@ use Illuminate\Database\Eloquent\Collection;
 #[Layout('components.layouts.mobile')]
 class Pembayaran extends Component
 {
-    use Toast, WithPagination;
+    use Toast, WithPagination, WithFileUploads;
 
-    public string $filter = 'all'; // unpaid, paid, all
+    public string $filter = 'all'; // all, with_proof, without_proof
     public string $search = '';
 
+    // Array untuk menyimpan file upload per payment ID
+    public array $paymentProofs = [];
+
     /**
-     * Get transaksi yang perlu konfirmasi pembayaran
-     * - Hanya transaksi yang di-handle oleh kurir yang sedang login
-     * - Filter berdasarkan payment_status
+     * Get semua payment yang di-handle oleh kurir yang sedang login
+     * - Tampilkan semua payment records
+     * - Filter berdasarkan ada tidaknya bukti pembayaran
      */
     #[Computed]
-    public function transactions(): Collection
+    public function payments(): Collection
     {
         $courier = Auth::guard('courier')->user();
 
-        $query = Transaction::with(['customer', 'service', 'payments'])
+        $query = Payment::with(['transaction.customer', 'transaction.service', 'courierMotorcycle'])
             ->where('courier_motorcycle_id', $courier->id)
-            ->whereNotNull('customer_id') // Pastikan customer ada
-            ->whereNotNull('service_id')  // Pastikan service ada
-            ->whereHas('customer')        // Pastikan customer tidak soft deleted
-            ->whereHas('service')         // Pastikan service tidak soft deleted
-            ->where(function ($q) {
-                // Transaksi dengan payment_timing = 'on_pickup' dan sudah picked_up
-                $q->where(function ($subQ) {
-                    $subQ->where('payment_timing', 'on_pickup')
-                        ->whereIn('workflow_status', ['picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered']);
-                })
-                // Atau transaksi dengan payment_timing = 'on_delivery' dan sudah delivered
-                ->orWhere(function ($subQ) {
-                    $subQ->where('payment_timing', 'on_delivery')
-                        ->whereIn('workflow_status', ['out_for_delivery', 'delivered']);
-                });
+            ->whereHas('transaction', function ($q) {
+                $q->whereNotNull('customer_id')
+                    ->whereNotNull('service_id')
+                    ->whereHas('customer')
+                    ->whereHas('service');
             });
 
-        // Filter berdasarkan payment_status
-        if ($this->filter === 'unpaid') {
-            $query->where('payment_status', 'unpaid');
-        } elseif ($this->filter === 'paid') {
-            $query->where('payment_status', 'paid');
+        // Filter berdasarkan bukti pembayaran
+        if ($this->filter === 'with_proof') {
+            $query->whereNotNull('payment_proof_url');
+        } elseif ($this->filter === 'without_proof') {
+            $query->whereNull('payment_proof_url');
         }
 
-        // Search
+        // Search by invoice atau customer name
         if (!empty($this->search)) {
-            $query->where(function ($q) {
+            $query->whereHas('transaction', function ($q) {
                 $q->where('invoice_number', 'like', '%' . $this->search . '%')
                     ->orWhereHas('customer', function ($subQ) {
                         $subQ->where('name', 'like', '%' . $this->search . '%');
@@ -69,69 +63,69 @@ class Pembayaran extends Component
             });
         }
 
-        return $query->orderBy('order_date', 'desc')
+        return $query->orderBy('payment_date', 'desc')
             ->get();
     }
 
     /**
-     * Get statistik pembayaran
+     * Upload bukti pembayaran untuk payment tertentu
      */
-    #[Computed]
-    public function stats(): array
+    public function uploadPaymentProof(int $paymentId): void
     {
+        // Validasi file
+        if (empty($this->paymentProofs[$paymentId])) {
+            $this->error('Bukti pembayaran harus diupload!');
+            return;
+        }
+
+        // Cari payment record
+        $payment = Payment::find($paymentId);
+
+        if (!$payment) {
+            $this->error('Payment tidak ditemukan!');
+            return;
+        }
+
+        // Validasi ownership
         $courier = Auth::guard('courier')->user();
+        if ($payment->courier_motorcycle_id !== $courier->id) {
+            $this->error('Anda tidak memiliki akses untuk upload bukti pembayaran ini!');
+            return;
+        }
 
-        $unpaidCount = Transaction::where('courier_motorcycle_id', $courier->id)
-            ->where('payment_status', 'unpaid')
-            ->where(function ($q) {
-                $q->where(function ($subQ) {
-                    $subQ->where('payment_timing', 'on_pickup')
-                        ->whereIn('workflow_status', ['picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered']);
-                })
-                ->orWhere(function ($subQ) {
-                    $subQ->where('payment_timing', 'on_delivery')
-                        ->whereIn('workflow_status', ['out_for_delivery', 'delivered']);
-                });
-            })
-            ->count();
+        // Upload file
+        $filename = 'payment-proof-' . $payment->transaction->invoice_number . '-' . time() . '.' . $this->paymentProofs[$paymentId]->getClientOriginalExtension();
+        $path = $this->paymentProofs[$paymentId]->storeAs('payment-proofs', $filename, 'public');
 
-        $paidCount = Transaction::where('courier_motorcycle_id', $courier->id)
-            ->where('payment_status', 'paid')
-            ->where(function ($q) {
-                $q->where(function ($subQ) {
-                    $subQ->where('payment_timing', 'on_pickup')
-                        ->whereIn('workflow_status', ['picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered']);
-                })
-                ->orWhere(function ($subQ) {
-                    $subQ->where('payment_timing', 'on_delivery')
-                        ->whereIn('workflow_status', ['out_for_delivery', 'delivered']);
-                });
-            })
-            ->count();
+        // Update payment record dengan bukti pembayaran
+        $payment->update([
+            'payment_proof_url' => $path,
+        ]);
 
-        $unpaidTotal = Transaction::where('courier_motorcycle_id', $courier->id)
-            ->where('payment_status', 'unpaid')
-            ->where(function ($q) {
-                $q->where(function ($subQ) {
-                    $subQ->where('payment_timing', 'on_pickup')
-                        ->whereIn('workflow_status', ['picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered']);
-                })
-                ->orWhere(function ($subQ) {
-                    $subQ->where('payment_timing', 'on_delivery')
-                        ->whereIn('workflow_status', ['out_for_delivery', 'delivered']);
-                });
-            })
-            ->sum('total_price');
+        // Update payment_status jadi paid karena sudah ada bukti pembayaran
+        $payment->transaction->update([
+            'payment_status' => 'paid',
+        ]);
 
-        return [
-            'unpaid_count' => $unpaidCount,
-            'paid_count' => $paidCount,
-            'unpaid_total' => $unpaidTotal,
-        ];
+        $this->success('Bukti pembayaran berhasil diupload!');
+
+        // Clear input untuk payment ini
+        unset($this->paymentProofs[$paymentId]);
+
+        // Refresh data
+        unset($this->payments);
     }
 
     public function render()
     {
+        // Initialize paymentProofs array untuk semua payment IDs
+        // Ini penting agar Livewire tidak error saat bind wire:model dengan dynamic key
+        foreach ($this->payments as $payment) {
+            if (!isset($this->paymentProofs[$payment->id])) {
+                $this->paymentProofs[$payment->id] = null;
+            }
+        }
+
         return view('livewire.kurir.pembayaran');
     }
 }

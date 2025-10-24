@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace App\Livewire\Kurir;
 
+use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
+use App\Models\CourierMotorcycle;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 #[Title('Beranda Kurir')]
 #[Layout('components.layouts.mobile')]
 class Beranda extends Component
 {
+    public $headers;
+
     #[Computed]
     public function courier()
     {
@@ -53,6 +56,31 @@ class Beranda extends Component
         return Carbon::now()->translatedFormat('l, d F Y');
     }
 
+    #[Computed]
+    public function currentMonth(): string
+    {
+        return Carbon::now()->translatedFormat('F Y');
+    }
+
+    #[Computed]
+    public function leaders()
+    {
+        return CourierMotorcycle::withCount([
+            'transactions' => function ($query) {
+                $query->where('workflow_status', 'delivered')
+                      ->whereMonth('created_at', now()->month)
+                      ->whereYear('created_at', now()->year);
+            }
+        ])
+        ->orderByDesc('transactions_count')
+        ->take(5)
+        ->get()
+        ->map(function ($courier, $index) {
+            $courier->rank = $index + 1;
+            return $courier;
+        });
+    }
+
     public function getWhatsAppCSUrl(): string
     {
         $courier = $this->courier;
@@ -64,6 +92,17 @@ class Beranda extends Component
 
         return "https://wa.me/{$csPhone}?text={$encodedMessage}";
     }
+
+    public function mount()
+    {
+        // Header kolom tabel leaderboard
+        $this->headers = [
+            ['key' => 'rank', 'label' => 'Rank'],
+            ['key' => 'name', 'label' => 'Nama'],
+            ['key' => 'transactions_count', 'label' => 'Pengantaran'],
+        ];
+    }
+
 
     public function render()
     {

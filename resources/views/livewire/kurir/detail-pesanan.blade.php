@@ -48,9 +48,10 @@
                     </div>
 
                     @if ($transaction->customer?->address)
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-base-content/70">Alamat</span>
-                            <span class="font-semibold text-right text-sm">{{ $transaction->customer->address }}</span>
+                        <div class="divider my-1"></div>
+                        <div>
+                            <p class="text-xs text-base-content/70 mb-1">Alamat</p>
+                            <p class="text-sm font-semibold text-primary leading-relaxed">{{ $transaction->customer->address }}</p>
                         </div>
                     @endif
                 </div>
@@ -81,18 +82,6 @@
                             <span class="text-sm text-base-content/70">Pos</span>
                             <span class="font-semibold">{{ $transaction->pos?->name ?? 'N/A' }}</span>
                         </div>
-                        @if ($transaction->pos?->address)
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-base-content/70">Alamat Pos</span>
-                                <span class="font-semibold text-right text-sm">{{ $transaction->pos->address }}</span>
-                            </div>
-                        @endif
-                        @if ($transaction->pos?->pic_name)
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-base-content/70">Penanggung Jawab</span>
-                                <span class="font-semibold">{{ $transaction->pos->pic_name }}</span>
-                            </div>
-                        @endif
                     @endif
                     @if ($transaction->weight)
                         <div class="flex justify-between items-center">
@@ -103,16 +92,15 @@
                     @if ($transaction->price_per_kg)
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-base-content/70">Harga/kg</span>
-                            <span class="font-semibold">Rp
-                                {{ number_format($transaction->price_per_kg, 0, ',', '.') }}</span>
+                            <span class="font-semibold">{{ $transaction->formatted_price_per_kg }}</span>
                         </div>
                     @endif
                     @if ($transaction->total_price)
                         <div class="divider my-1"></div>
                         <div class="flex justify-between items-center">
-                            <span class="font-bold text-base">Total</span>
-                            <span class="font-bold text-primary text-lg">
-                                Rp {{ number_format($transaction->total_price, 0, ',', '.') }}
+                            <span class="text-sm text-base-content/70">Total</span>
+                            <span class="font-semibold text-right text-primary text-base">
+                                {{ $transaction->formatted_total_price }}
                             </span>
                         </div>
                     @endif
@@ -132,37 +120,6 @@
                     </div>
                 @endif
 
-                <div class="divider my-2"></div>
-
-                {{-- Payment & Timing Info --}}
-                <div class="flex gap-2 flex-wrap justify-center">
-                    {{-- Payment Status --}}
-                    @if ($transaction->payment_status === 'paid')
-                        <div class="badge badge-success gap-1">
-                            <x-icon name="solar.check-circle-bold-duotone" class="w-3 h-3" />
-                            Lunas
-                        </div>
-                    @else
-                        <div class="badge badge-error gap-1">
-                            <x-icon name="solar.close-circle-bold-duotone" class="w-3 h-3" />
-                            Belum Bayar
-                        </div>
-                    @endif
-
-                    {{-- Payment Timing --}}
-                    @if ($transaction->payment_timing === 'on_pickup')
-                        <div class="badge badge-info gap-1">
-                            <x-icon name="solar.upload-bold-duotone" class="w-3 h-3" />
-                            Bayar Saat Jemput
-                        </div>
-                    @else
-                        <div class="badge badge-warning gap-1">
-                            <x-icon name="solar.download-bold-duotone" class="w-3 h-3" />
-                            Bayar Saat Antar
-                        </div>
-                    @endif
-                </div>
-
                 {{-- Action Buttons --}}
                 <div class="mt-3 space-y-2">
                     @if ($transaction->workflow_status === 'pending_confirmation')
@@ -179,19 +136,12 @@
                             </button>
                         </div>
                     @elseif ($transaction->workflow_status === 'confirmed')
-                        {{-- Status: Confirmed - Tampilkan Input Berat + Upload Bukti (jika bayar saat jemput DAN belum bayar) + WhatsApp + Sudah Dijemput --}}
-                        <div class="bg-base-200 rounded-lg p-3 mb-2 space-y-3">
+                        {{-- Status: Confirmed - Tampilkan Input Berat + WhatsApp + Sudah Dijemput --}}
+                        <div class="bg-base-200 rounded-lg p-3 mb-2">
                             {{-- Input Berat --}}
                             <x-input wire:model.blur="weight" type="number" step="0.01" min="0.01"
                                 label="Berat Cucian (kg)" placeholder="Contoh: 8.92" icon="solar.scale-bold-duotone"
                                 hint="{{ $this->getTotalPriceHint() }}" />
-
-                            {{-- Upload Bukti Pembayaran - Hanya untuk bayar saat jemput yang belum bayar --}}
-                            @if ($transaction->payment_timing === 'on_pickup' && $transaction->payment_status === 'unpaid')
-                                <x-file wire:model="paymentProof" label="Bukti Pembayaran"
-                                    hint="Upload foto/screenshot bukti pembayaran"
-                                    accept="image/png, image/jpeg, image/jpg" />
-                            @endif
                         </div>
 
                         <div class="grid grid-cols-2 gap-2">
@@ -205,13 +155,7 @@
 
                             <button wire:click="markAsPickedUp"
                                 class="btn btn-warning btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}"
-                                @php
-$disabled = empty($weight) || $weight <= 0;
-                                    // Jika bayar saat jemput DAN belum bayar, bukti pembayaran harus ada
-                                    if ($transaction->payment_timing === 'on_pickup' && $transaction->payment_status === 'unpaid') {
-                                        $disabled = $disabled || empty($paymentProof);
-                                    } @endphp
-                                @if ($disabled) disabled @endif>
+                                @if (empty($weight) || $weight <= 0) disabled @endif>
                                 <x-icon name="solar.box-bold-duotone" class="w-4 h-4" />
                                 Sudah Dijemput
                             </button>
@@ -247,24 +191,9 @@ $disabled = empty($weight) || $weight <= 0;
                             </button>
                         </div>
                     @elseif ($transaction->workflow_status === 'out_for_delivery')
-                        {{-- Status: Out for Delivery - Tampilkan Upload Bukti (jika bayar saat antar DAN belum bayar) + Terkirim --}}
-                        @if ($transaction->payment_timing === 'on_delivery' && $transaction->payment_status === 'unpaid')
-                            <div class="bg-base-200 rounded-lg p-3 mb-2">
-                                {{-- Upload Bukti Pembayaran - Hanya untuk bayar saat antar yang belum bayar --}}
-                                <x-file wire:model="paymentProof" label="Bukti Pembayaran"
-                                    hint="Upload foto/screenshot bukti pembayaran"
-                                    accept="image/png, image/jpeg, image/jpg" />
-                            </div>
-                        @endif
-
+                        {{-- Status: Out for Delivery - Tampilkan Terkirim --}}
                         <button wire:click="markAsDelivered" class="btn btn-success btn-sm w-full"
-                            @php
-$disabled = false;
-                                // Jika bayar saat antar DAN belum bayar, bukti pembayaran harus ada
-                                if ($transaction->payment_timing === 'on_delivery' && $transaction->payment_status === 'unpaid') {
-                                    $disabled = empty($paymentProof);
-                                } @endphp
-                            @if ($disabled) disabled @endif>
+                            @if ($transaction->payment_status !== 'paid') disabled @endif>
                             <x-icon name="solar.check-circle-bold-duotone" class="w-4 h-4" />
                             Terkirim
                         </button>
