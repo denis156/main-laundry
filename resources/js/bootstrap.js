@@ -17,3 +17,9 @@ import './echo';
  */
 import './transactionEvents';
 
+/**
+ * Import utility functions
+ * Contains logger and other utility functions
+ */
+import './utils/logger';
+
