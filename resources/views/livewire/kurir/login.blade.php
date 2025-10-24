@@ -5,7 +5,7 @@
         <x-card class="card bg-base-100 shadow-2xl" data-aos="fade-up">
             <x-slot:figure>
                 <img src="{{ asset('image/logo.png') }}" alt="Main Laundry Logo"
-                    class="w-full h-48 object-contain bg-primary/5" />
+                    class="w-full h-48 p-4 object-contain bg-primary/5" />
             </x-slot:figure>
             <x-form wire:submit="login" no-separator>
                 {{-- Email Field --}}
