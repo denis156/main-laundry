@@ -4,7 +4,7 @@
 // Menangani audio ringtone untuk notifikasi pesanan baru masuk
 // File ini hanya fokus pada audio ringtone, bukan dispatch events
 
-import { logger } from './utils/logger.js';
+import { logger } from '../utils/logger.js';
 
 document.addEventListener('livewire:init', () => {
     const ringtone = document.getElementById('order-ringtone');

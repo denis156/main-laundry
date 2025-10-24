@@ -4,7 +4,7 @@
 // Menangani event transaction dari Laravel Echo
 // dan dispatch Livewire events untuk refresh components
 
-import { logger } from './utils/logger.js';
+import { logger } from '../utils/logger.js';
 
 document.addEventListener('livewire:init', () => {
     // Listen channel Echo untuk real-time transaction notifications

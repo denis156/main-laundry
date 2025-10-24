@@ -9,13 +9,13 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  * Echo digunakan untuk subscribe ke channels dan listen events
  * yang di-broadcast dari Laravel menggunakan Reverb
  */
-import './echo';
+import './config/echo';
 
 /**
  * Import handler untuk transaction events
  * Menangani Echo events dan dispatch Livewire refresh
  */
-import './transactionEvents';
+import './services/transactionEvents';
 
 /**
  * Import fungsi-fungsi utility
