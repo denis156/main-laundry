@@ -11,7 +11,7 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('image/favico.svg') }}">
 
     {{-- Vite --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/newOrderRingtone.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/kurir.js'])
 
     {{-- Pass courier POS area data to JavaScript for filtering --}}
     @auth('courier')
