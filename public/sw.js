@@ -3,30 +3,45 @@
 // ==========================================
 // PWA Service Worker untuk offline functionality dan caching
 
-const CACHE_NAME = 'main-laundry-kurir-v1';
-const STATIC_CACHE = 'main-laundry-static-v1';
-const DYNAMIC_CACHE = 'main-laundry-dynamic-v1';
+const CACHE_NAME = 'main-laundry-kurir-v4';
+const STATIC_CACHE = 'main-laundry-static-v4';
+const DYNAMIC_CACHE = 'main-laundry-dynamic-v4';
 
 // Assets yang akan di-cache saat install (static assets)
+// JANGAN cache halaman HTML! Hanya cache assets statis
 const STATIC_ASSETS = [
-    '/kurir/',
     '/image/app.png',
     '/manifest.json',
 ];
 
-// Install event - cache static assets
+// Offline page URL (untuk fallback saat network failed)
+const OFFLINE_URL = '/kurir/offline';
+
+// Install event - cache static assets & offline page
 self.addEventListener('install', (event) => {
     console.log('[SW] Installing service worker...');
 
     event.waitUntil(
-        caches.open(STATIC_CACHE)
-            .then((cache) => {
-                console.log('[SW] Caching static assets');
-                return cache.addAll(STATIC_ASSETS);
-            })
-            .catch((error) => {
-                console.error('[SW] Failed to cache static assets:', error);
-            })
+        Promise.all([
+            // Cache static assets
+            caches.open(STATIC_CACHE)
+                .then((cache) => {
+                    console.log('[SW] Caching static assets');
+                    return cache.addAll(STATIC_ASSETS);
+                })
+                .catch((error) => {
+                    console.error('[SW] Failed to cache static assets:', error);
+                }),
+            // Cache offline page
+            caches.open(CACHE_NAME)
+                .then((cache) => {
+                    console.log('[SW] Caching offline page');
+                    return cache.add(new Request(OFFLINE_URL, { cache: 'reload' }));
+                })
+                .catch((error) => {
+                    console.error('[SW] Failed to cache offline page:', error);
+                })
+        ])
     );
 
     // Force service worker untuk langsung aktif tanpa menunggu
@@ -77,43 +92,82 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    event.respondWith(
-        caches.match(request)
-            .then((cachedResponse) => {
-                // Jika ada di cache, return cached response
-                if (cachedResponse) {
-                    console.log('[SW] Serving from cache:', request.url);
-                    return cachedResponse;
-                }
+    // Skip untuk Livewire navigation requests (wire:navigate)
+    // Livewire SPA menggunakan header X-Livewire untuk fetch halaman
+    const isLivewireRequest = request.headers.get('X-Livewire') !== null ||
+                             request.headers.get('X-Livewire-Navigate') !== null;
 
-                // Jika tidak ada di cache, fetch dari network
-                return fetch(request)
-                    .then((networkResponse) => {
-                        // Clone response karena response hanya bisa digunakan sekali
-                        const responseClone = networkResponse.clone();
+    if (isLivewireRequest) {
+        console.log('[SW] Skipping Livewire navigation request (fresh data):', request.url);
+        return;
+    }
 
-                        // Simpan ke dynamic cache untuk request selanjutnya
-                        caches.open(DYNAMIC_CACHE)
-                            .then((cache) => {
-                                // Hanya cache response yang success dan dari http/https
-                                if (networkResponse.status === 200) {
-                                    cache.put(request, responseClone).catch((err) => {
-                                        // Silently ignore cache errors (chrome-extension, etc)
-                                        console.log('[SW] Cache put failed (ignored):', err.message);
-                                    });
-                                }
-                            });
+    // Cek apakah request untuk halaman HTML (navigation)
+    const isHTMLPage = request.destination === 'document' ||
+                      request.headers.get('accept')?.includes('text/html');
 
-                        return networkResponse;
-                    })
-                    .catch((error) => {
-                        console.error('[SW] Fetch failed:', error);
+    // Untuk halaman HTML: Network Only (SELALU dari network, JANGAN cache!)
+    // Untuk assets (CSS, JS, images): Cache First (performa lebih cepat)
+    if (isHTMLPage) {
+        event.respondWith(
+            fetch(request)
+                .then((networkResponse) => {
+                    console.log('[SW] Serving HTML from network (fresh):', request.url);
+                    return networkResponse;
+                })
+                .catch((error) => {
+                    // Kalau offline, serve offline page dari cache
+                    console.log('[SW] Network failed, serving offline page:', request.url);
 
-                        // Bisa return offline page di sini jika diperlukan
-                        // return caches.match('/offline.html');
-                    });
-            })
-    );
+                    return caches.open(CACHE_NAME)
+                        .then((cache) => {
+                            return cache.match(OFFLINE_URL);
+                        })
+                        .then((response) => {
+                            if (response) {
+                                return response;
+                            }
+
+                            // Jika offline page tidak ada di cache, return basic HTML
+                            return new Response(
+                                '<html><body><h1>Offline</h1><p>Tidak ada koneksi internet. Silakan coba lagi.</p></body></html>',
+                                { headers: { 'Content-Type': 'text/html' } }
+                            );
+                        });
+                })
+        );
+    } else {
+        // Untuk assets: Cache First (performa lebih cepat)
+        event.respondWith(
+            caches.match(request)
+                .then((cachedResponse) => {
+                    if (cachedResponse) {
+                        console.log('[SW] Serving asset from cache:', request.url);
+                        return cachedResponse;
+                    }
+
+                    // Jika tidak ada di cache, fetch dari network
+                    return fetch(request)
+                        .then((networkResponse) => {
+                            const responseClone = networkResponse.clone();
+
+                            caches.open(DYNAMIC_CACHE)
+                                .then((cache) => {
+                                    if (networkResponse.status === 200) {
+                                        cache.put(request, responseClone).catch((err) => {
+                                            console.log('[SW] Cache put failed (ignored):', err.message);
+                                        });
+                                    }
+                                });
+
+                            return networkResponse;
+                        })
+                        .catch((error) => {
+                            console.error('[SW] Fetch failed:', error);
+                        });
+                })
+        );
+    }
 });
 
 // Push notification event (untuk future implementation)

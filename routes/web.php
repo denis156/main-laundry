@@ -10,6 +10,7 @@ use App\Livewire\Kurir\Pesanan;
 use App\Livewire\Kurir\Pembayaran;
 use App\Livewire\Kurir\DetailPesanan;
 use App\Livewire\Kurir\DetailPembayaran;
+use App\Livewire\Kurir\Components\OfflinePage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,9 @@ Route::get('/', function () {
 
 // Kurir Routes
 Route::prefix('kurir')->name('kurir.')->group(function () {
+    // Offline Page (Accessible tanpa auth)
+    Route::get('/offline', OfflinePage::class)->name('offline');
+
     // Guest Routes (Belum Login)
     Route::middleware('guest:courier')->group(function () {
         Route::get('/login', Login::class)->name('login');

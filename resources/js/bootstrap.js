@@ -23,3 +23,10 @@ import './services/transactionEvents';
  */
 import './utils/logger';
 
+/**
+ * Import offline handler
+ * Menangani behavior aplikasi saat offline (disable prefetch, error handling)
+ */
+import { setupOfflineHandler } from './utils/offlineHandler';
+setupOfflineHandler();
+

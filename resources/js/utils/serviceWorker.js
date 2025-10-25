@@ -7,6 +7,7 @@ import { logger } from './logger.js';
 
 let deferredPrompt = null;
 let swRegistrationPromise = null;
+let pwaInstallSetupDone = false; // Flag untuk prevent duplicate setup
 
 /**
  * Register service worker
@@ -44,6 +45,14 @@ export function registerServiceWorker() {
  * Capture beforeinstallprompt event dan simpan untuk digunakan nanti
  */
 export function setupPWAInstall() {
+    // Prevent duplicate setup
+    if (pwaInstallSetupDone) {
+        logger.log('[PWA] Install handler already setup, skipping...');
+        return;
+    }
+
+    logger.log('[PWA] Setting up install handler...');
+
     window.addEventListener('beforeinstallprompt', (e) => {
         // Prevent default mini-infobar dari muncul di mobile
         e.preventDefault();
@@ -69,6 +78,9 @@ export function setupPWAInstall() {
             window.Livewire.dispatch('pwa-installed');
         }
     });
+
+    pwaInstallSetupDone = true;
+    logger.log('[PWA] Install handler setup completed');
 }
 
 /**
