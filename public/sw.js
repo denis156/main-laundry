@@ -3,9 +3,9 @@
 // ==========================================
 // PWA Service Worker untuk offline functionality dan caching
 
-const CACHE_NAME = 'main-laundry-kurir-v4';
-const STATIC_CACHE = 'main-laundry-static-v4';
-const DYNAMIC_CACHE = 'main-laundry-dynamic-v4';
+const CACHE_NAME = 'main-laundry-kurir-v1';
+const STATIC_CACHE = 'main-laundry-static-v1';
+const DYNAMIC_CACHE = 'main-laundry-dynamic-v1';
 
 // Assets yang akan di-cache saat install (static assets)
 // JANGAN cache halaman HTML! Hanya cache assets statis
@@ -170,50 +170,106 @@ self.addEventListener('fetch', (event) => {
     }
 });
 
-// Push notification event (untuk future implementation)
+// Push notification event
 self.addEventListener('push', (event) => {
     console.log('[SW] Push notification received');
 
-    if (event.data) {
-        const data = event.data.json();
+    if (!event.data) {
+        console.log('[SW] No data in push event');
+        return;
+    }
 
+    try {
+        const data = event.data.json();
+        console.log('[SW] Push data:', data);
+
+        const title = data.title || 'Pesanan Baru';
         const options = {
-            body: data.body,
+            body: data.body || 'Ada pesanan baru masuk',
+            icon: data.icon || '/image/app.png',
+            badge: data.badge || '/image/app.png',
+            vibrate: data.vibrate || [200, 100, 200, 100, 200],
+            tag: data.tag || 'transaction-notification',
+            requireInteraction: true, // Notification tidak auto-close
+            actions: data.actions || [
+                {
+                    action: 'view',
+                    title: 'Lihat Detail'
+                },
+                {
+                    action: 'close',
+                    title: 'Tutup'
+                }
+            ],
+            data: {
+                transaction_id: data.transaction_id,
+                url: data.url || '/kurir/pesanan',
+                ...data
+            }
+        };
+
+        event.waitUntil(
+            self.registration.showNotification(title, options)
+        );
+    } catch (error) {
+        console.error('[SW] Error parsing push data:', error);
+
+        // Fallback notification jika parsing gagal
+        const fallbackOptions = {
+            body: 'Ada pesanan baru masuk',
             icon: '/image/app.png',
             badge: '/image/app.png',
             vibrate: [200, 100, 200],
             data: {
-                url: data.url || '/',
-            },
+                url: '/kurir/pesanan'
+            }
         };
 
         event.waitUntil(
-            self.registration.showNotification(data.title, options)
+            self.registration.showNotification('Pesanan Baru', fallbackOptions)
         );
     }
 });
 
 // Notification click event
 self.addEventListener('notificationclick', (event) => {
-    console.log('[SW] Notification clicked');
+    console.log('[SW] Notification clicked, action:', event.action);
 
     event.notification.close();
 
-    const urlToOpen = event.notification.data?.url || '/';
+    // Handle notification actions
+    if (event.action === 'close') {
+        console.log('[SW] Close action - notification closed');
+        return;
+    }
+
+    // Default action atau 'view' action - buka URL
+    const urlToOpen = event.notification.data?.url || '/kurir/pesanan';
 
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true })
             .then((clientList) => {
-                // Cek apakah ada window yang sudah terbuka
+                // Cari window yang sudah terbuka ke base URL (kurir app)
+                const baseUrl = new URL(urlToOpen, self.location.origin);
+
                 for (const client of clientList) {
-                    if (client.url === urlToOpen && 'focus' in client) {
-                        return client.focus();
+                    const clientUrl = new URL(client.url);
+
+                    // Jika ada window yang terbuka ke kurir app, focus dan navigate
+                    if (clientUrl.origin === baseUrl.origin &&
+                        clientUrl.pathname.startsWith('/kurir')) {
+                        console.log('[SW] Focusing existing window and navigating to:', baseUrl.href);
+                        return client.focus().then(() => {
+                            // Navigate ke URL target
+                            return client.navigate(baseUrl.href);
+                        });
                     }
                 }
 
-                // Jika tidak ada, buka window baru
+                // Jika tidak ada window yang terbuka, buka window baru
+                console.log('[SW] Opening new window:', baseUrl.href);
                 if (clients.openWindow) {
-                    return clients.openWindow(urlToOpen);
+                    return clients.openWindow(baseUrl.href);
                 }
             })
     );

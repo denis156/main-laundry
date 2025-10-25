@@ -4,9 +4,11 @@ namespace App\Livewire\Kurir\Components;
 
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Mary\Traits\Toast;
 
 class FabInstallApp extends Component
 {
+    use Toast;
     public bool $installWebApp = false;
 
     public bool $showFab = false;
@@ -53,19 +55,36 @@ class FabInstallApp extends Component
         $this->installWebApp = false;
         $this->showFab = false;
 
-        $this->dispatch('notify', type: 'success', message: 'Aplikasi berhasil diinstall! Cek home screen Anda.');
+        $this->success(
+            'Aplikasi berhasil diinstall!',
+            'Cek home screen Anda.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
     }
 
     public function handleInstallDismissed()
     {
         $this->installWebApp = false;
-        $this->dispatch('notify', type: 'info', message: 'Install dibatalkan. Anda bisa install kapan saja.');
+
+        $this->info(
+            'Install dibatalkan',
+            'Anda bisa install kapan saja.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
     }
 
     public function handleInstallUnavailable()
     {
         $this->installWebApp = false;
-        $this->dispatch('notify', type: 'warning', message: 'Install tidak tersedia. Aplikasi mungkin sudah ter-install.');
+
+        $this->warning(
+            'Install tidak tersedia',
+            'Aplikasi mungkin sudah ter-install.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
     }
 
     public function checkPWAStatus()
@@ -84,8 +103,19 @@ class FabInstallApp extends Component
     public function handlePWAInstallable()
     {
         // Event dari JavaScript saat beforeinstallprompt triggered
-        $this->showFab = true;
-        $this->isInstalled = false;
+        // Double check apakah PWA sudah installed sebelum show FAB
+        $this->js(<<<'JS'
+            const isInstalled = window.pwaInstall.isInstalled();
+
+            if (!isInstalled) {
+                $wire.set('showFab', true);
+                $wire.set('isInstalled', false);
+            } else {
+                // PWA sudah installed, jangan show FAB
+                $wire.set('showFab', false);
+                $wire.set('isInstalled', true);
+            }
+        JS);
     }
 
     #[On('pwa-installed')]

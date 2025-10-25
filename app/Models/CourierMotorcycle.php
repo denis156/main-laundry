@@ -8,6 +8,7 @@ use Exception;
 use Filament\Panel;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,7 +19,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class CourierMotorcycle extends Authenticatable implements FilamentUser
 {
-    use HasFactory, SoftDeletes, HasPushSubscriptions;
+    use HasFactory, SoftDeletes, HasPushSubscriptions, Notifiable;
 
     protected $table = 'couriers_motorcycle';
 

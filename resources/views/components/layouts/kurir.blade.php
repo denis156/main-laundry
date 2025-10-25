@@ -3,8 +3,10 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, minimal-ui">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>{{ isset($title) ? $title . ' - ' . config('app.name') : config('app.name') }}</title>
 
     {{-- Favicon --}}
@@ -43,6 +45,9 @@
             // Global config untuk filtering transaction area
             window.COURIER_POS_AREA = @json($posArea);
             window.COURIER_POS_ID = @json($assignedPos?->id);
+
+            // VAPID public key untuk web push notifications
+            window.VAPID_PUBLIC_KEY = @json(config('webpush.vapid.public_key'));
         </script>
     @endauth
 
@@ -77,6 +82,13 @@
             Your browser does not support the audio element.
         </audio>
     @endpersist
+
+    {{-- WEB PUSH API - Invisible Livewire component untuk handle web push subscription --}}
+    @auth('courier')
+        @persist('web-push-api')
+            <livewire:kurir.components.web-push-api />
+        @endpersist
+    @endauth
 
 </body>
 

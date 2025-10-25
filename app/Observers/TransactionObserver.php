@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Observers;
 
 use App\Events\TransactionEvents;
+use App\Models\CourierMotorcycle;
 use App\Models\Payment;
 use App\Models\Transaction;
+use App\Notifications\NewTransactionNotification;
 use Illuminate\Support\Str;
 
 class TransactionObserver
@@ -51,11 +53,38 @@ class TransactionObserver
     /**
      * Handle the Transaction "created" event.
      * Broadcast event untuk real-time notifications.
+     * Send web push notification ke semua kurir aktif.
      */
     public function created(Transaction $transaction): void
     {
         // Broadcast event dengan action 'created'
         event(new TransactionEvents($transaction->load(['customer', 'service']), 'created'));
+
+        // Send web push notification ke semua kurir aktif yang punya subscription
+        // Hanya untuk pesanan baru dengan status pending_confirmation
+        if ($transaction->workflow_status === 'pending_confirmation') {
+            $this->sendWebPushToActiveCouriers($transaction);
+        }
+    }
+
+    /**
+     * Send web push notification ke semua kurir aktif
+     */
+    private function sendWebPushToActiveCouriers(Transaction $transaction): void
+    {
+        // Get semua kurir yang aktif dan punya push subscriptions
+        $couriers = CourierMotorcycle::where('is_active', true)
+            ->whereHas('pushSubscriptions')
+            ->get();
+
+        // Send notification ke setiap kurir
+        foreach ($couriers as $courier) {
+            try {
+                $courier->notify(new NewTransactionNotification($transaction));
+            } catch (\Exception $e) {
+                \Log::error("Failed to send web push to courier {$courier->id}: " . $e->getMessage());
+            }
+        }
     }
 
     /**
