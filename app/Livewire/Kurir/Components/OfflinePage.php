@@ -9,7 +9,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
 #[Title('Offline')]
-#[Layout('components.layouts.mobile')]
+#[Layout('components.layouts.kurir')]
 class OfflinePage extends Component
 {
     /**

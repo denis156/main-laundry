@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use Mary\Traits\Toast;
 
 #[Title('Profil Kurir')]
-#[Layout('components.layouts.mobile')]
+#[Layout('components.layouts.kurir')]
 class Profil extends Component
 {
     use WithFileUploads, Toast;

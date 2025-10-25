@@ -12,7 +12,7 @@ use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Auth;
 
 #[Title('Info')]
-#[Layout('components.layouts.mobile')]
+#[Layout('components.layouts.kurir')]
 class Info extends Component
 {
     /**

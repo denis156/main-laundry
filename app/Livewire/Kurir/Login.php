@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 
 #[Title('Login Kurir')]
-#[Layout('components.layouts.guest')]
+#[Layout('components.layouts.kurir-guest')]
 class Login extends Component
 {
     use Toast;

@@ -13,7 +13,7 @@ use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Auth;
 
 #[Title('Detail Pesanan')]
-#[Layout('components.layouts.mobile')]
+#[Layout('components.layouts.kurir')]
 class DetailPesanan extends Component
 {
     use Toast;

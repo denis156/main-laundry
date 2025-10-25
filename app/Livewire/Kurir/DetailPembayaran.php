@@ -15,7 +15,7 @@ use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Auth;
 
 #[Title('Detail Pembayaran')]
-#[Layout('components.layouts.mobile')]
+#[Layout('components.layouts.kurir')]
 class DetailPembayaran extends Component
 {
     use Toast, WithFileUploads;

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
 
 #[Title('Pembayaran')]
-#[Layout('components.layouts.mobile')]
+#[Layout('components.layouts.kurir')]
 class Pembayaran extends Component
 {
     use Toast, WithPagination, WithFileUploads;

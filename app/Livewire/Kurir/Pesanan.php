@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
 
 #[Title('Pesanan')]
-#[Layout('components.layouts.mobile')]
+#[Layout('components.layouts.kurir')]
 class Pesanan extends Component
 {
     use Toast;
