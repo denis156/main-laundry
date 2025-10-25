@@ -21,6 +21,8 @@
     {{--  TOAST area --}}
     <x-toast />
 
+    {{-- FAB Install App --}}
+    <livewire:kurir.components.fab-install-app />
 </body>
 
 </html>
