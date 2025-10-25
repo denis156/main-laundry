@@ -20,7 +20,7 @@
     {{-- iOS PWA (PENTING!) --}}
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Kurir ML">
+    <meta name="apple-mobile-web-app-title" content="Kurir Main">
 
     {{-- Apple Touch Icons (berbagai ukuran untuk iOS) --}}
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('image/app.png') }}">
