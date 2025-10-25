@@ -8,11 +8,12 @@ use App\Livewire\Kurir\Profil;
 use App\Livewire\Kurir\Beranda;
 use App\Livewire\Kurir\Pesanan;
 use App\Livewire\Kurir\Pembayaran;
+use Illuminate\Support\Facades\Auth;
 use App\Livewire\Kurir\DetailPesanan;
+use Illuminate\Support\Facades\Route;
 use App\Livewire\Kurir\DetailPembayaran;
 use App\Livewire\Kurir\Components\OfflinePage;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
+use App\Livewire\Pelanggan\Beranda as BerandaPelanggan;
 
 // Landing Page
 Route::get('/', function () {
@@ -49,3 +50,5 @@ Route::prefix('kurir')->name('kurir.')->group(function () {
         })->name('logout');
     });
 });
+
+Route::get('/pelanggan', BerandaPelanggan::class)->name('pelanggan.beranda');
