@@ -10,6 +10,14 @@
     {{-- Favicon --}}
     <link rel="icon" type="image/svg+xml" href="{{ asset('image/favico.svg') }}">
 
+    {{-- PWA Manifest --}}
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Kurir ML">
+    <link rel="apple-touch-icon" href="{{ asset('image/app.png') }}">
+
     {{-- Vite --}}
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/kurir.js'])
 

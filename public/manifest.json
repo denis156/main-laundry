@@ -1,0 +1,16 @@
+{
+    "name": "Kurir Main Laundry",
+    "short_name": "Kurir Main",
+    "description": "Aplikasi kurir untuk Main Laundry - kelola pengiriman laundry dengan mudah",
+    "start_url": "/kurir/",
+    "display": "fullscreen",
+    "background_color": "#ffffff",
+    "theme_color": "#3b82f6",
+    "icons": [
+        {
+            "src": "/image/app.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
