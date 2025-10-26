@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\Kurir\DetailPembayaran;
 use App\Livewire\Kurir\Components\OfflinePage;
 use App\Livewire\Pelanggan\Beranda as BerandaPelanggan;
+use App\Livewire\Pelanggan\Pesanan as PesananPelanggan;
+use App\Livewire\Pelanggan\Profil as ProfilPelanggan;
+use App\Livewire\Pelanggan\DetailPesanan as DetailPesananPelanggan;
 
 // Landing Page
 Route::get('/', function () {
@@ -51,4 +54,27 @@ Route::prefix('kurir')->name('kurir.')->group(function () {
     });
 });
 
-Route::get('/pelanggan', BerandaPelanggan::class)->name('pelanggan.beranda');
+// Pelanggan Routes
+Route::prefix('pelanggan')->name('pelanggan.')->group(function () {
+    // Guest Routes (Belum Login) - untuk development, bisa diakses tanpa auth dulu
+    // Route::middleware('guest:customer')->group(function () {
+    //     Route::get('/login', LoginPelanggan::class)->name('login');
+    // });
+
+    // Protected Routes (Harus Login) - sementara tanpa auth untuk testing tampilan
+    // Route::middleware('auth:customer')->group(function () {
+        Route::get('/', BerandaPelanggan::class)->name('beranda');
+        Route::get('/beranda', BerandaPelanggan::class)->name('beranda.alt');
+        Route::get('/pesanan', PesananPelanggan::class)->name('pesanan');
+        Route::get('/detail-pesanan', DetailPesananPelanggan::class)->name('pesanan.detail');
+        Route::get('/profil', ProfilPelanggan::class)->name('profil');
+
+        // Logout (uncomment setelah auth siap)
+        // Route::post('/logout', function () {
+        //     Auth::guard('customer')->logout();
+        //     session()->invalidate();
+        //     session()->regenerateToken();
+        //     return redirect()->route('pelanggan.login');
+        // })->name('logout');
+    // });
+});
