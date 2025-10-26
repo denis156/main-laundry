@@ -5,7 +5,7 @@
 
     <div class="space-y-4">
         {{-- Quick Links --}}
-        <div class="card bg-gradient-to-r from-primary/10 to-accent/10 shadow-lg">
+        <div class="card bg-linear-to-r from-primary/10 to-accent/10 shadow-lg">
             <div class="card-body p-4">
                 <h3 class="font-bold text-base mb-3 text-center">Butuh Bantuan Cepat?</h3>
                 <div class="grid grid-cols-3 gap-2">

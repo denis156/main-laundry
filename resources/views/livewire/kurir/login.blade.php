@@ -1,5 +1,5 @@
 <div
-    class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-accent/5 to-base-200 px-4">
+    class="min-h-screen flex items-center justify-center bg-linear-to-br from-primary/10 via-accent/5 to-base-200 px-4">
     <div class="w-full max-w-md">
         {{-- Login Card --}}
         <x-card class="card bg-base-100 shadow-2xl" data-aos="fade-up">
