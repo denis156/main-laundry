@@ -3,7 +3,7 @@
     {{-- Header --}}
     <x-header icon="solar.wallet-money-bold-duotone" icon-classes="text-primary w-6 h-6" title="Pembayaran"
         subtitle="Verifikasi & Konfirmasi Pembayaran" separator progress-indicator>
-        <x-slot:middle class="!justify-end">
+        <x-slot:middle class="justify-end">
             <x-input wire:model.live.debounce.500ms="search" icon="solar.magnifer-bold-duotone"
                 placeholder="Cari invoice atau customer..." clearable />
         </x-slot:middle>
