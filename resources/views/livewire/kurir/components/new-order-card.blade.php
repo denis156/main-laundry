@@ -14,7 +14,7 @@
                         </p>
                     </div>
                     <span class="badge badge-secondary gap-1">
-                        Konfirmasi?
+                        Pending
                     </span>
                 </div>
 

@@ -12,7 +12,7 @@ class StatusTransactionHelper
     public static function getStatusText(string $workflowStatus): string
     {
         return match ($workflowStatus) {
-            'pending_confirmation' => 'Konfirmasi?',
+            'pending_confirmation' => 'Pending',
             'confirmed' => 'Terkonfirmasi',
             'picked_up' => 'Dijemput',
             'at_loading_post' => 'Di Pos',
