@@ -49,11 +49,8 @@
         </script>
     @endauth
 
-    {{-- Kurir Style --}}
-    @include('components.kurir.style')
-
-    {{-- Cdn Chart --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    {{-- Livewire Style --}}
+    @livewireStyles
 </head>
 
 <body class="min-h-dvh bg-base-100">
@@ -73,6 +70,9 @@
     {{--  TOAST area --}}
     <x-toast />
 
+    {{-- LOADING INDICATOR --}}
+    <livewire:components.loading />
+
     {{-- AUDIO RINGTONE - Persistent audio element untuk notifikasi pesanan --}}
     @persist('order-ringtone-audio')
         <audio id="order-ringtone" preload="auto">
@@ -88,8 +88,8 @@
         @endpersist
     @endauth
 
+    {{-- Livewire Script --}}
+    @livewireScripts
 </body>
-
-@include('components.kurir.script')
 
 </html>
