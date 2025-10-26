@@ -123,15 +123,11 @@
                     @if ($transaction->workflow_status === 'pending_confirmation')
                         {{-- Status: Pending Confirmation - Tampilkan Batalkan + Ambil Pesanan --}}
                         <div class="grid grid-cols-2 gap-2">
-                            <button wire:click="cancelOrder" class="btn btn-error btn-sm">
-                                <x-icon name="solar.close-circle-bold-duotone" class="w-4 h-4" />
-                                Batalkan Pesanan
-                            </button>
+                            <x-button wire:click="cancelOrder" label="Batalkan Pesanan"
+                                icon="solar.close-circle-bold-duotone" class="btn-error btn-sm" />
 
-                            <button wire:click="confirmOrder" class="btn btn-accent btn-sm">
-                                <x-icon name="solar.check-circle-bold-duotone" class="w-4 h-4" />
-                                Ambil Pesanan
-                            </button>
+                            <x-button wire:click="confirmOrder" label="Ambil Pesanan"
+                                icon="solar.check-circle-bold-duotone" class="btn-accent btn-sm" />
                         </div>
                     @elseif ($transaction->workflow_status === 'confirmed')
                         {{-- Status: Confirmed - Tampilkan Input Berat + WhatsApp + Sudah Dijemput --}}
@@ -144,63 +140,45 @@
 
                         <div class="grid grid-cols-2 gap-2">
                             @if ($transaction->customer?->phone && $transaction->customer?->name)
-                                <a href="{{ $this->getWhatsAppUrl() }}" target="_blank"
-                                    class="btn btn-success btn-sm">
-                                    <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
-                                    WhatsApp
-                                </a>
+                                <x-button label="WhatsApp" icon="solar.chat-round-bold-duotone"
+                                    link="{{ $this->getWhatsAppUrl() }}" external class="btn-success btn-sm" />
                             @endif
 
-                            <button wire:click="markAsPickedUp"
-                                class="btn btn-warning btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}"
-                                @if (empty($weight) || $weight <= 0) disabled @endif>
-                                <x-icon name="solar.box-bold-duotone" class="w-4 h-4" />
-                                Sudah Dijemput
-                            </button>
+                            <x-button wire:click="markAsPickedUp" label="Sudah Dijemput"
+                                icon="solar.box-bold-duotone"
+                                class="btn-warning btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}"
+                                :disabled="empty($weight) || $weight <= 0" />
                         </div>
                     @elseif ($transaction->workflow_status === 'picked_up')
                         {{-- Status: Picked Up - Tampilkan Sudah di Pos + Kembali --}}
                         <div class="grid grid-cols-2 gap-2">
-                            <button wire:click="markAsAtLoadingPost" class="btn btn-warning btn-sm">
-                                <x-icon name="solar.map-point-bold-duotone" class="w-4 h-4" />
-                                Sudah di Pos
-                            </button>
+                            <x-button wire:click="markAsAtLoadingPost" label="Sudah di Pos"
+                                icon="solar.map-point-bold-duotone" class="btn-warning btn-sm" />
 
-                            <a href="{{ route('kurir.pesanan') }}" class="btn btn-primary btn-sm">
-                                <x-icon name="solar.undo-left-linear" class="w-4 h-4" />
-                                Kembali
-                            </a>
+                            <x-button label="Kembali" icon="solar.undo-left-linear"
+                                link="{{ route('kurir.pesanan') }}" class="btn-primary btn-sm" />
                         </div>
                     @elseif ($transaction->workflow_status === 'washing_completed')
                         {{-- Status: Washing Completed - Tampilkan WhatsApp + Dalam Pengiriman --}}
                         <div class="grid grid-cols-2 gap-2">
                             @if ($transaction->customer?->phone && $transaction->customer?->name)
-                                <a href="{{ $this->getWhatsAppUrlForDelivery() }}" target="_blank"
-                                    class="btn btn-success btn-sm">
-                                    <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
-                                    WhatsApp
-                                </a>
+                                <x-button label="WhatsApp" icon="solar.chat-round-bold-duotone"
+                                    link="{{ $this->getWhatsAppUrlForDelivery() }}" external class="btn-success btn-sm" />
                             @endif
 
-                            <button wire:click="markAsOutForDelivery"
-                                class="btn btn-accent btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}">
-                                <x-icon name="solar.delivery-bold-duotone" class="w-4 h-4" />
-                                Dalam Pengiriman
-                            </button>
+                            <x-button wire:click="markAsOutForDelivery" label="Dalam Pengiriman"
+                                icon="solar.delivery-bold-duotone"
+                                class="btn-accent btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}" />
                         </div>
                     @elseif ($transaction->workflow_status === 'out_for_delivery')
                         {{-- Status: Out for Delivery - Tampilkan Terkirim --}}
-                        <button wire:click="markAsDelivered" class="btn btn-success btn-sm w-full"
-                            @if ($transaction->payment_status !== 'paid') disabled @endif>
-                            <x-icon name="solar.check-circle-bold-duotone" class="w-4 h-4" />
-                            Terkirim
-                        </button>
+                        <x-button wire:click="markAsDelivered" label="Terkirim"
+                            icon="solar.check-circle-bold-duotone" class="btn-success btn-sm btn-block"
+                            :disabled="$transaction->payment_status !== 'paid'" />
                     @else
                         {{-- Status lain (at_loading_post, in_washing, delivered, cancelled) - Hanya tampilkan Kembali --}}
-                        <a href="{{ route('kurir.pesanan') }}" class="btn btn-primary btn-sm w-full">
-                            <x-icon name="solar.undo-left-linear" class="w-4 h-4" />
-                            Kembali
-                        </a>
+                        <x-button label="Kembali" icon="solar.undo-left-linear"
+                            link="{{ route('kurir.pesanan') }}" class="btn-primary btn-sm btn-block" />
                     @endif
                 </div>
             </div>

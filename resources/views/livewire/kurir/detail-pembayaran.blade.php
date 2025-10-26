@@ -173,22 +173,17 @@
                     @if ($hasPayment && !$hasBukti)
                         {{-- Ada Payment tapi belum ada bukti - Tampilkan Upload & Kembali --}}
                         <div class="grid grid-cols-2 gap-2">
-                            <button wire:click="uploadPaymentProof" class="btn btn-success btn-sm"
-                                @if (empty($paymentProof)) disabled @endif>
-                                <x-icon name="solar.upload-bold-duotone" class="w-4 h-4" />
-                                Upload Bukti
-                            </button>
-                            <a href="{{ route('kurir.pembayaran') }}" class="btn btn-primary btn-sm">
-                                <x-icon name="solar.undo-left-linear" class="w-4 h-4" />
-                                Kembali
-                            </a>
+                            <x-button wire:click="uploadPaymentProof" label="Upload Bukti"
+                                icon="solar.upload-bold-duotone" class="btn-success btn-sm"
+                                :disabled="empty($paymentProof)" />
+
+                            <x-button label="Kembali" icon="solar.undo-left-linear"
+                                link="{{ route('kurir.pembayaran') }}" class="btn-primary btn-sm" />
                         </div>
                     @else
                         {{-- Sudah ada bukti atau belum ada Payment - Hanya Kembali --}}
-                        <a href="{{ route('kurir.pembayaran') }}" class="btn btn-primary btn-sm w-full">
-                            <x-icon name="solar.undo-left-linear" class="w-4 h-4" />
-                            Kembali
-                        </a>
+                        <x-button label="Kembali" icon="solar.undo-left-linear"
+                            link="{{ route('kurir.pembayaran') }}" class="btn-primary btn-sm btn-block" />
                     @endif
                 </div>
             </div>

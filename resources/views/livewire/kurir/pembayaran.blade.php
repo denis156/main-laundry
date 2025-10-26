@@ -111,25 +111,19 @@
                             @if (!$payment->payment_proof_url)
                                 {{-- Tampilkan Upload + Detail jika belum ada bukti --}}
                                 <div class="grid grid-cols-2 gap-2">
-                                    <button wire:click="uploadPaymentProof({{ $payment->id }})"
-                                        class="btn btn-success btn-sm"
-                                        @if (empty($paymentProofs[$payment->id])) disabled @endif>
-                                        <x-icon name="solar.upload-bold-duotone" class="w-4 h-4" />
-                                        Upload Bukti
-                                    </button>
-                                    <a href="{{ route('kurir.pembayaran.detail', $payment->transaction->id) }}"
-                                        class="btn btn-primary btn-sm">
-                                        <x-icon name="solar.wallet-bold-duotone" class="w-4 h-4" />
-                                        Detail
-                                    </a>
+                                    <x-button wire:click="uploadPaymentProof({{ $payment->id }})" label="Upload Bukti"
+                                        icon="solar.upload-bold-duotone" class="btn-success btn-sm"
+                                        :disabled="empty($paymentProofs[$payment->id])" />
+
+                                    <x-button label="Detail" icon="solar.wallet-bold-duotone"
+                                        link="{{ route('kurir.pembayaran.detail', $payment->transaction->id) }}"
+                                        class="btn-primary btn-sm" />
                                 </div>
                             @else
                                 {{-- Tampilkan hanya Detail jika sudah ada bukti --}}
-                                <a href="{{ route('kurir.pembayaran.detail', $payment->transaction->id) }}"
-                                    class="btn btn-primary btn-sm w-full">
-                                    <x-icon name="solar.wallet-bold-duotone" class="w-4 h-4" />
-                                    Detail Pembayaran
-                                </a>
+                                <x-button label="Detail Pembayaran" icon="solar.wallet-bold-duotone"
+                                    link="{{ route('kurir.pembayaran.detail', $payment->transaction->id) }}"
+                                    class="btn-primary btn-sm btn-block" />
                             @endif
                         </div>
                     </div>
