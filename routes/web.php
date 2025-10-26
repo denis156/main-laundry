@@ -13,9 +13,11 @@ use App\Livewire\Kurir\DetailPesanan;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Kurir\DetailPembayaran;
 use App\Livewire\Kurir\Components\OfflinePage;
+use App\Livewire\Pelanggan\Info as InfoPelanggan;
+use App\Livewire\Pelanggan\Profil as ProfilPelanggan;
 use App\Livewire\Pelanggan\Beranda as BerandaPelanggan;
 use App\Livewire\Pelanggan\Pesanan as PesananPelanggan;
-use App\Livewire\Pelanggan\Profil as ProfilPelanggan;
+use App\Livewire\Pelanggan\BuatPesanan as BuatPesananPelanggan;
 use App\Livewire\Pelanggan\DetailPesanan as DetailPesananPelanggan;
 
 // Landing Page
@@ -66,6 +68,8 @@ Route::prefix('pelanggan')->name('pelanggan.')->group(function () {
         Route::get('/', BerandaPelanggan::class)->name('beranda');
         Route::get('/beranda', BerandaPelanggan::class)->name('beranda.alt');
         Route::get('/pesanan', PesananPelanggan::class)->name('pesanan');
+        Route::get('/buat-pesanan', BuatPesananPelanggan::class)->name('buat-pesanan');
+        Route::get('/info', InfoPelanggan::class)->name('info');
         Route::get('/detail-pesanan', DetailPesananPelanggan::class)->name('pesanan.detail');
         Route::get('/profil', ProfilPelanggan::class)->name('profil');
 
