@@ -4,9 +4,7 @@
     <x-header icon="solar.wallet-money-bold-duotone" icon-classes="text-primary w-6 h-6" title="Detail Pembayaran"
         subtitle="{{ $transaction->invoice_number }}" separator progress-indicator>
         <x-slot:actions>
-            <a href="{{ route('kurir.pembayaran') }}" class="btn btn-circle btn-ghost">
-                <x-icon name="solar.undo-left-linear" class="w-6 h-6" />
-            </a>
+            <x-button icon="solar.undo-left-linear" link="{{ route('kurir.pembayaran') }}" class="btn-circle btn-secondary" />
         </x-slot:actions>
     </x-header>
 
