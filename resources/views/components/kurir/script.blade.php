@@ -1,1 +1,0 @@
-{{-- Kurir Script --}}
