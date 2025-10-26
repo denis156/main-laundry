@@ -50,7 +50,7 @@
             subtitle="Langkah-langkah untuk mengatasi koneksi offline" shadow separator>
             <ul class="space-y-3">
                 <li class="flex items-start gap-3">
-                    <div class="flex-shrink-0">
+                    <div class="shrink-0">
                         <x-icon name="solar.check-circle-bold-duotone" class="w-6 h-6 text-success" />
                     </div>
                     <div>
@@ -59,7 +59,7 @@
                     </div>
                 </li>
                 <li class="flex items-start gap-3">
-                    <div class="flex-shrink-0">
+                    <div class="shrink-0">
                         <x-icon name="solar.check-circle-bold-duotone" class="w-6 h-6 text-success" />
                     </div>
                     <div>
@@ -69,7 +69,7 @@
                     </div>
                 </li>
                 <li class="flex items-start gap-3">
-                    <div class="flex-shrink-0">
+                    <div class="shrink-0">
                         <x-icon name="solar.check-circle-bold-duotone" class="w-6 h-6 text-success" />
                     </div>
                     <div>
