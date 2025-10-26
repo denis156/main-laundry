@@ -32,13 +32,12 @@ Route::prefix('kurir')->name('kurir.')->group(function () {
 
     // Guest Routes (Belum Login)
     Route::middleware('guest:courier')->group(function () {
-        Route::get('/login', Login::class)->name('login');
+        Route::get('/masuk', Login::class)->name('login');
     });
 
     // Protected Routes (Harus Login)
     Route::middleware('auth:courier')->group(function () {
         Route::get('/', Beranda::class)->name('beranda');
-        Route::get('/beranda', Beranda::class)->name('beranda.alt');
         Route::get('/pesanan', Pesanan::class)->name('pesanan');
         Route::get('/pesanan/{id}', DetailPesanan::class)->name('pesanan.detail');
         Route::get('/pembayaran', Pembayaran::class)->name('pembayaran');
@@ -66,7 +65,6 @@ Route::prefix('pelanggan')->name('pelanggan.')->group(function () {
     // Protected Routes (Harus Login) - sementara tanpa auth untuk testing tampilan
     // Route::middleware('auth:customer')->group(function () {
         Route::get('/', BerandaPelanggan::class)->name('beranda');
-        Route::get('/beranda', BerandaPelanggan::class)->name('beranda.alt');
         Route::get('/pesanan', PesananPelanggan::class)->name('pesanan');
         Route::get('/buat-pesanan', BuatPesananPelanggan::class)->name('buat-pesanan');
         Route::get('/info', InfoPelanggan::class)->name('info');

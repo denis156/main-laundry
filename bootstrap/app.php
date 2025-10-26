@@ -21,7 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             // Default redirect untuk guard lain
-            return route('login'); // Bisa disesuaikan dengan route login Anda
+            return route('filament.admin.auth.login'); // Bisa disesuaikan dengan route login Anda
         });
 
         // Trust proxies for Cloudflared tunnel

@@ -89,7 +89,7 @@ class Login extends Component
                 'Selamat datang ' . $courier->name,
                 position: 'toast-top toast-end',
                 timeout: 3000,
-                redirectTo: '/kurir/beranda'
+                redirectTo: route('kurir.beranda')
             );
         } else {
             // Hit throttle untuk setiap percobaan gagal (hanya di production)
