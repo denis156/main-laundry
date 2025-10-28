@@ -30,7 +30,7 @@
             @forelse ($this->payments as $payment)
                 <div class="card bg-base-300 shadow-lg hover:shadow-xl transition-shadow">
                     <div class="card-body p-4">
-                        {{-- Header: Invoice & Tanggal Payment --}}
+                        {{-- Header: Invoice & Eye Button --}}
                         <div class="flex items-start justify-between mb-3">
                             <div>
                                 <h3 class="font-bold text-primary text-lg">
@@ -40,15 +40,10 @@
                                     Dibayar: {{ $payment->formatted_payment_date }}
                                 </p>
                             </div>
-                            @if ($payment->transaction->payment_status === 'paid')
-                                <span class="badge badge-success">
-                                    Lunas
-                                </span>
-                            @else
-                                <span class="badge badge-error">
-                                    Belum Bayar
-                                </span>
-                            @endif
+                            <x-button
+                                icon="solar.eye-bold"
+                                class="btn-circle btn-accent btn-md"
+                                link="{{ route('kurir.pembayaran.detail', $payment->transaction->id) }}" />
                         </div>
 
                         <div class="divider my-2"></div>
@@ -70,6 +65,16 @@
 
                         {{-- Payment Info --}}
                         <div class="bg-base-200 rounded-lg p-3 space-y-2">
+                            {{-- Status Payment --}}
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-base-content/70">Status</span>
+                                @if ($payment->transaction->payment_status === 'paid')
+                                    <span class="badge badge-success">Lunas</span>
+                                @else
+                                    <span class="badge badge-error">Belum Bayar</span>
+                                @endif
+                            </div>
+
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-base-content/70">Layanan</span>
                                 <span class="font-semibold">{{ $payment->transaction->service?->name ?? 'N/A' }}</span>
@@ -109,21 +114,10 @@
                         {{-- Action Buttons --}}
                         <div class="mt-3">
                             @if (!$payment->payment_proof_url)
-                                {{-- Tampilkan Upload + Detail jika belum ada bukti --}}
-                                <div class="grid grid-cols-2 gap-2">
-                                    <x-button wire:click="openUploadModal({{ $payment->id }})" label="Upload Bukti"
-                                        icon="solar.upload-bold-duotone" class="btn-success btn-sm"
-                                        :disabled="empty($paymentProofs[$payment->id])" />
-
-                                    <x-button label="Detail" icon="solar.wallet-bold-duotone"
-                                        link="{{ route('kurir.pembayaran.detail', $payment->transaction->id) }}"
-                                        class="btn-primary btn-sm" />
-                                </div>
-                            @else
-                                {{-- Tampilkan hanya Detail jika sudah ada bukti --}}
-                                <x-button label="Detail Pembayaran" icon="solar.wallet-bold-duotone"
-                                    link="{{ route('kurir.pembayaran.detail', $payment->transaction->id) }}"
-                                    class="btn-primary btn-sm btn-block" />
+                                {{-- Tampilkan hanya Upload jika belum ada bukti --}}
+                                <x-button wire:click="openUploadModal({{ $payment->id }})" label="Upload Bukti"
+                                    icon="solar.upload-bold-duotone" class="btn-success btn-sm btn-block"
+                                    :disabled="empty($paymentProofs[$payment->id])" />
                             @endif
                         </div>
                     </div>

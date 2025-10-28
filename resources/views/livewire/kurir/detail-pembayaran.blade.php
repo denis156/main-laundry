@@ -2,7 +2,7 @@
 <section class="bg-base-100" wire:poll.25s.visible>
     {{-- Header --}}
     <x-header icon="solar.wallet-money-bold-duotone" icon-classes="text-primary w-6 h-6" title="Detail Pembayaran"
-        subtitle="{{ $transaction->invoice_number }}" separator progress-indicator>
+        subtitle="Pelanggan atas nama {{ $transaction->customer?->name ?? 'Customer tidak ditemukan' }}" separator progress-indicator>
         <x-slot:actions>
             <x-button icon="solar.undo-left-linear" link="{{ route('kurir.pembayaran') }}" class="btn-circle btn-secondary" />
         </x-slot:actions>
@@ -171,19 +171,10 @@
                     @endphp
 
                     @if ($hasPayment && !$hasBukti)
-                        {{-- Ada Payment tapi belum ada bukti - Tampilkan Upload & Kembali --}}
-                        <div class="grid grid-cols-2 gap-2">
-                            <x-button wire:click="openUploadModal" label="Upload Bukti"
-                                icon="solar.upload-bold-duotone" class="btn-success btn-sm"
-                                :disabled="empty($paymentProof)" />
-
-                            <x-button label="Kembali" icon="solar.undo-left-linear"
-                                link="{{ route('kurir.pembayaran') }}" class="btn-primary btn-sm" />
-                        </div>
-                    @else
-                        {{-- Sudah ada bukti atau belum ada Payment - Hanya Kembali --}}
-                        <x-button label="Kembali" icon="solar.undo-left-linear"
-                            link="{{ route('kurir.pembayaran') }}" class="btn-primary btn-sm btn-block" />
+                        {{-- Ada Payment tapi belum ada bukti - Tampilkan hanya Upload --}}
+                        <x-button wire:click="openUploadModal" label="Upload Bukti"
+                            icon="solar.upload-bold-duotone" class="btn-success btn-sm btn-block"
+                            :disabled="empty($paymentProof)" />
                     @endif
                 </div>
             </div>
