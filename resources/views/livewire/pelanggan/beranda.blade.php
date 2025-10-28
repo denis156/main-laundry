@@ -5,7 +5,7 @@
     <div class="space-y-4">
         {{-- Stats Cards --}}
         <div class="stats stats-vertical lg:stats-horizontal shadow-lg hover:shadow-xl transition-shadow w-full">
-            <div class="stat bg-warning">
+            <div class="stat bg-primary">
                 <div class="stat-figure text-base-content">
                     <x-icon name="solar.clock-circle-bold-duotone" class="inline-block h-8 stroke-current" />
                 </div>
