@@ -27,6 +27,12 @@ class Pembayaran extends Component
     // Array untuk menyimpan file upload per payment ID
     public array $paymentProofs = [];
 
+    // Modal state
+    public bool $showUploadModal = false;
+
+    // ID payment yang akan diproses
+    public ?int $selectedPaymentId = null;
+
     /**
      * Get semua payment yang di-handle oleh kurir yang sedang login
      * - Tampilkan semua payment records
@@ -68,18 +74,27 @@ class Pembayaran extends Component
     }
 
     /**
+     * Buka modal konfirmasi untuk upload bukti pembayaran
+     */
+    public function openUploadModal(int $paymentId): void
+    {
+        $this->selectedPaymentId = $paymentId;
+        $this->showUploadModal = true;
+    }
+
+    /**
      * Upload bukti pembayaran untuk payment tertentu
      */
-    public function uploadPaymentProof(int $paymentId): void
+    public function uploadPaymentProof(): void
     {
         // Validasi file
-        if (empty($this->paymentProofs[$paymentId])) {
+        if (empty($this->paymentProofs[$this->selectedPaymentId])) {
             $this->error('Bukti pembayaran harus diupload!');
             return;
         }
 
         // Cari payment record
-        $payment = Payment::find($paymentId);
+        $payment = Payment::find($this->selectedPaymentId);
 
         if (!$payment) {
             $this->error('Payment tidak ditemukan!');
@@ -94,8 +109,8 @@ class Pembayaran extends Component
         }
 
         // Upload file
-        $filename = 'payment-proof-' . $payment->transaction->invoice_number . '-' . time() . '.' . $this->paymentProofs[$paymentId]->getClientOriginalExtension();
-        $path = $this->paymentProofs[$paymentId]->storeAs('payment-proofs', $filename, 'public');
+        $filename = 'payment-proof-' . $payment->transaction->invoice_number . '-' . time() . '.' . $this->paymentProofs[$this->selectedPaymentId]->getClientOriginalExtension();
+        $path = $this->paymentProofs[$this->selectedPaymentId]->storeAs('payment-proofs', $filename, 'public');
 
         // Update payment record dengan bukti pembayaran
         $payment->update([
@@ -110,7 +125,11 @@ class Pembayaran extends Component
         $this->success('Bukti pembayaran berhasil diupload!');
 
         // Clear input untuk payment ini
-        unset($this->paymentProofs[$paymentId]);
+        unset($this->paymentProofs[$this->selectedPaymentId]);
+
+        // Close modal dan reset selected payment
+        $this->showUploadModal = false;
+        $this->selectedPaymentId = null;
 
         // Refresh data
         unset($this->payments);

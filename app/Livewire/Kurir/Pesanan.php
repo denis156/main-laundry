@@ -27,6 +27,17 @@ class Pesanan extends Component
     // Array untuk menyimpan berat per transaksi [transaction_id => weight]
     public array $weights = [];
 
+    // Modal states
+    public bool $showCancelModal = false;
+    public bool $showConfirmModal = false;
+    public bool $showPickedUpModal = false;
+    public bool $showAtLoadingPostModal = false;
+    public bool $showOutForDeliveryModal = false;
+    public bool $showDeliveredModal = false;
+
+    // ID transaksi yang akan diproses
+    public ?int $selectedTransactionId = null;
+
     /**
      * Refresh orders - dipanggil dari JavaScript saat menerima broadcast event
      */
@@ -197,16 +208,25 @@ class Pesanan extends Component
     }
 
     /**
+     * Buka modal konfirmasi untuk ambil pesanan
+     */
+    public function openConfirmModal(int $transactionId): void
+    {
+        $this->selectedTransactionId = $transactionId;
+        $this->showConfirmModal = true;
+    }
+
+    /**
      * Konfirmasi dan ambil pesanan (ubah status dari pending_confirmation ke confirmed)
      * Jika belum ada kurir, assign kurir ini ke pesanan tersebut
      * Validasi: pesanan harus di area layanan pos kurir
      */
-    public function confirmOrder(int $transactionId): void
+    public function confirmOrder(): void
     {
         $courier = Auth::guard('courier')->user();
         $assignedPos = $courier->assignedPos;
 
-        $query = Transaction::where('id', $transactionId)
+        $query = Transaction::where('id', $this->selectedTransactionId)
             ->where(function ($q) use ($courier) {
                 // Transaksi yang sudah di-assign ke kurir ini ATAU belum ada kurirnya
                 $q->where('courier_motorcycle_id', $courier->id)
@@ -231,8 +251,21 @@ class Pesanan extends Component
 
         $this->success('Pesanan berhasil diambil dan dikonfirmasi! Silahkan hubungi customer untuk koordinasi pickup.');
 
+        // Close modal dan reset selected transaction
+        $this->showConfirmModal = false;
+        $this->selectedTransactionId = null;
+
         // Refresh data
         unset($this->transactions);
+    }
+
+    /**
+     * Buka modal konfirmasi untuk batalkan pesanan
+     */
+    public function openCancelModal(int $transactionId): void
+    {
+        $this->selectedTransactionId = $transactionId;
+        $this->showCancelModal = true;
     }
 
     /**
@@ -240,12 +273,12 @@ class Pesanan extends Component
      * Validasi: pesanan harus di area layanan pos kurir
      * Assign kurir ke transaksi untuk tracking siapa yang membatalkan
      */
-    public function cancelOrder(int $transactionId): void
+    public function cancelOrder(): void
     {
         $courier = Auth::guard('courier')->user();
         $assignedPos = $courier->assignedPos;
 
-        $query = Transaction::where('id', $transactionId)
+        $query = Transaction::where('id', $this->selectedTransactionId)
             ->where(function ($q) use ($courier) {
                 // Transaksi yang sudah di-assign ke kurir ini ATAU belum ada kurirnya
                 $q->where('courier_motorcycle_id', $courier->id)
@@ -271,25 +304,38 @@ class Pesanan extends Component
 
         $this->success('Pesanan berhasil dibatalkan.');
 
+        // Close modal dan reset selected transaction
+        $this->showCancelModal = false;
+        $this->selectedTransactionId = null;
+
         // Refresh data
         unset($this->transactions);
+    }
+
+    /**
+     * Buka modal konfirmasi untuk tandai pesanan dijemput
+     */
+    public function openPickedUpModal(int $transactionId): void
+    {
+        $this->selectedTransactionId = $transactionId;
+        $this->showPickedUpModal = true;
     }
 
     /**
      * Tandai pesanan sudah dijemput (ubah status dari confirmed ke picked_up)
      * Update pos_id sesuai dengan pos kurir dan simpan berat yang ditimbang
      */
-    public function markAsPickedUp(int $transactionId): void
+    public function markAsPickedUp(): void
     {
         $courier = Auth::guard('courier')->user();
 
         // Validasi berat harus diisi
-        if (empty($this->weights[$transactionId]) || $this->weights[$transactionId] <= 0) {
+        if (empty($this->weights[$this->selectedTransactionId]) || $this->weights[$this->selectedTransactionId] <= 0) {
             $this->error('Berat cucian harus diisi dan lebih dari 0 kg!');
             return;
         }
 
-        $transaction = Transaction::where('id', $transactionId)
+        $transaction = Transaction::where('id', $this->selectedTransactionId)
             ->where('courier_motorcycle_id', $courier->id)
             ->where('workflow_status', 'confirmed')
             ->first();
@@ -299,7 +345,7 @@ class Pesanan extends Component
             return;
         }
 
-        $weight = (float) $this->weights[$transactionId];
+        $weight = (float) $this->weights[$this->selectedTransactionId];
         $pricePerKg = $transaction->price_per_kg;
         $totalPrice = $weight * $pricePerKg;
 
@@ -313,7 +359,11 @@ class Pesanan extends Component
         $this->success('Pesanan berhasil ditandai sudah dijemput dengan berat ' . $weight . ' kg!');
 
         // Clear inputs setelah berhasil
-        unset($this->weights[$transactionId]);
+        unset($this->weights[$this->selectedTransactionId]);
+
+        // Close modal dan reset selected transaction
+        $this->showPickedUpModal = false;
+        $this->selectedTransactionId = null;
 
         // Refresh data
         unset($this->transactions);
@@ -336,13 +386,22 @@ class Pesanan extends Component
     }
 
     /**
+     * Buka modal konfirmasi untuk tandai pesanan sudah di pos
+     */
+    public function openAtLoadingPostModal(int $transactionId): void
+    {
+        $this->selectedTransactionId = $transactionId;
+        $this->showAtLoadingPostModal = true;
+    }
+
+    /**
      * Tandai pesanan sudah di pos (ubah status dari picked_up ke at_loading_post)
      */
-    public function markAsAtLoadingPost(int $transactionId): void
+    public function markAsAtLoadingPost(): void
     {
         $courier = Auth::guard('courier')->user();
 
-        $transaction = Transaction::where('id', $transactionId)
+        $transaction = Transaction::where('id', $this->selectedTransactionId)
             ->where('courier_motorcycle_id', $courier->id)
             ->where('workflow_status', 'picked_up')
             ->first();
@@ -358,18 +417,31 @@ class Pesanan extends Component
 
         $this->success('Pesanan berhasil ditandai sudah di pos loading!');
 
+        // Close modal dan reset selected transaction
+        $this->showAtLoadingPostModal = false;
+        $this->selectedTransactionId = null;
+
         // Refresh data
         unset($this->transactions);
     }
 
     /**
+     * Buka modal konfirmasi untuk tandai pesanan dalam pengiriman
+     */
+    public function openOutForDeliveryModal(int $transactionId): void
+    {
+        $this->selectedTransactionId = $transactionId;
+        $this->showOutForDeliveryModal = true;
+    }
+
+    /**
      * Tandai pesanan dalam pengiriman (ubah status dari washing_completed ke out_for_delivery)
      */
-    public function markAsOutForDelivery(int $transactionId): void
+    public function markAsOutForDelivery(): void
     {
         $courier = Auth::guard('courier')->user();
 
-        $transaction = Transaction::where('id', $transactionId)
+        $transaction = Transaction::where('id', $this->selectedTransactionId)
             ->where('courier_motorcycle_id', $courier->id)
             ->where('workflow_status', 'washing_completed')
             ->first();
@@ -385,19 +457,32 @@ class Pesanan extends Component
 
         $this->success('Pesanan berhasil ditandai dalam pengiriman!');
 
+        // Close modal dan reset selected transaction
+        $this->showOutForDeliveryModal = false;
+        $this->selectedTransactionId = null;
+
         // Refresh data
         unset($this->transactions);
+    }
+
+    /**
+     * Buka modal konfirmasi untuk tandai pesanan terkirim
+     */
+    public function openDeliveredModal(int $transactionId): void
+    {
+        $this->selectedTransactionId = $transactionId;
+        $this->showDeliveredModal = true;
     }
 
     /**
      * Tandai pesanan terkirim (ubah status dari out_for_delivery ke delivered)
      * Upload bukti pembayaran jika payment_timing adalah on_delivery
      */
-    public function markAsDelivered(int $transactionId): void
+    public function markAsDelivered(): void
     {
         $courier = Auth::guard('courier')->user();
 
-        $transaction = Transaction::where('id', $transactionId)
+        $transaction = Transaction::where('id', $this->selectedTransactionId)
             ->where('courier_motorcycle_id', $courier->id)
             ->where('workflow_status', 'out_for_delivery')
             ->first();
@@ -412,6 +497,10 @@ class Pesanan extends Component
         ]);
 
         $this->success('Pesanan berhasil ditandai terkirim!');
+
+        // Close modal dan reset selected transaction
+        $this->showDeliveredModal = false;
+        $this->selectedTransactionId = null;
 
         // Refresh data
         unset($this->transactions);

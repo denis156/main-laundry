@@ -23,6 +23,14 @@ class DetailPesanan extends Component
     // Berat untuk input (jika status confirmed)
     public ?float $weight = null;
 
+    // Modal states
+    public bool $showCancelModal = false;
+    public bool $showConfirmModal = false;
+    public bool $showPickedUpModal = false;
+    public bool $showAtLoadingPostModal = false;
+    public bool $showOutForDeliveryModal = false;
+    public bool $showDeliveredModal = false;
+
     public function mount(int $id): void
     {
         $courier = Auth::guard('courier')->user();
@@ -164,6 +172,14 @@ class DetailPesanan extends Component
     }
 
     /**
+     * Buka modal konfirmasi untuk ambil pesanan
+     */
+    public function openConfirmModal(): void
+    {
+        $this->showConfirmModal = true;
+    }
+
+    /**
      * Konfirmasi dan ambil pesanan (ubah status dari pending_confirmation ke confirmed)
      */
     public function confirmOrder(): void
@@ -191,7 +207,16 @@ class DetailPesanan extends Component
         ]);
 
         $this->success('Pesanan berhasil diambil dan dikonfirmasi!');
+        $this->showConfirmModal = false;
         $this->transaction->refresh();
+    }
+
+    /**
+     * Buka modal konfirmasi untuk batalkan pesanan
+     */
+    public function openCancelModal(): void
+    {
+        $this->showCancelModal = true;
     }
 
     /**
@@ -214,7 +239,16 @@ class DetailPesanan extends Component
         ]);
 
         $this->success('Pesanan berhasil dibatalkan.');
+        $this->showCancelModal = false;
         $this->transaction->refresh();
+    }
+
+    /**
+     * Buka modal konfirmasi untuk tandai pesanan dijemput
+     */
+    public function openPickedUpModal(): void
+    {
+        $this->showPickedUpModal = true;
     }
 
     /**
@@ -249,6 +283,7 @@ class DetailPesanan extends Component
 
         // Clear inputs
         $this->weight = null;
+        $this->showPickedUpModal = false;
 
         $this->transaction->refresh();
     }
@@ -268,6 +303,14 @@ class DetailPesanan extends Component
     }
 
     /**
+     * Buka modal konfirmasi untuk tandai pesanan sudah di pos
+     */
+    public function openAtLoadingPostModal(): void
+    {
+        $this->showAtLoadingPostModal = true;
+    }
+
+    /**
      * Tandai pesanan sudah di pos (ubah status dari picked_up ke at_loading_post)
      */
     public function markAsAtLoadingPost(): void
@@ -282,7 +325,16 @@ class DetailPesanan extends Component
         ]);
 
         $this->success('Pesanan berhasil ditandai sudah di pos loading!');
+        $this->showAtLoadingPostModal = false;
         $this->transaction->refresh();
+    }
+
+    /**
+     * Buka modal konfirmasi untuk tandai pesanan dalam pengiriman
+     */
+    public function openOutForDeliveryModal(): void
+    {
+        $this->showOutForDeliveryModal = true;
     }
 
     /**
@@ -300,7 +352,16 @@ class DetailPesanan extends Component
         ]);
 
         $this->success('Pesanan berhasil ditandai dalam pengiriman!');
+        $this->showOutForDeliveryModal = false;
         $this->transaction->refresh();
+    }
+
+    /**
+     * Buka modal konfirmasi untuk tandai pesanan terkirim
+     */
+    public function openDeliveredModal(): void
+    {
+        $this->showDeliveredModal = true;
     }
 
     /**
@@ -319,6 +380,7 @@ class DetailPesanan extends Component
 
         $this->success('Pesanan berhasil ditandai terkirim!');
 
+        $this->showDeliveredModal = false;
         $this->transaction->refresh();
     }
 

@@ -173,7 +173,7 @@
                     @if ($hasPayment && !$hasBukti)
                         {{-- Ada Payment tapi belum ada bukti - Tampilkan Upload & Kembali --}}
                         <div class="grid grid-cols-2 gap-2">
-                            <x-button wire:click="uploadPaymentProof" label="Upload Bukti"
+                            <x-button wire:click="openUploadModal" label="Upload Bukti"
                                 icon="solar.upload-bold-duotone" class="btn-success btn-sm"
                                 :disabled="empty($paymentProof)" />
 
@@ -189,4 +189,20 @@
             </div>
         </div>
     </div>
+
+    {{-- Modal Konfirmasi Upload Bukti Pembayaran --}}
+    <x-modal wire:model="showUploadModal" title="Upload Bukti Pembayaran" subtitle="Konfirmasi untuk mengupload bukti pembayaran?" persistent separator>
+        <div class="py-4">
+            <p class="text-base-content/70">Pastikan file yang diupload adalah bukti pembayaran yang valid dan jelas terbaca.</p>
+            <div class="mt-3 p-3 bg-warning/10 rounded-lg border border-warning/20">
+                <p class="text-sm text-warning">
+                    <strong>Perhatian:</strong> Setelah upload, status pembayaran akan otomatis berubah menjadi "Lunas".
+                </p>
+            </div>
+        </div>
+        <x-slot:actions>
+            <x-button label="Batal" wire:click="$set('showUploadModal', false)" />
+            <x-button label="Ya, Upload" wire:click="uploadPaymentProof" class="btn-success" />
+        </x-slot:actions>
+    </x-modal>
 </section>

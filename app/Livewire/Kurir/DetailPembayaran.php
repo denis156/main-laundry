@@ -25,6 +25,9 @@ class DetailPembayaran extends Component
     // Bukti pembayaran untuk upload
     public $paymentProof;
 
+    // Modal state
+    public bool $showUploadModal = false;
+
     public function mount(int $id): void
     {
         $courier = Auth::guard('courier')->user();
@@ -61,6 +64,14 @@ class DetailPembayaran extends Component
     public function payment(): ?Payment
     {
         return $this->transaction->payments->first();
+    }
+
+    /**
+     * Buka modal konfirmasi untuk upload bukti pembayaran
+     */
+    public function openUploadModal(): void
+    {
+        $this->showUploadModal = true;
     }
 
     /**
@@ -101,6 +112,7 @@ class DetailPembayaran extends Component
 
         // Clear inputs
         $this->paymentProof = null;
+        $this->showUploadModal = false;
 
         $this->transaction->refresh();
     }
