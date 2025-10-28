@@ -41,12 +41,19 @@
                                 <x-icon name="solar.phone-bold-duotone" class="w-4 h-4 text-success" />
                                 <span class="text-sm font-semibold">WhatsApp</span>
                             </div>
-                            <span class="text-sm">{{ config('sosmed.phone') }}</span>
+                            <span class="text-sm">{{ $this->hasCSWhatsApp() ? config('sosmed.phone') : 'Tidak tersedia' }}</span>
                         </div>
-                        <a href="{{ $this->getWhatsAppCSUrl() }}" target="_blank" class="btn btn-success btn-sm w-full">
-                            <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
-                            Hubungi via WhatsApp
-                        </a>
+                        @if ($this->hasCSWhatsApp())
+                            <a href="{{ $this->getWhatsAppCSUrl() }}" target="_blank" class="btn btn-success btn-sm w-full">
+                                <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
+                                Hubungi via WhatsApp
+                            </a>
+                        @else
+                            <button disabled class="btn btn-success btn-sm w-full opacity-50 cursor-not-allowed">
+                                <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
+                                Tidak Tersedia
+                            </button>
+                        @endif
                     </div>
 
                     {{-- Email --}}
@@ -56,12 +63,19 @@
                                 <x-icon name="solar.letter-bold-duotone" class="w-4 h-4 text-info" />
                                 <span class="text-sm font-semibold">Email</span>
                             </div>
-                            <span class="text-sm">{{ config('sosmed.email') }}</span>
+                            <span class="text-sm">{{ $this->hasCSEmail() ? config('sosmed.email') : 'Tidak tersedia' }}</span>
                         </div>
-                        <a href="mailto:{{ config('sosmed.email') }}" class="btn btn-info btn-sm w-full">
-                            <x-icon name="solar.letter-bold-duotone" class="w-4 h-4" />
-                            Kirim Email
-                        </a>
+                        @if ($this->hasCSEmail())
+                            <a href="mailto:{{ config('sosmed.email') }}" class="btn btn-info btn-sm w-full">
+                                <x-icon name="solar.letter-bold-duotone" class="w-4 h-4" />
+                                Kirim Email
+                            </a>
+                        @else
+                            <button disabled class="btn btn-info btn-sm w-full opacity-50 cursor-not-allowed">
+                                <x-icon name="solar.letter-bold-duotone" class="w-4 h-4" />
+                                Tidak Tersedia
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -172,38 +186,12 @@
                         </x-slot:heading>
                         <x-slot:content>
                             <div class="text-sm space-y-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="badge badge-secondary badge-xs">Konfirmasi?</span>
-                                    <span>Belum diambil kurir</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="badge badge-info badge-xs">Terkonfirmasi</span>
-                                    <span>Siap dijemput ke customer</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="badge badge-warning badge-xs">Dijemput</span>
-                                    <span>Dalam perjalanan ke pos</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="badge badge-warning badge-xs">Di Pos</span>
-                                    <span>Sudah sampai pos loading</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="badge badge-primary badge-xs">Dicuci</span>
-                                    <span>Proses pencucian</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="badge badge-success badge-xs">Siap Antar</span>
-                                    <span>Siap diantar ke customer</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="badge badge-warning badge-xs">Mengantar</span>
-                                    <span>Sedang diantar ke customer</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="badge badge-success badge-xs">Selesai</span>
-                                    <span>Sudah diterima customer</span>
-                                </div>
+                                @foreach ($this->getWorkflowStatuses() as $status)
+                                    <div class="flex items-center gap-2">
+                                        <span class="badge {{ $status['badge'] }} badge-xs whitespace-nowrap">{{ $status['label'] }}</span>
+                                        <span>{{ $status['description'] }}</span>
+                                    </div>
+                                @endforeach
                             </div>
                         </x-slot:content>
                     </x-collapse>
