@@ -67,7 +67,7 @@
 
                 {{-- Center align name column --}}
                 @scope('cell_name', $leader)
-                    <span class="text-center">{{ $leader->name }}</span>
+                    <span class="text-center whitespace-nowrap">{{ $leader->name }}</span>
                 @endscope
 
                 {{-- Center align transactions count --}}
