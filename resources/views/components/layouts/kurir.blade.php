@@ -29,6 +29,9 @@
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('image/app.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('image/app.png') }}">
 
+    {{-- Livewire Style --}}
+    @livewireStyles
+    
     {{-- Vite --}}
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/kurir.js'])
 
@@ -48,9 +51,6 @@
             window.VAPID_PUBLIC_KEY = @json(config('webpush.vapid.public_key'));
         </script>
     @endauth
-
-    {{-- Livewire Style --}}
-    @livewireStyles
 </head>
 
 <body class="min-h-dvh bg-base-100">

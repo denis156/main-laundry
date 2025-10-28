@@ -29,6 +29,9 @@
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('image/app.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('image/app.png') }}">
 
+    {{-- Livewire Style --}}
+    @livewireStyles
+
     {{-- Vite --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -50,6 +53,8 @@
     {{--  TOAST area --}}
     <x-toast />
 
+    {{-- Livewire Script --}}
+    @livewireScripts
 </body>
 
 </html>
