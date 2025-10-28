@@ -42,7 +42,7 @@
             @forelse ($this->transactions as $transaction)
                 <div class="card bg-base-300 shadow-lg hover:shadow-xl transition-shadow">
                     <div class="card-body p-4">
-                        {{-- Header: Invoice & Status --}}
+                        {{-- Header: Invoice & Eye Button --}}
                         <div class="flex items-start justify-between mb-3">
                             <div>
                                 <h3 class="font-bold text-primary text-lg">
@@ -52,15 +52,10 @@
                                     {{ $transaction->formatted_order_date }}
                                 </p>
                             </div>
-                            @php
-                                $statusColor = StatusTransactionHelper::getStatusBadgeColor(
-                                    $transaction->workflow_status,
-                                );
-                                $statusText = StatusTransactionHelper::getStatusText($transaction->workflow_status);
-                            @endphp
-                            <span class="badge {{ $statusColor }} gap-1">
-                                {{ $statusText }}
-                            </span>
+                            <x-button
+                                icon="solar.eye-bold"
+                                class="btn-circle btn-accent btn-md"
+                                link="{{ route('kurir.pesanan.detail', $transaction->id) }}" />
                         </div>
 
                         <div class="divider my-2"></div>
@@ -87,6 +82,18 @@
                                 $transaction->payment_timing ||
                                 $transaction->customer?->address)
                             <div class="bg-base-200 rounded-lg p-3 space-y-2">
+                                {{-- Status --}}
+                                @php
+                                    $statusColor = StatusTransactionHelper::getStatusBadgeColor(
+                                        $transaction->workflow_status,
+                                    );
+                                    $statusText = StatusTransactionHelper::getStatusText($transaction->workflow_status);
+                                @endphp
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-base-content/70">Status</span>
+                                    <span class="badge {{ $statusColor }} gap-1">{{ $statusText }}</span>
+                                </div>
+
                                 {{-- Layanan --}}
                                 @if ($transaction->service_id)
                                     <div class="flex justify-between items-center">
@@ -180,19 +187,28 @@
                                         :disabled="empty($weights[$transaction->id]) || $weights[$transaction->id] <= 0" />
                                 </div>
                             @elseif ($transaction->workflow_status === 'picked_up')
-                                {{-- Status: Picked Up - Tampilkan Sudah di Pos + Detail --}}
+                                {{-- Status: Picked Up - Tampilkan Sudah di Pos --}}
+                                <x-button
+                                    wire:click="openAtLoadingPostModal({{ $transaction->id }})"
+                                    label="Sudah di Pos"
+                                    icon="solar.map-point-bold-duotone"
+                                    class="btn-warning btn-sm btn-block" />
+                            @elseif (in_array($transaction->workflow_status, ['at_loading_post', 'in_washing']))
+                                {{-- Status: At Loading Post / In Washing - Tampilkan WhatsApp + Mengantar (disabled) --}}
                                 <div class="grid grid-cols-2 gap-2">
-                                    <x-button
-                                        wire:click="openAtLoadingPostModal({{ $transaction->id }})"
-                                        label="Sudah di Pos"
-                                        icon="solar.map-point-bold-duotone"
-                                        class="btn-warning btn-sm" />
+                                    @if ($transaction->customer?->phone && $transaction->customer?->name)
+                                        <x-button
+                                            label="WhatsApp"
+                                            icon="solar.chat-round-bold-duotone"
+                                            class="btn-success btn-sm"
+                                            disabled />
+                                    @endif
 
                                     <x-button
-                                        label="Detail"
-                                        icon="solar.bill-list-bold-duotone"
-                                        link="{{ route('kurir.pesanan.detail', $transaction->id) }}"
-                                        class="btn-primary btn-sm" />
+                                        label="Mengantar"
+                                        icon="solar.delivery-bold-duotone"
+                                        class="btn-accent btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}"
+                                        disabled />
                                 </div>
                             @elseif ($transaction->workflow_status === 'washing_completed')
                                 {{-- Status: Washing Completed - Tampilkan WhatsApp + Mengantar --}}
@@ -213,28 +229,13 @@
                                         class="btn-accent btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}" />
                                 </div>
                             @elseif ($transaction->workflow_status === 'out_for_delivery')
-                                {{-- Status: Out for Delivery - Tampilkan Terkirim + Detail --}}
-                                <div class="grid grid-cols-2 gap-2">
-                                    <x-button
-                                        wire:click="openDeliveredModal({{ $transaction->id }})"
-                                        label="Terkirim"
-                                        icon="solar.check-circle-bold-duotone"
-                                        class="btn-success btn-sm"
-                                        :disabled="$transaction->payment_status !== 'paid'" />
-
-                                    <x-button
-                                        label="Detail"
-                                        icon="solar.bill-list-bold-duotone"
-                                        link="{{ route('kurir.pesanan.detail', $transaction->id) }}"
-                                        class="btn-primary btn-sm" />
-                                </div>
-                            @else
-                                {{-- Status lain (at_loading_post, in_washing, delivered, cancelled) - Hanya tampilkan Detail --}}
+                                {{-- Status: Out for Delivery - Tampilkan Terkirim --}}
                                 <x-button
-                                    label="Detail Pesanan"
-                                    icon="solar.bill-list-bold-duotone"
-                                    link="{{ route('kurir.pesanan.detail', $transaction->id) }}"
-                                    class="btn-primary btn-sm btn-block" />
+                                    wire:click="openDeliveredModal({{ $transaction->id }})"
+                                    label="Terkirim"
+                                    icon="solar.check-circle-bold-duotone"
+                                    class="btn-success btn-sm btn-block"
+                                    :disabled="$transaction->payment_status !== 'paid'" />
                             @endif
                         </div>
                     </div>

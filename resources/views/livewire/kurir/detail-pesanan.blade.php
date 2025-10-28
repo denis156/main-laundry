@@ -2,7 +2,7 @@
 <section class="bg-base-100" wire:poll.25s.visible>
     {{-- Header --}}
     <x-header icon="solar.bill-list-bold-duotone" icon-classes="text-primary w-6 h-6" title="Detail Pesanan"
-        subtitle="{{ $transaction->invoice_number }}" separator progress-indicator>
+        subtitle="Pelanggan atas nama {{ $transaction->customer?->name ?? 'Customer tidak ditemukan' }}" separator progress-indicator>
         <x-slot:actions>
             <x-button icon="solar.undo-left-linear" link="{{ route('kurir.pesanan') }}" class="btn-circle btn-secondary" />
         </x-slot:actions>
@@ -13,7 +13,7 @@
         <div class="card bg-base-300 shadow-lg">
             <div class="card-body p-4">
                 {{-- Invoice & Status Badge --}}
-                <div class="flex items-start justify-between mb-3">
+                <div class="flex items-start justify-between">
                     <div>
                         <p class="font-bold text-lg text-primary">{{ $transaction->invoice_number }}</p>
                     </div>
@@ -150,13 +150,25 @@
                                 :disabled="empty($weight) || $weight <= 0" />
                         </div>
                     @elseif ($transaction->workflow_status === 'picked_up')
-                        {{-- Status: Picked Up - Tampilkan Sudah di Pos + Kembali --}}
+                        {{-- Status: Picked Up - Tampilkan Sudah di Pos --}}
+                        <x-button wire:click="openAtLoadingPostModal" label="Sudah di Pos"
+                            icon="solar.map-point-bold-duotone" class="btn-warning btn-sm btn-block" />
+                    @elseif (in_array($transaction->workflow_status, ['at_loading_post', 'in_washing']))
+                        {{-- Status: At Loading Post / In Washing - Tampilkan WhatsApp + Mengantar (disabled) --}}
                         <div class="grid grid-cols-2 gap-2">
-                            <x-button wire:click="openAtLoadingPostModal" label="Sudah di Pos"
-                                icon="solar.map-point-bold-duotone" class="btn-warning btn-sm" />
+                            @if ($transaction->customer?->phone && $transaction->customer?->name)
+                                <x-button
+                                    label="WhatsApp"
+                                    icon="solar.chat-round-bold-duotone"
+                                    class="btn-success btn-sm"
+                                    disabled />
+                            @endif
 
-                            <x-button label="Kembali" icon="solar.undo-left-linear"
-                                link="{{ route('kurir.pesanan') }}" class="btn-primary btn-sm" />
+                            <x-button
+                                label="Mengantar"
+                                icon="solar.delivery-bold-duotone"
+                                class="btn-accent btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}"
+                                disabled />
                         </div>
                     @elseif ($transaction->workflow_status === 'washing_completed')
                         {{-- Status: Washing Completed - Tampilkan WhatsApp + Dalam Pengiriman --}}
@@ -175,10 +187,6 @@
                         <x-button wire:click="openDeliveredModal" label="Terkirim"
                             icon="solar.check-circle-bold-duotone" class="btn-success btn-sm btn-block"
                             :disabled="$transaction->payment_status !== 'paid'" />
-                    @else
-                        {{-- Status lain (at_loading_post, in_washing, delivered, cancelled) - Hanya tampilkan Kembali --}}
-                        <x-button label="Kembali" icon="solar.undo-left-linear"
-                            link="{{ route('kurir.pesanan') }}" class="btn-primary btn-sm btn-block" />
                     @endif
                 </div>
             </div>
