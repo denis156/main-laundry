@@ -37,7 +37,7 @@ Route::prefix('kurir')->name('kurir.')->group(function () {
     });
 
     // Protected Routes (Harus Login)
-    Route::middleware('auth:courier')->group(function () {
+    Route::middleware('auth.guard:courier')->group(function () {
         Route::get('/', Beranda::class)->name('beranda');
         Route::get('/pesanan', Pesanan::class)->name('pesanan');
         Route::get('/pesanan/{id}', DetailPesanan::class)->name('pesanan.detail');
@@ -64,7 +64,7 @@ Route::prefix('pelanggan')->name('pelanggan.')->group(function () {
     });
 
     // Protected Routes (Harus Login)
-    Route::middleware('auth:customer')->group(function () {
+    Route::middleware('auth.guard:customer')->group(function () {
         Route::get('/', BerandaPelanggan::class)->name('beranda');
         Route::get('/pesanan', PesananPelanggan::class)->name('pesanan');
         Route::get('/buat-pesanan', BuatPesananPelanggan::class)->name('buat-pesanan');

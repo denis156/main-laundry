@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\RedirectIfNotCourier;
 use App\Http\Middleware\RedirectIfNotCustomer;
+use App\Http\Middleware\AuthenticateWithGuard;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Register middleware aliases
         $middleware->alias([
+            'auth.guard' => AuthenticateWithGuard::class,
             'courier.auth' => RedirectIfNotCourier::class,
             'customer.auth' => RedirectIfNotCustomer::class,
         ]);
