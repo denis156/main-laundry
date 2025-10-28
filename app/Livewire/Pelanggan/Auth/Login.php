@@ -1,0 +1,94 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Livewire\Pelanggan\Auth;
+
+use Mary\Traits\Toast;
+use Livewire\Component;
+use Livewire\Attributes\Title;
+use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+
+#[Title('Login Pelanggan')]
+#[Layout('components.layouts.pelanggan-guest')]
+class Login extends Component
+{
+    use Toast;
+
+    public string $phone = '';
+    public string $password = '';
+    public bool $remember = false;
+
+    public function rules(): array
+    {
+        return [
+            'phone' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:6'],
+        ];
+    }
+
+    public function login(): void
+    {
+        $this->validate();
+
+        // Throttle key berdasarkan phone dan IP
+        $throttleKey = strtolower($this->phone) . '|' . request()->ip();
+
+        // Cek apakah terlalu banyak percobaan login (hanya di production)
+        if (!config('app.debug') && RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            $minutes = ceil($seconds / 60);
+
+            $this->error(
+                'Terlalu Banyak Percobaan',
+                "Silakan coba lagi dalam {$minutes} menit.",
+                position: 'toast-top toast-end',
+                timeout: 5000
+            );
+
+            return;
+        }
+
+        // Attempt login menggunakan guard 'customer' dengan phone
+        if (Auth::guard('customer')->attempt(
+            ['phone' => $this->phone, 'password' => $this->password],
+            $this->remember
+        )) {
+            $customer = Auth::guard('customer')->user();
+
+            // Clear throttle jika login berhasil (hanya di production)
+            if (!config('app.debug')) {
+                RateLimiter::clear($throttleKey);
+            }
+
+            session()->regenerate();
+
+            $this->success(
+                'Login Berhasil!',
+                'Selamat datang ' . $customer->name,
+                position: 'toast-top toast-end',
+                timeout: 3000,
+                redirectTo: route('pelanggan.beranda')
+            );
+        } else {
+            // Hit throttle untuk setiap percobaan gagal (hanya di production)
+            if (!config('app.debug')) {
+                RateLimiter::hit($throttleKey, 300); // 5 menit
+            }
+
+            $this->error(
+                'Login Gagal',
+                'Nomor telepon atau password yang Anda masukkan salah.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
+        }
+    }
+
+    public function render()
+    {
+        return view('livewire.pelanggan.login');
+    }
+}

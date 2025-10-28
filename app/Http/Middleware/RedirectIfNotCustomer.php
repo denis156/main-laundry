@@ -20,7 +20,7 @@ class RedirectIfNotCustomer
     public function handle(Request $request, Closure $next): Response
     {
         if (!Auth::guard('customer')->check()) {
-            return redirect()->route('customer.login');
+            return redirect()->route('pelanggan.login');
         }
 
         return $next($request);

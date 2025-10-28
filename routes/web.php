@@ -13,6 +13,7 @@ use App\Livewire\Kurir\DetailPesanan;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Kurir\DetailPembayaran;
 use App\Livewire\Kurir\Components\OfflinePage;
+use App\Livewire\Pelanggan\Auth\Login as PelangganLogin;
 use App\Livewire\Pelanggan\Info as InfoPelanggan;
 use App\Livewire\Pelanggan\Profil as ProfilPelanggan;
 use App\Livewire\Pelanggan\Beranda as BerandaPelanggan;
@@ -55,15 +56,15 @@ Route::prefix('kurir')->name('kurir.')->group(function () {
     });
 });
 
-// Pelanggan Routes
+// Pelanggan Routes (Customer)
 Route::prefix('pelanggan')->name('pelanggan.')->group(function () {
-    // Guest Routes (Belum Login) - untuk development, bisa diakses tanpa auth dulu
-    // Route::middleware('guest:customer')->group(function () {
-    //     Route::get('/login', LoginPelanggan::class)->name('login');
-    // });
+    // Guest Routes (Belum Login)
+    Route::middleware('guest:customer')->group(function () {
+        Route::get('/masuk', PelangganLogin::class)->name('login');
+    });
 
-    // Protected Routes (Harus Login) - sementara tanpa auth untuk testing tampilan
-    // Route::middleware('auth:customer')->group(function () {
+    // Protected Routes (Harus Login)
+    Route::middleware('auth:customer')->group(function () {
         Route::get('/', BerandaPelanggan::class)->name('beranda');
         Route::get('/pesanan', PesananPelanggan::class)->name('pesanan');
         Route::get('/buat-pesanan', BuatPesananPelanggan::class)->name('buat-pesanan');
@@ -71,12 +72,12 @@ Route::prefix('pelanggan')->name('pelanggan.')->group(function () {
         Route::get('/detail-pesanan', DetailPesananPelanggan::class)->name('pesanan.detail');
         Route::get('/profil', ProfilPelanggan::class)->name('profil');
 
-        // Logout (uncomment setelah auth siap)
-        // Route::post('/logout', function () {
-        //     Auth::guard('customer')->logout();
-        //     session()->invalidate();
-        //     session()->regenerateToken();
-        //     return redirect()->route('pelanggan.login');
-        // })->name('logout');
-    // });
+        // Logout
+        Route::post('/logout', function () {
+            Auth::guard('customer')->logout();
+            session()->invalidate();
+            session()->regenerateToken();
+            return redirect()->route('pelanggan.login');
+        })->name('logout');
+    });
 });
