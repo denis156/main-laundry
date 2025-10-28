@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\RedirectIfNotCourier;
+use App\Http\Middleware\RedirectIfNotCustomer;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,16 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Configure authentication redirect for courier guard
-        $middleware->redirectGuestsTo(function (Request $request) {
-            // Jika route dimulai dengan /kurir, redirect ke login kurir
-            if ($request->is('kurir') || $request->is('kurir/*')) {
-                return route('kurir.login');
-            }
-
-            // Default redirect untuk guard lain
-            return route('filament.admin.auth.login'); // Bisa disesuaikan dengan route login Anda
-        });
+        // Register middleware aliases
+        $middleware->alias([
+            'courier.auth' => RedirectIfNotCourier::class,
+            'customer.auth' => RedirectIfNotCustomer::class,
+        ]);
 
         // Trust proxies for Cloudflared tunnel
         // SECURITY: Only trust Cloudflare IP ranges and local proxies
