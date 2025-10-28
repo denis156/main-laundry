@@ -31,7 +31,7 @@
 
     {{-- Livewire Style --}}
     @livewireStyles
-    
+
     {{-- Vite --}}
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/kurir.js'])
 

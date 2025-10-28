@@ -36,7 +36,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="min-h-dvh bg-base-100">
+<body class="min-h-dvh bg-base-100 ">
     <div class="min-h-dvh flex flex-col">
         {{-- TOP NAV --}}
         @include('components.pelanggan.topnav')

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth no-scrollbar">
 
 <head>
     <meta charset="utf-8">
@@ -37,15 +37,19 @@
 
 </head>
 
-<body class="antialiased">
-    {{ $slot }}
+<body class="min-h-dvh bg-base-100">
+    <div class="min-h-dvh flex flex-col">
+        {{-- CONTENT GRID --}}
+        <main class="flex-1 flex items-center justify-center px-4">
+            {{ $slot }}
+        </main>
+    </div>
 
     {{--  TOAST area --}}
     <x-toast />
-
     {{-- FAB Install App --}}
     <livewire:kurir.components.fab-install-app />
-    
+
     {{-- Livewire Script --}}
     @livewireScripts
 </body>
