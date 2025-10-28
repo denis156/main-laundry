@@ -45,17 +45,84 @@
         <x-card class="bg-base-300 shadow-lg hover:shadow-xl transition-shadow" body-class="grid grid-cols-2 gap-4"
             title="Aksi Cepat" subtitle="Pilih aksi yang ingin kamu lakukan sekarang" shadow separator>
             <x-button link="#" icon="solar.add-circle-bold-duotone" label="Pesan Sekarang"
-                class="btn-accent btn-sm btn-block col-span-2" />
-            <x-button link="{{ route('pelanggan.pesanan') }}" icon="solar.bill-list-bold-duotone" label="Lihat Pesanan"
-                class="btn-primary btn-sm" />
-            <x-button link="#" icon="solar.ticket-bold-duotone" label="Promo Saya" class="btn-success btn-sm" />
+                class="btn-primary btn-sm btn-block col-span-2" />
+            <x-button link="{{ route('pelanggan.pesanan') }}" icon="solar.bill-list-bold-duotone" label="Pesanan"
+                class="btn-accent btn-sm" />
+            <x-button link="#" icon="solar.chat-round-bold-duotone" label="Hubungi CS" class="btn-success btn-sm" />
         </x-card>
 
         {{-- Layanan Kami --}}
         <x-card class="bg-base-300 shadow-lg hover:shadow-xl transition-shadow" title="Layanan Kami"
             subtitle="Pilih layanan sesuai kebutuhan kamu" shadow separator>
+            <div class="grid grid-cols-2 gap-4">
+                <x-card
+                    class="bg-base-100 border-b-6 border-l-6 border-secondary shadow-lg p-0 relative overflow-hidden"
+                    body-class="space-y-2 text-align-center relative z-10">
+                    {{-- Logo Background --}}
+                    <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
+                        <img src="{{ asset('image/logo.png') }}" alt="Logo" class="w-full h-full object-contain">
+                    </div>
 
+                    <h2 class="font-bold text-base-content">Cuci Kering</h2>
+                    <p class="text-xs text-base-content/80">3 Hari Masa Kerja</p>
+                    <div class="divider my-1"></div>
+                    <div class="flex items-baseline justify-between">
+                        <span class="text-xs text-base-content">Harga</span>
+                        <span class="text-xs font-bold text-accent">Rp 3.000</span>
+                    </div>
+                </x-card>
+                <x-card
+                    class="bg-base-100 border-b-6 border-l-6 border-secondary shadow-lg p-0 relative overflow-hidden"
+                    body-class="space-y-2 text-align-center relative z-10">
+                    {{-- Logo Background --}}
+                    <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
+                        <img src="{{ asset('image/logo.png') }}" alt="Logo" class="w-full h-full object-contain">
+                    </div>
+
+                    <h2 class="font-bold text-base-content">Promo 3K</h2>
+                    <p class="text-xs text-base-content/80">3 Hari Masa Kerja</p>
+                    <div class="divider my-1"></div>
+                    <div class="flex items-baseline justify-between">
+                        <span class="text-xs text-base-content">Harga</span>
+                        <span class="text-xs font-bold text-accent">Rp 3.000</span>
+                    </div>
+                </x-card>
+                <x-card
+                    class="bg-base-100 border-b-6 border-l-6 border-secondary shadow-lg p-0 relative overflow-hidden"
+                    body-class="space-y-2 text-align-center relative z-10">
+                    {{-- Logo Background --}}
+                    <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
+                        <img src="{{ asset('image/logo.png') }}" alt="Logo" class="w-full h-full object-contain">
+                    </div>
+
+                    <h2 class="font-bold text-base-content">Cuci Kering</h2>
+                    <p class="text-xs text-base-content/80">3 Hari Masa Kerja</p>
+                    <div class="divider my-1"></div>
+                    <div class="flex items-baseline justify-between">
+                        <span class="text-xs text-base-content">Harga</span>
+                        <span class="text-xs font-bold text-accent">Rp 3.000</span>
+                    </div>
+                </x-card>
+                <x-card
+                    class="bg-base-100 border-b-6 border-l-6 border-secondary shadow-lg p-0 relative overflow-hidden"
+                    body-class="space-y-2 text-align-center relative z-10">
+                    {{-- Logo Background --}}
+                    <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
+                        <img src="{{ asset('image/logo.png') }}" alt="Logo" class="w-full h-full object-contain">
+                    </div>
+
+                    <h2 class="font-bold text-base-content">Promo 3K</h2>
+                    <p class="text-xs text-base-content/80">3 Hari Masa Kerja</p>
+                    <div class="divider my-1"></div>
+                    <div class="flex items-baseline justify-between">
+                        <span class="text-xs text-base-content">Harga</span>
+                        <span class="text-xs font-bold text-accent">Rp 3.000</span>
+                    </div>
+                </x-card>
+            </div>
         </x-card>
+
+        <div class="divider divider-accent text-accent font-bold">5 Pesanan Aktif</div>
 
         {{-- Pesanan Aktif --}}
         <div class="space-y-3">
@@ -105,12 +172,8 @@
                     </div>
 
                     {{-- Action Button --}}
-                    <div class="mt-3">
-                        <a href="{{ route('pelanggan.pesanan.detail', 2) }}" class="btn btn-primary btn-sm w-full">
-                            <x-icon name="solar.bill-list-bold-duotone" class="w-4 h-4" />
-                            Detail Pesanan
-                        </a>
-                    </div>
+                    <x-button label="Detail Pesanan" link="{{ route('pelanggan.pesanan.detail', 1) }}" icon="solar.bill-list-bold-duotone"
+                        class="btn-primary btn-sm btn-block mt-3" />
                 </div>
             </div>
 
@@ -173,18 +236,14 @@
                     </div>
 
                     {{-- Action Button --}}
-                    <div class="mt-3">
-                        <a href="{{ route('pelanggan.pesanan.detail', 1) }}" class="btn btn-primary btn-sm w-full">
-                            <x-icon name="solar.bill-list-bold-duotone" class="w-4 h-4" />
-                            Detail Pesanan
-                        </a>
-                    </div>
+                    <x-button label="Detail Pesanan" link="{{ route('pelanggan.pesanan.detail', 1) }}" icon="solar.bill-list-bold-duotone"
+                        class="btn-primary btn-sm btn-block mt-3" />
                 </div>
             </div>
         </div>
 
         {{-- View All Orders Button --}}
         <x-button link="{{ route('pelanggan.pesanan') }}" label="Lihat Semua Pesanan" icon="o-arrow-right"
-            class="btn-block btn-sm btn-accent" />
+            class="btn-block btn-md btn-accent" />
     </div>
 </section>
