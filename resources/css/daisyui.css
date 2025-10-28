@@ -1,6 +1,8 @@
 @plugin "daisyui" {
     themes: light --default, dark --prefersdark;
 }
+/* Dark theme variant support */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @plugin "daisyui/theme" {
     name: "light";
@@ -43,9 +45,9 @@
     prefersdark: true;
     color-scheme: "dark";
     /* Base: Neutral dark with subtle purple hint - optimized for readability */
-    --color-base-100: oklch(18% 0.008 254);
-    --color-base-200: oklch(16% 0.007 254);
-    --color-base-300: oklch(14% 0.006 254);
+    --color-base-100: oklch(22% 0.012 254);
+    --color-base-200: oklch(19% 0.010 254);
+    --color-base-300: oklch(16% 0.008 254);
     /* Content: Light enough for WCAG AA contrast (min 7:1) */
     --color-base-content: oklch(94% 0.01 254);
 
