@@ -23,11 +23,16 @@
                         <div class="text-center pb-2">
                             <h3 class="font-semibold text-lg">{{ Auth::guard('courier')->user()->name }}</h3>
                             <div class="flex justify-center gap-2 mt-2">
+                                @php
+                                    $courierId = Auth::guard('courier')->user()->id;
+                                    $completedCount = \App\Models\Transaction::where('courier_motorcycle_id', $courierId)->where('workflow_status', 'delivered')->count();
+                                    $cancelledCount = \App\Models\Transaction::where('courier_motorcycle_id', $courierId)->where('workflow_status', 'cancelled')->count();
+                                @endphp
                                 <x-badge
-                                    value="{{ Auth::guard('courier')->user()->transactions()->where('workflow_status', 'completed')->count() }} Pesanan Selesai"
+                                    value="{{ $completedCount }} Pesanan Selesai"
                                     class="badge-xs badge-success" />
                                 <x-badge
-                                    value="{{ Auth::guard('courier')->user()->transactions()->where('workflow_status', 'cancelled')->count() }} Pesanan Batal"
+                                    value="{{ $cancelledCount }} Pesanan Batal"
                                     class="badge-xs badge-error" />
                             </div>
                         </div>
