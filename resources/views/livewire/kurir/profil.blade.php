@@ -2,7 +2,7 @@
     <x-header icon="solar.user-circle-bold-duotone" icon-classes="text-primary w-6 h-6" title="Profil"
         subtitle="Kelola Profil & Akun Anda" separator>
         <x-slot:actions>
-            <x-button label="Keluar" wire:click="logout" class="btn-sm btn-error" icon="solar.logout-2-linear" />
+            <x-button label="Keluar" wire:click="logout" class="btn-sm btn-error" icon="solar.logout-linear" />
         </x-slot:actions>
     </x-header>
 
