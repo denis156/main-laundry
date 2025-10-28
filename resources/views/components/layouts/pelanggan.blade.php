@@ -53,6 +53,9 @@
     {{--  TOAST area --}}
     <x-toast />
 
+    {{-- LOADING INDICATOR --}}
+    <livewire:components.loading />
+
     {{-- Livewire Script --}}
     @livewireScripts
 </body>
