@@ -25,7 +25,8 @@
                     <div class="avatar avatar-placeholder">
                         <div
                             class="bg-primary text-primary-content w-10 h-10 flex items-center justify-center rounded-full">
-                            <span class="text-sm font-semibold">{{ $transaction->customer?->getInitials() ?? 'NA' }}</span>
+                            <span
+                                class="text-sm font-semibold">{{ $transaction->customer?->getInitials() ?? 'NA' }}</span>
                         </div>
                     </div>
                     <div class="flex-1">
@@ -99,13 +100,8 @@
                 @endif
 
                 {{-- Action Button --}}
-                <div class="mt-3">
-                    <a href="{{ route('kurir.pesanan.detail', $transaction->id) }}"
-                        class="btn btn-primary btn-sm w-full">
-                        <x-icon name="solar.bill-list-bold-duotone" class="w-4 h-4" />
-                        Detail Pesanan
-                    </a>
-                </div>
+                <x-button label="Detail Pesanan" link="{{ route('kurir.pesanan.detail', $transaction->id) }}"
+                    class="btn-primary btn-sm btn-block mt-3" icon="solar.bill-list-bold-duotone" />
             </div>
         </div>
     @empty
