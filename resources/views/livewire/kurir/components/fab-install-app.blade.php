@@ -1,12 +1,12 @@
 <div>
     @if ($showFab && !$isInstalled)
-        <div class="fixed bottom-6 right-6 z-50">
+        <div class="fixed bottom-10 right-10 z-50">
             {{-- Ring effect yang berkedip di belakang --}}
             <div class="absolute inset-0 rounded-full bg-accent opacity-30 animate-pulse"></div>
             <div class="absolute inset-0 rounded-full bg-accent opacity-20 animate-ping"></div>
 
             {{-- Tombol utama --}}
-            <div class="relative">
+            <div class="relative tooltip tooltip-open tooltip-accent font-semibold text-4xl" data-tip="Install">
                 <x-button class="btn-accent btn-circle btn-lg shadow-xl" wire:click="openConfirmationInstallApp"
                     spinner="openConfirmationInstallApp">
                     <x-icon name="solar.download-minimalistic-bold-duotone" class="w-7 h-7"
