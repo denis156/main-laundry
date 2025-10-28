@@ -13,9 +13,14 @@
         <div class="card bg-base-300 shadow-lg">
             <div class="card-body p-4">
                 {{-- Invoice & Payment Status Badge --}}
-                <div class="flex items-start justify-between mb-3">
+                <div class="flex items-start justify-between">
                     <div>
                         <p class="font-bold text-lg text-primary">{{ $transaction->invoice_number }}</p>
+                        @if ($this->payment?->payment_date)
+                            <p class="text-xs text-base-content/60">
+                                Dibayar: {{ $this->payment->formatted_payment_date }}
+                            </p>
+                        @endif
                     </div>
                     @if ($transaction->payment_status === 'paid')
                         <span class="badge badge-success">

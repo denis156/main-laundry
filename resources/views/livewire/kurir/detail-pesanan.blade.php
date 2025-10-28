@@ -16,6 +16,9 @@
                 <div class="flex items-start justify-between">
                     <div>
                         <p class="font-bold text-lg text-primary">{{ $transaction->invoice_number }}</p>
+                        <p class="text-xs text-base-content/60">
+                            {{ $transaction->formatted_order_date }}
+                        </p>
                     </div>
                     @php
                         $statusColor = StatusTransactionHelper::getStatusBadgeColor($transaction->workflow_status);
