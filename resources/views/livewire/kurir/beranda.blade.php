@@ -33,10 +33,10 @@
             title="Aksi Cepat" subtitle="Pilih aksi yang ingin kamu lakukan sekarang" shadow separator>
             <x-button link="{{ $this->getWhatsAppCSUrl() }}" target="_blank" icon="solar.chat-round-bold-duotone"
                 label="Hubungi CS" class="btn-success btn-sm btn-block col-span-2" external />
-            <x-button link="{{ route('kurir.pesanan') }}" icon="solar.bill-list-bold-duotone" label="Daftar Pesanan"
+            <x-button link="{{ route('kurir.pesanan') }}" icon="solar.bill-list-bold-duotone" label="Pesanan"
                 class="btn-accent btn-sm" />
-            <x-button link="{{ route('kurir.pembayaran') }}" icon="solar.wallet-money-bold-duotone"
-                label="Daftar Pembayaran" class="btn-accent btn-sm" />
+            <x-button link="{{ route('kurir.pembayaran') }}" icon="solar.wallet-money-bold-duotone" label="Pembayaran"
+                class="btn-accent btn-sm" />
         </x-card>
 
         {{-- New Order Cards Component --}}
