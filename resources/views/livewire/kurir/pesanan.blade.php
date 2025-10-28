@@ -257,6 +257,26 @@
                 </div>
             @endforelse
         </div>
+
+        {{-- Pagination Buttons --}}
+        <div class="flex justify-center gap-2 mt-4">
+            @if ($canLoadLess && $hasMore)
+                {{-- Tampilkan kedua tombol jika bukan di halaman pertama dan masih ada data --}}
+                <x-button wire:click="loadLess" label="Tampilkan Lebih Sedikit"
+                    icon="solar.minus-circle-bold-duotone" class="btn-secondary" />
+                <x-button wire:click="loadMore" label="Tampilkan Lebih Banyak"
+                    icon="solar.add-circle-bold-duotone" class="btn-accent" />
+            @elseif ($canLoadLess && !$hasMore)
+                {{-- Hanya tombol "Lebih Sedikit" jika sudah di akhir --}}
+                <x-button wire:click="loadLess" label="Tampilkan Lebih Sedikit"
+                    icon="solar.minus-circle-bold-duotone" class="btn-secondary btn-block" />
+            @else
+                {{-- Tombol "Lebih Banyak" jika di halaman pertama (disabled jika data <= 5) --}}
+                <x-button wire:click="loadMore" label="Tampilkan Lebih Banyak"
+                    icon="solar.add-circle-bold-duotone" class="btn-accent btn-block"
+                    :disabled="!$hasMore" />
+            @endif
+        </div>
     </div>
 
     {{-- Modal Konfirmasi Batalkan Pesanan --}}

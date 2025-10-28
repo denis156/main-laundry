@@ -24,6 +24,10 @@ class Pembayaran extends Component
     public string $filter = 'all'; // all, with_proof, without_proof
     public string $search = '';
 
+    // Pagination manual
+    public int $perPage = 5;
+    public int $currentPage = 1;
+
     // Array untuk menyimpan file upload per payment ID
     public array $paymentProofs = [];
 
@@ -34,8 +38,45 @@ class Pembayaran extends Component
     public ?int $selectedPaymentId = null;
 
     /**
+     * Get total count payment untuk pagination
+     */
+    #[Computed]
+    public function totalPayments(): int
+    {
+        $courier = Auth::guard('courier')->user();
+
+        $query = Payment::with(['transaction.customer', 'transaction.service', 'courierMotorcycle'])
+            ->where('courier_motorcycle_id', $courier->id)
+            ->whereHas('transaction', function ($q) {
+                $q->whereNotNull('customer_id')
+                    ->whereNotNull('service_id')
+                    ->whereHas('customer')
+                    ->whereHas('service');
+            });
+
+        // Filter berdasarkan bukti pembayaran
+        if ($this->filter === 'with_proof') {
+            $query->whereNotNull('payment_proof_url');
+        } elseif ($this->filter === 'without_proof') {
+            $query->whereNull('payment_proof_url');
+        }
+
+        // Search by invoice atau customer name
+        if (!empty($this->search)) {
+            $query->whereHas('transaction', function ($q) {
+                $q->where('invoice_number', 'like', '%' . $this->search . '%')
+                    ->orWhereHas('customer', function ($subQ) {
+                        $subQ->where('name', 'like', '%' . $this->search . '%');
+                    });
+            });
+        }
+
+        return $query->count();
+    }
+
+    /**
      * Get semua payment yang di-handle oleh kurir yang sedang login
-     * - Tampilkan semua payment records
+     * - Tampilkan payment records dengan pagination manual
      * - Filter berdasarkan ada tidaknya bukti pembayaran
      */
     #[Computed]
@@ -69,8 +110,50 @@ class Pembayaran extends Component
             });
         }
 
+        // Hitung limit berdasarkan currentPage
+        $limit = $this->perPage * $this->currentPage;
+
         return $query->orderBy('payment_date', 'desc')
+            ->limit($limit)
             ->get();
+    }
+
+    /**
+     * Tampilkan lebih banyak data
+     */
+    public function loadMore(): void
+    {
+        $this->currentPage++;
+        unset($this->payments);
+        unset($this->totalPayments);
+    }
+
+    /**
+     * Tampilkan lebih sedikit data
+     */
+    public function loadLess(): void
+    {
+        if ($this->currentPage > 1) {
+            $this->currentPage--;
+            unset($this->payments);
+            unset($this->totalPayments);
+        }
+    }
+
+    /**
+     * Check apakah masih ada data lagi
+     */
+    public function hasMore(): bool
+    {
+        return ($this->perPage * $this->currentPage) < $this->totalPayments;
+    }
+
+    /**
+     * Check apakah bisa load less
+     */
+    public function canLoadLess(): bool
+    {
+        return $this->currentPage > 1;
     }
 
     /**
@@ -145,6 +228,9 @@ class Pembayaran extends Component
             }
         }
 
-        return view('livewire.kurir.pembayaran');
+        return view('livewire.kurir.pembayaran', [
+            'hasMore' => $this->hasMore(),
+            'canLoadLess' => $this->canLoadLess(),
+        ]);
     }
 }

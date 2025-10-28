@@ -24,6 +24,10 @@ class Pesanan extends Component
     public string $filter = 'all'; // all, pending_confirmation, confirmed, picked_up, at_loading_post, in_washing, washing_completed, out_for_delivery, delivered, cancelled
     public string $search = '';
 
+    // Pagination manual
+    public int $perPage = 5;
+    public int $currentPage = 1;
+
     // Array untuk menyimpan berat per transaksi [transaction_id => weight]
     public array $weights = [];
 
@@ -46,6 +50,50 @@ class Pesanan extends Component
     {
         // Refresh computed properties untuk load data terbaru
         unset($this->transactions);
+    }
+
+    /**
+     * Get total count transaksi untuk pagination
+     */
+    #[Computed]
+    public function totalTransactions(): int
+    {
+        $courier = Auth::guard('courier')->user();
+
+        // Load pos dengan area layanan
+        $assignedPos = $courier->assignedPos;
+
+        $query = Transaction::with(['customer', 'service', 'pos'])
+            ->where(function ($q) use ($courier) {
+                // Transaksi yang sudah di-assign ke kurir ini
+                $q->where('courier_motorcycle_id', $courier->id)
+                    // ATAU transaksi yang belum ada kurirnya (bisa diambil)
+                    ->orWhereNull('courier_motorcycle_id');
+            })
+            ->whereNotNull('customer_id')
+            ->whereNotNull('service_id')
+            ->whereHas('customer')
+            ->whereHas('service');
+
+        // Filter berdasarkan area layanan pos menggunakan helper
+        TransactionAreaFilter::applyFilter($query, $assignedPos);
+
+        // Filter berdasarkan workflow_status
+        if ($this->filter !== 'all') {
+            $query->where('workflow_status', $this->filter);
+        }
+
+        // Search
+        if (!empty($this->search)) {
+            $query->where(function ($q) {
+                $q->where('invoice_number', 'like', '%' . $this->search . '%')
+                    ->orWhereHas('customer', function ($subQ) {
+                        $subQ->where('name', 'like', '%' . $this->search . '%');
+                    });
+            });
+        }
+
+        return $query->count();
     }
 
     /**
@@ -91,8 +139,50 @@ class Pesanan extends Component
             });
         }
 
+        // Hitung limit berdasarkan currentPage
+        $limit = $this->perPage * $this->currentPage;
+
         return $query->orderBy('order_date', 'desc')
+            ->limit($limit)
             ->get();
+    }
+
+    /**
+     * Tampilkan lebih banyak data
+     */
+    public function loadMore(): void
+    {
+        $this->currentPage++;
+        unset($this->transactions);
+        unset($this->totalTransactions);
+    }
+
+    /**
+     * Tampilkan lebih sedikit data
+     */
+    public function loadLess(): void
+    {
+        if ($this->currentPage > 1) {
+            $this->currentPage--;
+            unset($this->transactions);
+            unset($this->totalTransactions);
+        }
+    }
+
+    /**
+     * Check apakah masih ada data lagi
+     */
+    public function hasMore(): bool
+    {
+        return ($this->perPage * $this->currentPage) < $this->totalTransactions;
+    }
+
+    /**
+     * Check apakah bisa load less
+     */
+    public function canLoadLess(): bool
+    {
+        return $this->currentPage > 1;
     }
 
 
@@ -508,6 +598,9 @@ class Pesanan extends Component
 
     public function render()
     {
-        return view('livewire.kurir.pesanan');
+        return view('livewire.kurir.pesanan', [
+            'hasMore' => $this->hasMore(),
+            'canLoadLess' => $this->canLoadLess(),
+        ]);
     }
 }
