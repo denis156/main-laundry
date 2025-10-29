@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\Pelanggan\Auth;
+namespace App\Livewire\Pelanggan;
 
 use Mary\Traits\Toast;
 use Livewire\Component;
@@ -85,13 +85,28 @@ class Login extends Component
 
             session()->regenerate();
 
-            $this->success(
-                'Login Berhasil!',
-                'Selamat datang ' . $customer->name,
-                position: 'toast-top toast-end',
-                timeout: 3000,
-                redirectTo: route('pelanggan.beranda')
-            );
+            // Cek apakah data pelanggan lengkap (minimal ada alamat)
+            $isProfileIncomplete = empty($customer->district_code) ||
+                                   empty($customer->village_code) ||
+                                   empty($customer->detail_address);
+
+            if ($isProfileIncomplete) {
+                $this->warning(
+                    'Profil Belum Lengkap',
+                    'Silakan lengkapi data profil Anda terlebih dahulu.',
+                    position: 'toast-top toast-end',
+                    timeout: 5000,
+                    redirectTo: route('pelanggan.profil')
+                );
+            } else {
+                $this->success(
+                    'Login Berhasil!',
+                    'Selamat datang ' . $customer->name,
+                    position: 'toast-top toast-end',
+                    timeout: 3000,
+                    redirectTo: route('pelanggan.beranda')
+                );
+            }
         } else {
             // Hit throttle untuk setiap percobaan gagal (hanya di production)
             if (!config('app.debug')) {

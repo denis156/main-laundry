@@ -86,9 +86,20 @@ class GoogleAuthController extends Controller
             // Regenerate session untuk keamanan
             request()->session()->regenerate();
 
-            // Redirect ke intended atau beranda
+            // Cek apakah data pelanggan lengkap (minimal ada alamat)
+            $isProfileIncomplete = empty($customer->district_code) ||
+                                   empty($customer->village_code) ||
+                                   empty($customer->detail_address);
+
+            if ($isProfileIncomplete) {
+                // Redirect ke profil dengan pesan warning
+                return redirect()->route('pelanggan.profil')
+                    ->with('warning', 'Silakan lengkapi data profil Anda terlebih dahulu, ' . $customer->name . '!');
+            }
+
+            // Redirect ke intended atau beranda dengan pesan success
             return redirect()->intended(route('pelanggan.beranda'))
-                ->with('success', 'Selamat datang, ' . $customer->name . '!');
+                ->with('success', 'Selamat datang kembali, ' . $customer->name . '!');
         } catch (Exception $e) {
             Log::error('Google OAuth Error: ' . $e->getMessage(), [
                 'exception' => get_class($e),
