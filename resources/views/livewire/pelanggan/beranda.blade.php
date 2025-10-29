@@ -44,58 +44,7 @@
 
         <div class="divider divider-accent text-accent font-bold">Pesanan Aktif</div>
 
-        {{-- Pesanan Aktif --}}
-        <div class="space-y-3">
-            {{-- Active Order --}}
-            <div class="card bg-base-300 shadow">
-                <div class="card-body p-4">
-                    {{-- Header: Invoice & Status --}}
-                    <div class="flex items-start justify-between mb-3">
-                        <div>
-                            <h3 class="font-bold text-primary text-lg">
-                                #ORD-002
-                            </h3>
-                            <p class="text-xs text-base-content/60">
-                                18 Okt 2025, 10:00
-                            </p>
-                        </div>
-                        <span class="badge badge-info">
-                            Sedang Dicuci
-                        </span>
-                    </div>
-
-                    <div class="divider my-2"></div>
-
-                    {{-- Order Info --}}
-                    <div class="bg-base-200 rounded-lg p-3 space-y-2">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-base-content/70">Layanan</span>
-                            <span class="font-semibold">Cuci Kering</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-base-content/70">Berat</span>
-                            <span class="font-semibold">5 kg</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-base-content/70">Harga/kg</span>
-                            <span class="font-semibold">Rp 4.000</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-base-content/70">Metode Pembayaran</span>
-                            <span class="font-semibold">Bayar Selesai</span>
-                        </div>
-                        <div class="divider my-1"></div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-base-content/70">Jumlah Bayar</span>
-                            <span class="font-semibold text-right text-primary text-base">Rp 20.000</span>
-                        </div>
-                    </div>
-
-                    {{-- Action Button --}}
-                    <x-button label="Detail Pesanan" link="{{ route('pelanggan.pesanan.detail', 1) }}"
-                        icon="solar.bill-list-bold-duotone" class="btn-primary btn-sm btn-block mt-3" />
-                </div>
-            </div>
-        </div>
+        {{-- Active Order Component --}}
+        <livewire:pelanggan.components.active-order />
     </div>
 </section>
