@@ -47,9 +47,9 @@
         <x-card class="bg-base-300 shadow-lg hover:shadow-xl transition-shadow" body-class="grid grid-cols-2 gap-4"
             title="Aksi Cepat" subtitle="Pilih aksi yang ingin kamu lakukan sekarang" shadow separator>
             <x-button link="{{ route('pelanggan.buat-pesanan') }}" icon="solar.add-circle-bold-duotone" label="Pesan Sekarang"
-                class="btn-primary btn-lg btn-block col-span-2" />
+                class="btn-accent btn-lg btn-block col-span-2" />
             <x-button link="{{ route('pelanggan.pesanan') }}" icon="solar.bill-list-bold-duotone" label="Pesanan"
-                class="btn-accent btn-md" />
+                class="btn-primary btn-md" />
             <x-button link="{{ $this->getWhatsAppCSUrl() }}" target="_blank" icon="solar.chat-round-bold-duotone"
                 label="Hubungi CS" class="btn-success btn-md" external />
         </x-card>
