@@ -37,76 +37,8 @@
                 label="Hubungi CS" class="btn-success btn-md" external />
         </x-card>
 
-        {{-- Layanan Kami --}}
-        <x-card class="bg-base-300 shadow" title="Layanan Kami"
-            subtitle="Pilih layanan sesuai kebutuhan kamu" separator>
-            <div class="grid grid-cols-2 gap-4">
-                <x-card
-                    class="bg-base-100 border-b-6 border-r-6 border-secondary shadow p-0 transition-all active:border-0 active:scale-96 cursor-pointer"
-                    body-class="space-y-2 text-align-center relative z-10">
-                    {{-- Logo Background --}}
-                    <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
-                        <img src="{{ asset('image/logo.png') }}" alt="Logo" class="w-full h-full object-contain">
-                    </div>
-
-                    <h2 class="font-bold text-base-content">Cuci Kering</h2>
-                    <p class="text-xs text-base-content/80">3 Hari Masa Kerja</p>
-                    <div class="divider my-1"></div>
-                    <div class="flex items-baseline justify-between">
-                        <span class="text-xs text-base-content">Harga</span>
-                        <span class="text-xs font-bold text-accent">Rp 3.000</span>
-                    </div>
-                </x-card>
-                <x-card
-                    class="bg-base-100 border-b-6 border-l-6 border-secondary shadow p-0 transition-all active:border-0 active:scale-96 cursor-pointer"
-                    body-class="space-y-2 text-align-center relative z-10">
-                    {{-- Logo Background --}}
-                    <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
-                        <img src="{{ asset('image/logo.png') }}" alt="Logo" class="w-full h-full object-contain">
-                    </div>
-
-                    <h2 class="font-bold text-base-content">Promo 3K</h2>
-                    <p class="text-xs text-base-content/80">3 Hari Masa Kerja</p>
-                    <div class="divider my-1"></div>
-                    <div class="flex items-baseline justify-between">
-                        <span class="text-xs text-base-content">Harga</span>
-                        <span class="text-xs font-bold text-accent">Rp 3.000</span>
-                    </div>
-                </x-card>
-                <x-card
-                    class="bg-base-100 border-t-6 border-r-6 border-secondary shadow p-0 transition-all active:border-0 active:scale-96 cursor-pointer"
-                    body-class="space-y-2 text-align-center relative z-10">
-                    {{-- Logo Background --}}
-                    <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
-                        <img src="{{ asset('image/logo.png') }}" alt="Logo" class="w-full h-full object-contain">
-                    </div>
-
-                    <h2 class="font-bold text-base-content">Cuci Kering</h2>
-                    <p class="text-xs text-base-content/80">3 Hari Masa Kerja</p>
-                    <div class="divider my-1"></div>
-                    <div class="flex items-baseline justify-between">
-                        <span class="text-xs text-base-content">Harga</span>
-                        <span class="text-xs font-bold text-accent">Rp 3.000</span>
-                    </div>
-                </x-card>
-                <x-card
-                    class="bg-base-100 border-t-6 border-l-6 border-secondary shadow p-0 transition-all active:border-0 active:scale-96 cursor-pointer"
-                    body-class="space-y-2 text-align-center relative z-10">
-                    {{-- Logo Background --}}
-                    <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
-                        <img src="{{ asset('image/logo.png') }}" alt="Logo" class="w-full h-full object-contain">
-                    </div>
-
-                    <h2 class="font-bold text-base-content">Promo 3K</h2>
-                    <p class="text-xs text-base-content/80">3 Hari Masa Kerja</p>
-                    <div class="divider my-1"></div>
-                    <div class="flex items-baseline justify-between">
-                        <span class="text-xs text-base-content">Harga</span>
-                        <span class="text-xs font-bold text-accent">Rp 3.000</span>
-                    </div>
-                </x-card>
-            </div>
-        </x-card>
+        {{-- Service Cards Component --}}
+        <livewire:pelanggan.components.service-card />
 
         <div class="divider divider-accent text-accent font-bold">Pesanan Aktif</div>
 
