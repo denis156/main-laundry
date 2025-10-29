@@ -10,7 +10,7 @@
                     <x-icon name="solar.clock-circle-bold-duotone" class="inline-block h-8 stroke-current" />
                 </div>
                 <div class="stat-title text-base-content">Pesanan Aktif</div>
-                <div class="stat-value text-base-content">2</div>
+                <div class="stat-value text-base-content">{{ $this->activeOrdersCount }}</div>
                 <div class="stat-desc text-base-content">Sedang diproses</div>
             </div>
             <div class="stat bg-success">
@@ -18,25 +18,27 @@
                     <x-icon name="solar.check-circle-bold-duotone" class="inline-block h-8 stroke-current" />
                 </div>
                 <div class="stat-title text-base-content">Selesai</div>
-                <div class="stat-value text-base-content">10</div>
+                <div class="stat-value text-base-content">{{ $this->completedOrdersCount }}</div>
                 <div class="stat-desc text-base-content">Total pesanan selesai</div>
             </div>
         </div>
 
         {{-- Welcome Card --}}
-        <x-card class="bg-base-300 shadow-lg hover:shadow-xl transition-shadow" title="Hai Ahmad"
-            subtitle="Selamat datang kembali!" shadow separator>
+        <x-card class="bg-base-300 shadow-lg hover:shadow-xl transition-shadow"
+            title="Hai {{ $this->greeting }}" subtitle="{{ $this->todayDate }}" shadow separator>
             <x-slot:menu>
-                <x-badge value="Member Silver" class="badge-primary badge-xs md:badge-sm" />
+                <x-badge value="{{ $this->customer->member ? 'Member' : 'Non-Member' }}"
+                    class="{{ $this->customer->member ? 'badge-primary' : 'badge-neutral' }} badge-xs md:badge-sm" />
             </x-slot:menu>
-            <x-avatar image="https://ui-avatars.com/api/?name=Ahmad+Rizki&background=3b82f6&color=fff" class="w-24">
+            <x-avatar image="{{ $this->customer->getFilamentAvatarUrl() }}" class="w-24">
                 <x-slot:title class="text-xl text-base-content font-bold pl-2">
-                    Ahmad Rizki
+                    {{ $this->customer->name }}
                 </x-slot:title>
 
                 <x-slot:subtitle class="grid gap-0 mt-2 pl-2 text-xs md:text-sm">
-                    <p class="text-secondary font-mono">ahmad.rizki@email.com</p>
-                    <p class="text-secondary font-mono">+62 812-3456-7890</p>
+                    <p class="text-secondary font-mono">{{ $this->totalOrdersCount }} Total Pesanan</p>
+                    <p class="text-secondary font-mono">{{ $this->customer->email ?? 'Email tidak tersedia' }}</p>
+                    <p class="text-secondary font-mono">{{ $this->customer->phone ?? 'Telepon tidak tersedia' }}</p>
                 </x-slot:subtitle>
             </x-avatar>
         </x-card>
@@ -44,11 +46,12 @@
         {{-- Quick Actions --}}
         <x-card class="bg-base-300 shadow-lg hover:shadow-xl transition-shadow" body-class="grid grid-cols-2 gap-4"
             title="Aksi Cepat" subtitle="Pilih aksi yang ingin kamu lakukan sekarang" shadow separator>
-            <x-button link="#" icon="solar.add-circle-bold-duotone" label="Pesan Sekarang"
-                class="btn-primary btn-sm btn-block col-span-2" />
+            <x-button link="{{ route('pelanggan.buat-pesanan') }}" icon="solar.add-circle-bold-duotone" label="Pesan Sekarang"
+                class="btn-primary btn-lg btn-block col-span-2" />
             <x-button link="{{ route('pelanggan.pesanan') }}" icon="solar.bill-list-bold-duotone" label="Pesanan"
-                class="btn-accent btn-sm" />
-            <x-button link="#" icon="solar.chat-round-bold-duotone" label="Hubungi CS" class="btn-success btn-sm" />
+                class="btn-accent btn-md" />
+            <x-button link="{{ $this->getWhatsAppCSUrl() }}" target="_blank" icon="solar.chat-round-bold-duotone"
+                label="Hubungi CS" class="btn-success btn-md" external />
         </x-card>
 
         {{-- Layanan Kami --}}
