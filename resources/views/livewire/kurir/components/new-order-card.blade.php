@@ -22,11 +22,10 @@
 
                 {{-- Customer Info --}}
                 <div class="flex items-center gap-3 mb-2">
-                    <div class="avatar avatar-placeholder">
-                        <div
-                            class="bg-primary text-primary-content w-10 h-10 flex items-center justify-center rounded-full">
-                            <span
-                                class="text-sm font-semibold">{{ $transaction->customer?->getInitials() ?? 'NA' }}</span>
+                    <div class="avatar">
+                        <div class="ring-accent ring-offset-base-100 w-10 h-10 rounded-full ring-2 ring-offset-2">
+                            <img src="{{ $transaction->customer?->getFilamentAvatarUrl() }}"
+                                 alt="{{ $transaction->customer?->name ?? 'Customer' }}" />
                         </div>
                     </div>
                     <div class="flex-1">
