@@ -24,13 +24,33 @@ class Login extends Component
     public function rules(): array
     {
         return [
-            'phone' => ['required', 'string'],
+            'phone' => ['required', 'string', 'min:9', 'max:13'],
             'password' => ['required', 'string', 'min:6'],
         ];
     }
 
+    /**
+     * Format phone number untuk database
+     * Hilangkan "0" di depan jika dimulai dengan "0"
+     */
+    private function formatPhoneForDatabase(string $phone): string
+    {
+        // Hilangkan semua karakter non-numeric
+        $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
+
+        // Jika dimulai dengan "0", hilangkan
+        if (str_starts_with($cleanPhone, '0')) {
+            $cleanPhone = substr($cleanPhone, 1);
+        }
+
+        return $cleanPhone;
+    }
+
     public function login(): void
     {
+        // Format phone number sebelum validasi
+        $this->phone = $this->formatPhoneForDatabase($this->phone);
+
         $this->validate();
 
         // Throttle key berdasarkan phone dan IP

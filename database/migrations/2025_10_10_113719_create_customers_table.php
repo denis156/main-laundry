@@ -16,10 +16,15 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id()->comment('ID unik customer');
             $table->string('name')->comment('Nama lengkap customer');
-            $table->string('phone')->unique()->comment('Nomor telepon/WhatsApp customer (unik)');
+            $table->string('phone')->unique()->nullable()->comment('Nomor telepon/WhatsApp customer (unik)');
             $table->string('email')->nullable()->comment('Email customer');
             $table->string('password')->comment('Password terenkripsi');
             $table->string('avatar_url')->nullable()->comment('URL foto profil');
+
+            // OAuth 2.0 Google
+            $table->string('google_id')->nullable()->unique()->comment('Google OAuth user ID');
+            $table->text('google_token')->nullable()->comment('Google OAuth access token');
+            $table->text('google_refresh_token')->nullable()->comment('Google OAuth refresh token');
 
             // Wilayah (Kota Kendari, Sulawesi Tenggara)
             $table->string('district_code')->nullable()->comment('Kode kecamatan (dari API wilayah.id)');

@@ -13,6 +13,7 @@ use App\Livewire\Kurir\DetailPesanan;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Kurir\DetailPembayaran;
 use App\Livewire\Kurir\Components\OfflinePage;
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Livewire\Pelanggan\Auth\Login as PelangganLogin;
 use App\Livewire\Pelanggan\Info as InfoPelanggan;
 use App\Livewire\Pelanggan\Profil as ProfilPelanggan;
@@ -61,6 +62,10 @@ Route::prefix('pelanggan')->name('pelanggan.')->group(function () {
     // Guest Routes (Belum Login)
     Route::middleware('guest:customer')->group(function () {
         Route::get('/masuk', PelangganLogin::class)->name('login');
+
+        // Google OAuth Routes
+        Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('auth.google');
+        Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
     });
 
     // Protected Routes (Harus Login)

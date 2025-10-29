@@ -32,11 +32,16 @@ class Customer extends Authenticatable implements FilamentUser
         'detail_address',
         'address',
         'member',
+        'google_id',
+        'google_token',
+        'google_refresh_token',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        'google_token',
+        'google_refresh_token',
     ];
 
     protected function casts(): array
@@ -92,8 +97,8 @@ class Customer extends Authenticatable implements FilamentUser
      */
     public function getFilamentAvatarUrl(): ?string
     {
-        // Prioritas 1: Avatar yang diupload customer
-        if (!empty($this->avatar_url)) {
+        // Prioritas 1: Avatar yang diupload customer (lokal storage)
+        if (!empty($this->avatar_url) && !filter_var($this->avatar_url, FILTER_VALIDATE_URL)) {
             $avatarPath = $this->avatar_url;
 
             if (Storage::disk('public')->exists($avatarPath)) {
@@ -104,7 +109,12 @@ class Customer extends Authenticatable implements FilamentUser
             Log::warning("Avatar file tidak ditemukan: {$avatarPath} untuk customer {$this->id}");
         }
 
-        // Prioritas 2: Avatar default dari ui-avatars.com
+        // Prioritas 2: Avatar dari Google (URL langsung)
+        if (!empty($this->avatar_url) && filter_var($this->avatar_url, FILTER_VALIDATE_URL)) {
+            return $this->avatar_url;
+        }
+
+        // Prioritas 3: Avatar default dari ui-avatars.com
         return $this->generateDefaultAvatar();
     }
 
