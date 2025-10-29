@@ -63,28 +63,6 @@ class Beranda extends Component
     }
 
     /**
-     * Get active orders count (excluding 'completed' and 'cancelled')
-     */
-    #[Computed]
-    public function activeOrdersCount()
-    {
-        return Transaction::where('customer_id', $this->customer->id)
-            ->whereNotIn('workflow_status', ['completed', 'cancelled'])
-            ->count();
-    }
-
-    /**
-     * Get completed orders count
-     */
-    #[Computed]
-    public function completedOrdersCount()
-    {
-        return Transaction::where('customer_id', $this->customer->id)
-            ->where('workflow_status', 'completed')
-            ->count();
-    }
-
-    /**
      * Get active orders with details (limit 5)
      */
     #[Computed]

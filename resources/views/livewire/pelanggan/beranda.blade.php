@@ -3,25 +3,8 @@
         subtitle="Selamat datang di {{ config('app.name') }}" separator />
 
     <div class="space-y-4">
-        {{-- Stats Cards --}}
-        <div class="stats stats-vertical lg:stats-horizontal shadow w-full">
-            <div class="stat bg-primary">
-                <div class="stat-figure text-base-content">
-                    <x-icon name="solar.clock-circle-bold-duotone" class="inline-block h-8 stroke-current" />
-                </div>
-                <div class="stat-title text-base-content">Pesanan Aktif</div>
-                <div class="stat-value text-base-content">{{ $this->activeOrdersCount }}</div>
-                <div class="stat-desc text-base-content">Sedang diproses</div>
-            </div>
-            <div class="stat bg-success">
-                <div class="stat-figure text-base-content">
-                    <x-icon name="solar.check-circle-bold-duotone" class="inline-block h-8 stroke-current" />
-                </div>
-                <div class="stat-title text-base-content">Selesai</div>
-                <div class="stat-value text-base-content">{{ $this->completedOrdersCount }}</div>
-                <div class="stat-desc text-base-content">Total pesanan selesai</div>
-            </div>
-        </div>
+        {{-- Stats Cards Component --}}
+        <livewire:pelanggan.components.stats-beranda />
 
         {{-- Welcome Card --}}
         <x-card class="bg-base-300 shadow"
@@ -59,7 +42,7 @@
             subtitle="Pilih layanan sesuai kebutuhan kamu" separator>
             <div class="grid grid-cols-2 gap-4">
                 <x-card
-                    class="bg-base-100 border-b-6 border-r-6 border-secondary shadow p-0 relative overflow-hidden transition-all hover:border-0 hover:scale-96 cursor-pointer"
+                    class="bg-base-100 border-b-6 border-r-6 border-secondary shadow p-0 transition-all active:border-0 active:scale-96 cursor-pointer"
                     body-class="space-y-2 text-align-center relative z-10">
                     {{-- Logo Background --}}
                     <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
@@ -75,7 +58,7 @@
                     </div>
                 </x-card>
                 <x-card
-                    class="bg-base-100 border-b-6 border-l-6 border-secondary shadow p-0 relative overflow-hidden transition-all hover:border-0 hover:scale-96 cursor-pointer"
+                    class="bg-base-100 border-b-6 border-l-6 border-secondary shadow p-0 transition-all active:border-0 active:scale-96 cursor-pointer"
                     body-class="space-y-2 text-align-center relative z-10">
                     {{-- Logo Background --}}
                     <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
@@ -91,7 +74,7 @@
                     </div>
                 </x-card>
                 <x-card
-                    class="bg-base-100 border-t-6 border-r-6 border-secondary shadow p-0 relative overflow-hidden transition-all hover:border-0 hover:scale-96 cursor-pointer"
+                    class="bg-base-100 border-t-6 border-r-6 border-secondary shadow p-0 transition-all active:border-0 active:scale-96 cursor-pointer"
                     body-class="space-y-2 text-align-center relative z-10">
                     {{-- Logo Background --}}
                     <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
@@ -107,7 +90,7 @@
                     </div>
                 </x-card>
                 <x-card
-                    class="bg-base-100 border-t-6 border-l-6 border-secondary shadow p-0 relative overflow-hidden transition-all hover:border-0 hover:scale-96 cursor-pointer"
+                    class="bg-base-100 border-t-6 border-l-6 border-secondary shadow p-0 transition-all active:border-0 active:scale-96 cursor-pointer"
                     body-class="space-y-2 text-align-center relative z-10">
                     {{-- Logo Background --}}
                     <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
