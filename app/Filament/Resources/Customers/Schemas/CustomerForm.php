@@ -13,6 +13,8 @@ use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\FileUpload;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Components\DateTimePicker;
 
@@ -23,26 +25,47 @@ class CustomerForm
         return $schema
             ->components([
                 Section::make('Informasi Pelanggan')
-                    ->description('Data identitas lengkap pelanggan termasuk nama, kontak, dan alamat')
+                    ->description('Data identitas lengkap pelanggan termasuk foto profil, nama, kontak, dan alamat')
                     ->collapsible()
                     ->schema([
                         Grid::make([
                             'default' => 1,
                             'sm' => 2,
+                            'lg' => 3,
                         ])
                             ->schema([
-                                TextInput::make('name')
-                                    ->label('Nama Lengkap')
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->minLength(2)
-                                    ->validationAttribute('nama')
+                                FileUpload::make('avatar_url')
+                                    ->label('Foto Profil')
+                                    ->image()
+                                    ->avatar()
+                                    ->directory('avatars/customers')
+                                    ->visibility('public')
+                                    ->maxSize(2048)
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
+                                    ->validationAttribute('foto profil')
                                     ->validationMessages([
-                                        'required' => 'Nama wajib diisi.',
-                                        'max' => 'Nama tidak boleh lebih dari 255 karakter.',
-                                        'min' => 'Nama minimal 2 karakter.',
+                                        'image' => 'File harus berupa gambar.',
+                                        'max' => 'Ukuran foto profil tidak boleh lebih dari 2MB.',
+                                        'mimes' => 'Foto profil harus berformat JPEG, PNG, GIF, atau WebP.',
                                     ])
-                                    ->columnSpanFull(),
+                                    ->helperText('Opsional. Bisa juga menggunakan avatar dari Google jika login via Google')
+                                    ->columnSpan(['default' => 1, 'sm' => 1]),
+
+                                Fieldset::make('Akun Pelanggan')
+                                    ->columns(['default' => 1, 'sm' => 2])
+                                    ->schema([
+                                        TextInput::make('name')
+                                            ->label('Nama Lengkap')
+                                            ->required()
+                                            ->maxLength(255)
+                                            ->minLength(2)
+                                            ->validationAttribute('nama')
+                                            ->validationMessages([
+                                                'required' => 'Nama wajib diisi.',
+                                                'max' => 'Nama tidak boleh lebih dari 255 karakter.',
+                                                'min' => 'Nama minimal 2 karakter.',
+                                            ])
+                                            ->columnSpanFull(),
 
                                 TextInput::make('phone')
                                     ->label('Nomor Telepon')
@@ -71,18 +94,53 @@ class CustomerForm
                                     ->helperText('Bisa tulis dengan 08 atau langsung 8')
                                     ->placeholder('Contoh: 81234567890'),
 
-                                TextInput::make('email')
-                                    ->label('Email')
-                                    ->email()
-                                    ->maxLength(255)
-                                    ->validationAttribute('email')
-                                    ->validationMessages([
-                                        'email' => 'Format email tidak valid.',
-                                        'max' => 'Email tidak boleh lebih dari 255 karakter.',
-                                    ])
-                                    ->hint('Opsional')
-                                    ->placeholder('Contoh: customer@email.com'),
+                                        TextInput::make('email')
+                                            ->label('Email')
+                                            ->email()
+                                            ->maxLength(255)
+                                            ->unique(ignoreRecord: true)
+                                            ->validationAttribute('email')
+                                            ->validationMessages([
+                                                'email' => 'Format email tidak valid.',
+                                                'max' => 'Email tidak boleh lebih dari 255 karakter.',
+                                                'unique' => 'Email sudah terdaftar.',
+                                            ])
+                                            ->hint('Opsional')
+                                            ->placeholder('Contoh: customer@email.com'),
 
+                                        TextInput::make('password')
+                                            ->label('Password')
+                                            ->password()
+                                            ->revealable()
+                                            ->required(fn(string $operation): bool => $operation === 'create')
+                                            ->dehydrated(fn(?string $state): bool => filled($state))
+                                            ->minLength(8)
+                                            ->maxLength(255)
+                                            ->validationAttribute('password')
+                                            ->validationMessages([
+                                                'required' => 'Password wajib diisi.',
+                                                'min' => 'Password minimal 8 karakter.',
+                                                'max' => 'Password tidak boleh lebih dari 255 karakter.',
+                                            ])
+                                            ->hint(fn(string $operation): string => $operation === 'edit' ? 'Opsional, kosongkan jika tidak ingin mengubah' : '')
+                                            ->helperText('Minimal 8 karakter')
+                                            ->columnSpanFull(),
+                                    ])
+                                    ->columnSpan(['default' => 1, 'sm' => 2]),
+                            ])
+                    ])
+                    ->aside()
+                    ->columnSpanFull(),
+
+                Section::make('Alamat Pelanggan')
+                    ->description('Informasi alamat lengkap pelanggan di Kota Kendari')
+                    ->collapsible()
+                    ->schema([
+                        Grid::make([
+                            'default' => 1,
+                            'sm' => 2,
+                        ])
+                            ->schema([
                                 Select::make('district_code')
                                     ->label('Kecamatan')
                                     ->options(function () {

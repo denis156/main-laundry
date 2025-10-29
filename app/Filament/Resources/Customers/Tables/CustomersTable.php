@@ -16,6 +16,7 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ColumnGroup;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 
@@ -31,6 +32,12 @@ class CustomersTable
                     ->weight('bold')
                     ->alignCenter(),
                 ColumnGroup::make('Informasi Pelanggan', [
+                    ImageColumn::make('avatar_url')
+                        ->label('Foto')
+                        ->circular()
+                        ->getStateUsing(fn($record) => $record->getFilamentAvatarUrl())
+                        ->alignCenter()
+                        ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('name')
                         ->label('Nama')
                         ->searchable()
