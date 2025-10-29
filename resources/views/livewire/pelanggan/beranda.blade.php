@@ -7,8 +7,7 @@
         <livewire:pelanggan.components.stats-beranda />
 
         {{-- Welcome Card --}}
-        <x-card class="bg-base-300 shadow"
-            title="Hai {{ $this->greeting }}" subtitle="{{ $this->todayDate }}" separator>
+        <x-card class="bg-base-300 shadow" title="Hai {{ $this->greeting }}" subtitle="{{ $this->todayDate }}" separator>
             <x-slot:menu>
                 <x-badge value="{{ $this->customer->member ? 'Member' : 'Non-Member' }}"
                     class="{{ $this->customer->member ? 'badge-primary' : 'badge-neutral' }} badge-xs md:badge-sm" />
@@ -27,10 +26,10 @@
         </x-card>
 
         {{-- Quick Actions --}}
-        <x-card class="bg-base-300 shadow" body-class="grid grid-cols-2 gap-4"
-            title="Aksi Cepat" subtitle="Pilih aksi yang ingin kamu lakukan sekarang" separator>
-            <x-button link="{{ route('pelanggan.buat-pesanan') }}" icon="solar.add-circle-bold-duotone" label="Pesan Sekarang"
-                class="btn-accent btn-lg btn-block col-span-2" />
+        <x-card class="bg-base-300 shadow" body-class="grid grid-cols-2 gap-4" title="Aksi Cepat"
+            subtitle="Pilih aksi yang ingin kamu lakukan sekarang" separator>
+            <x-button link="{{ route('pelanggan.buat-pesanan') }}" icon="solar.add-circle-bold-duotone"
+                label="Pesan Sekarang" class="btn-accent btn-lg btn-block col-span-2" />
             <x-button link="{{ route('pelanggan.pesanan') }}" icon="solar.bill-list-bold-duotone" label="Pesanan"
                 class="btn-primary btn-md" />
             <x-button link="{{ $this->getWhatsAppCSUrl() }}" target="_blank" icon="solar.chat-round-bold-duotone"
@@ -38,7 +37,10 @@
         </x-card>
 
         {{-- Service Cards Component --}}
-        <livewire:pelanggan.components.service-card />
+        <x-card class="bg-base-300 shadow" title="Layanan Kami" subtitle="Pilih layanan sesuai kebutuhan kamu"
+            separator>
+            <livewire:pelanggan.components.service-card />
+        </x-card>
 
         <div class="divider divider-accent text-accent font-bold">Pesanan Aktif</div>
 
@@ -90,8 +92,8 @@
                     </div>
 
                     {{-- Action Button --}}
-                    <x-button label="Detail Pesanan" link="{{ route('pelanggan.pesanan.detail', 1) }}" icon="solar.bill-list-bold-duotone"
-                        class="btn-primary btn-sm btn-block mt-3" />
+                    <x-button label="Detail Pesanan" link="{{ route('pelanggan.pesanan.detail', 1) }}"
+                        icon="solar.bill-list-bold-duotone" class="btn-primary btn-sm btn-block mt-3" />
                 </div>
             </div>
         </div>

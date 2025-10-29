@@ -11,30 +11,14 @@ use Livewire\Attributes\Computed;
 class ServiceCard extends Component
 {
     /**
-     * Get active services (limit 4 for display)
+     * Get active services
      */
     #[Computed]
     public function services()
     {
         return Service::where('is_active', true)
             ->orderBy('created_at', 'asc')
-            ->limit(4)
             ->get();
-    }
-
-    /**
-     * Get border class based on index
-     */
-    public function getBorderClass(int $index): string
-    {
-        $borderClasses = [
-            0 => 'border-b-6 border-r-6',
-            1 => 'border-b-6 border-l-6',
-            2 => 'border-t-6 border-r-6',
-            3 => 'border-t-6 border-l-6',
-        ];
-
-        return $borderClasses[$index] ?? 'border-b-6 border-r-6';
     }
 
     /**

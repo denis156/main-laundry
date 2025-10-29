@@ -1,10 +1,10 @@
 {{-- Layanan Kami --}}
-<x-card class="bg-base-300 shadow" title="Layanan Kami"
-    subtitle="Pilih layanan sesuai kebutuhan kamu" separator>
-    <div class="grid grid-cols-2 gap-4">
-        @foreach ($this->services as $index => $service)
+
+<div class="grid grid-cols-2 gap-4">
+    @foreach ($this->services as $index => $service)
+        <a href="{{ route('pelanggan.buat-pesanan') }}" wire:navigate>
             <x-card
-                class="bg-base-100 {{ $this->getBorderClass($index) }} border-secondary shadow p-0 transition-all active:border-0 active:scale-96 cursor-pointer"
+                class="bg-base-100 border-t-6 {{ $index % 2 === 0 ? 'border-r-6' : 'border-l-6' }} border-secondary shadow p-0 transition-all active:border-0 active:scale-96 cursor-pointer"
                 body-class="space-y-2 text-align-center relative z-10">
                 {{-- Logo Background --}}
                 <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
@@ -19,6 +19,6 @@
                     <span class="text-xs font-bold text-accent">{{ $this->formatPrice($service->price_per_kg) }}</span>
                 </div>
             </x-card>
-        @endforeach
-    </div>
-</x-card>
+        </a>
+    @endforeach
+</div>
