@@ -117,7 +117,7 @@ class CustomerFactory extends Factory
             'name' => fake()->name(),
             'phone' => fake()->unique()->numerify('8##########'), // Format: 81234567890 (tanpa 0 di depan)
             'email' => fake()->optional()->safeEmail(),
-            'password' => 'password', // default password
+            'password' => 'pelanggan_main', // Default password untuk customer
             'district_code' => $selectedDistrict['district_code'],
             'district_name' => $selectedDistrict['district_name'],
             'village_code' => $selectedVillage['code'],

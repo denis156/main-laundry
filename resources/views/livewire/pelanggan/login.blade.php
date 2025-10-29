@@ -32,7 +32,7 @@
                 hint="Bisa tulis dengan 08 atau langsung 8" autofocus />
 
             {{-- Password Field --}}
-            <x-password label="Password" wire:model="password" hint="Minimal 6 karakter" clearable />
+            <x-password label="Password" wire:model="password" hint="Password default: pelanggan_main" clearable />
 
             {{-- Remember Me --}}
             <x-checkbox label="Ingat saya" wire:model="remember" />

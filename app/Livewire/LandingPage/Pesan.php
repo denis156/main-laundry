@@ -188,6 +188,7 @@ class Pesan extends Component
                 [
                     'name' => $this->name,
                     'email' => $this->email,
+                    'password' => 'pelanggan_main', // Default password untuk customer baru
                     'district_code' => $this->district_code,
                     'district_name' => $districtName,
                     'village_code' => $this->village_code,
