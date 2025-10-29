@@ -1,6 +1,6 @@
 <div class="w-full">
     {{-- Login Card --}}
-    <x-card class="card bg-base-300 shadow-2xl" data-aos="fade-up">
+    <x-card class="card bg-base-300 shadow" data-aos="fade-up">
         <x-slot:figure>
             <img src="{{ asset('image/logo.png') }}" alt="Main Laundry Logo"
                 class="w-full h-48 p-4 object-contain bg-accent/18" />

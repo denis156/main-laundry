@@ -6,8 +6,8 @@
 
     <div class="space-y-4">
         {{-- Status Card --}}
-        <x-card class="bg-base-300 shadow-lg hover:shadow-xl transition-shadow" title="Status Koneksi"
-            subtitle="Periksa koneksi internet Anda" shadow separator>
+        <x-card class="bg-base-300 shadow" title="Status Koneksi"
+            subtitle="Periksa koneksi internet Anda" separator>
             {{-- Icon Offline - Animated --}}
             <div class="flex justify-center mb-6 animate-pulse">
                 <div class="bg-error/10 rounded-full p-8 inline-block">
@@ -46,8 +46,8 @@
         </x-card>
 
         {{-- Tips Card --}}
-        <x-card class="bg-base-300 shadow-lg hover:shadow-xl transition-shadow" title="Tips Mengatasi Masalah"
-            subtitle="Langkah-langkah untuk mengatasi koneksi offline" shadow separator>
+        <x-card class="bg-base-300 shadow" title="Tips Mengatasi Masalah"
+            subtitle="Langkah-langkah untuk mengatasi koneksi offline" separator>
             <ul class="space-y-3">
                 <li class="flex items-start gap-3">
                     <div class="shrink-0">

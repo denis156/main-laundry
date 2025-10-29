@@ -1,7 +1,7 @@
 {{-- Pending Confirmation Transactions --}}
 <div class="space-y-3">
     @forelse ($this->pendingConfirmationTransactions as $transaction)
-        <div class="card bg-base-300 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card bg-base-300 shadow">
             <div class="card-body p-4">
                 {{-- Header: Invoice & Status --}}
                 <div class="flex items-start justify-between mb-3">
@@ -106,7 +106,7 @@
         </div>
     @empty
         {{-- Empty State --}}
-        <div class="card bg-base-300 shadow-lg">
+        <div class="card bg-base-300 shadow">
             <div class="card-body items-center text-center py-8">
                 <x-icon name="solar.inbox-bold-duotone" class="w-12 h-12 text-base-content/20 mb-3" />
                 <h3 class="font-bold text-md">Tidak Ada Pesanan Baru</h3>

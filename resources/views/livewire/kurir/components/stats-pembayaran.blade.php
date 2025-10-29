@@ -1,5 +1,5 @@
  {{-- Stats Cards --}}
- <div class="stats stats-vertical lg:stats-horizontal shadow-lg hover:shadow-xl transition-shadow w-full">
+ <div class="stats stats-vertical lg:stats-horizontal shadow w-full">
      <div class="stat bg-warning">
          <div class="stat-figure text-base-content">
              <x-icon name="solar.wallet-bold-duotone" class="inline-block h-8 stroke-current" />

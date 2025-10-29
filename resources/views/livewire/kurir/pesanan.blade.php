@@ -40,7 +40,7 @@
         {{-- Transaction Cards --}}
         <div class="space-y-3">
             @forelse ($this->transactions as $transaction)
-                <div class="card bg-base-300 shadow-lg hover:shadow-xl transition-shadow">
+                <div class="card bg-base-300 shadow">
                     <div class="card-body p-4">
                         {{-- Header: Invoice & Eye Button --}}
                         <div class="flex items-start justify-between mb-3">
@@ -242,7 +242,7 @@
                 </div>
             @empty
                 {{-- Empty State --}}
-                <div class="card bg-base-300 shadow-lg">
+                <div class="card bg-base-300 shadow">
                     <div class="card-body items-center text-center py-12">
                         <x-icon name="solar.inbox-bold-duotone" class="w-16 h-16 text-base-content/20 mb-4" />
                         <h3 class="font-bold text-lg">Tidak Ada Pesanan</h3>

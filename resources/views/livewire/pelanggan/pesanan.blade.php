@@ -30,7 +30,7 @@
 
     <div class="space-y-4">
         {{-- Stats Summary --}}
-        <div class="stats stats-vertical lg:stats-horizontal shadow-lg w-full">
+        <div class="stats stats-vertical lg:stats-horizontal shadow w-full">
             <div class="stat bg-primary">
                 <div class="stat-figure text-base-content">
                     <x-icon name="solar.clock-circle-bold-duotone" class="inline-block h-8 stroke-current" />
@@ -52,7 +52,7 @@
         {{-- Order Cards --}}
         <div class="space-y-3">
             {{-- Sample Order 1 --}}
-            <div class="card bg-base-300 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="card bg-base-300 shadow">
                 <div class="card-body p-4">
                     {{-- Header: Invoice & Status --}}
                     <div class="flex items-start justify-between mb-3">
@@ -93,7 +93,7 @@
             </div>
 
             {{-- Sample Order 2 --}}
-            <div class="card bg-base-300 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="card bg-base-300 shadow">
                 <div class="card-body p-4">
                     <div class="flex items-start justify-between mb-3">
                         <div>
@@ -132,7 +132,7 @@
         </div>
 
         {{-- Empty State --}}
-        {{-- <div class="card bg-base-300 shadow-lg">
+        {{-- <div class="card bg-base-300 shadow">
             <div class="card-body items-center text-center py-12">
                 <x-icon name="solar.inbox-bold-duotone" class="w-16 h-16 text-base-content/20 mb-4" />
                 <h3 class="font-bold text-lg">Belum Ada Pesanan</h3>

@@ -5,7 +5,7 @@
 
     <div class="space-y-4">
         {{-- Quick Links --}}
-        <div class="card bg-linear-to-r from-primary/10 to-accent/10 shadow-lg">
+        <div class="card bg-linear-to-r from-primary/10 to-accent/10 shadow">
             <div class="card-body p-4">
                 <h3 class="font-bold text-base mb-3 text-center">Butuh Bantuan Cepat?</h3>
                 <div class="grid grid-cols-3 gap-2">
@@ -26,7 +26,7 @@
         </div>
 
         {{-- 1. Kontak Customer Service --}}
-        <div id="kontak-cs" class="card bg-base-300 shadow-lg scroll-mt-18">
+        <div id="kontak-cs" class="card bg-base-300 shadow scroll-mt-18">
             <div class="card-body p-4">
                 <h3 class="font-bold text-base mb-3 flex items-center gap-2">
                     <x-icon name="solar.chat-round-bold-duotone" class="w-5 h-5 text-primary" />
@@ -82,7 +82,7 @@
         </div>
 
         {{-- 2. FAQ (Frequently Asked Questions) --}}
-        <div id="faq" class="card bg-base-300 shadow-lg scroll-mt-18">
+        <div id="faq" class="card bg-base-300 shadow scroll-mt-18">
             <div class="card-body p-4">
                 <h3 class="font-bold text-base mb-3 flex items-center gap-2">
                     <x-icon name="solar.question-circle-bold-duotone" class="w-5 h-5 text-accent" />
@@ -220,7 +220,7 @@
         </div>
 
         {{-- 3. Informasi Pos --}}
-        <div id="pos" class="card bg-base-300 shadow-lg">
+        <div id="pos" class="card bg-base-300 shadow">
             <div class="card-body p-4">
                 <h3 class="font-bold text-base mb-3 flex items-center gap-2">
                     <x-icon name="solar.map-point-bold-duotone" class="w-5 h-5 text-secondary" />
@@ -292,7 +292,7 @@
         </div>
 
         {{-- 4. Informasi Aplikasi --}}
-        <div class="card bg-base-300 shadow-lg">
+        <div class="card bg-base-300 shadow">
             <div class="card-body p-4">
                 <h3 class="font-bold text-base mb-3 flex items-center gap-2">
                     <x-icon name="solar.info-circle-bold-duotone" class="w-5 h-5 text-info" />

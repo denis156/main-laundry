@@ -10,7 +10,7 @@
 
     <div class="space-y-4">
         {{-- Single Card with All Data --}}
-        <div class="card bg-base-300 shadow-lg">
+        <div class="card bg-base-300 shadow">
             <div class="card-body p-4">
                 {{-- Invoice & Status Badge --}}
                 <div class="flex items-start justify-between">

@@ -4,7 +4,7 @@
 
     <div class="space-y-4">
         {{-- Stats Cards --}}
-        <div class="stats stats-vertical lg:stats-horizontal shadow-lg hover:shadow-xl transition-shadow w-full">
+        <div class="stats stats-vertical lg:stats-horizontal shadow w-full">
             <div class="stat bg-primary">
                 <div class="stat-figure text-base-content">
                     <x-icon name="solar.clock-circle-bold-duotone" class="inline-block h-8 stroke-current" />
@@ -24,8 +24,8 @@
         </div>
 
         {{-- Welcome Card --}}
-        <x-card class="bg-base-300 shadow-lg hover:shadow-xl transition-shadow"
-            title="Hai {{ $this->greeting }}" subtitle="{{ $this->todayDate }}" shadow separator>
+        <x-card class="bg-base-300 shadow"
+            title="Hai {{ $this->greeting }}" subtitle="{{ $this->todayDate }}" separator>
             <x-slot:menu>
                 <x-badge value="{{ $this->customer->member ? 'Member' : 'Non-Member' }}"
                     class="{{ $this->customer->member ? 'badge-primary' : 'badge-neutral' }} badge-xs md:badge-sm" />
@@ -44,8 +44,8 @@
         </x-card>
 
         {{-- Quick Actions --}}
-        <x-card class="bg-base-300 shadow-lg hover:shadow-xl transition-shadow" body-class="grid grid-cols-2 gap-4"
-            title="Aksi Cepat" subtitle="Pilih aksi yang ingin kamu lakukan sekarang" shadow separator>
+        <x-card class="bg-base-300 shadow" body-class="grid grid-cols-2 gap-4"
+            title="Aksi Cepat" subtitle="Pilih aksi yang ingin kamu lakukan sekarang" separator>
             <x-button link="{{ route('pelanggan.buat-pesanan') }}" icon="solar.add-circle-bold-duotone" label="Pesan Sekarang"
                 class="btn-accent btn-lg btn-block col-span-2" />
             <x-button link="{{ route('pelanggan.pesanan') }}" icon="solar.bill-list-bold-duotone" label="Pesanan"
@@ -55,11 +55,11 @@
         </x-card>
 
         {{-- Layanan Kami --}}
-        <x-card class="bg-base-300 shadow-lg hover:shadow-xl transition-shadow" title="Layanan Kami"
-            subtitle="Pilih layanan sesuai kebutuhan kamu" shadow separator>
+        <x-card class="bg-base-300 shadow" title="Layanan Kami"
+            subtitle="Pilih layanan sesuai kebutuhan kamu" separator>
             <div class="grid grid-cols-2 gap-4">
                 <x-card
-                    class="bg-base-100 border-b-6 border-l-6 border-secondary shadow-lg p-0 relative overflow-hidden"
+                    class="bg-base-100 border-b-6 border-r-6 border-secondary shadow p-0 relative overflow-hidden transition-all hover:border-0 hover:scale-96 cursor-pointer"
                     body-class="space-y-2 text-align-center relative z-10">
                     {{-- Logo Background --}}
                     <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
@@ -75,7 +75,7 @@
                     </div>
                 </x-card>
                 <x-card
-                    class="bg-base-100 border-b-6 border-l-6 border-secondary shadow-lg p-0 relative overflow-hidden"
+                    class="bg-base-100 border-b-6 border-l-6 border-secondary shadow p-0 relative overflow-hidden transition-all hover:border-0 hover:scale-96 cursor-pointer"
                     body-class="space-y-2 text-align-center relative z-10">
                     {{-- Logo Background --}}
                     <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
@@ -91,7 +91,7 @@
                     </div>
                 </x-card>
                 <x-card
-                    class="bg-base-100 border-b-6 border-l-6 border-secondary shadow-lg p-0 relative overflow-hidden"
+                    class="bg-base-100 border-t-6 border-r-6 border-secondary shadow p-0 relative overflow-hidden transition-all hover:border-0 hover:scale-96 cursor-pointer"
                     body-class="space-y-2 text-align-center relative z-10">
                     {{-- Logo Background --}}
                     <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
@@ -107,7 +107,7 @@
                     </div>
                 </x-card>
                 <x-card
-                    class="bg-base-100 border-b-6 border-l-6 border-secondary shadow-lg p-0 relative overflow-hidden"
+                    class="bg-base-100 border-t-6 border-l-6 border-secondary shadow p-0 relative overflow-hidden transition-all hover:border-0 hover:scale-96 cursor-pointer"
                     body-class="space-y-2 text-align-center relative z-10">
                     {{-- Logo Background --}}
                     <div class="absolute inset-0 opacity-18 flex items-center justify-center pointer-events-none p-4">
@@ -125,12 +125,12 @@
             </div>
         </x-card>
 
-        <div class="divider divider-accent text-accent font-bold">5 Pesanan Aktif</div>
+        <div class="divider divider-accent text-accent font-bold">Pesanan Aktif</div>
 
         {{-- Pesanan Aktif --}}
         <div class="space-y-3">
-            {{-- Active Order 1 --}}
-            <div class="card bg-base-300 shadow-lg hover:shadow-xl transition-shadow">
+            {{-- Active Order --}}
+            <div class="card bg-base-300 shadow">
                 <div class="card-body p-4">
                     {{-- Header: Invoice & Status --}}
                     <div class="flex items-start justify-between mb-3">
@@ -179,74 +179,6 @@
                         class="btn-primary btn-sm btn-block mt-3" />
                 </div>
             </div>
-
-            {{-- Active Order 2 --}}
-            <div class="card bg-base-300 shadow-lg hover:shadow-xl transition-shadow">
-                <div class="card-body p-4">
-                    {{-- Header: Invoice & Status --}}
-                    <div class="flex items-start justify-between mb-3">
-                        <div>
-                            <h3 class="font-bold text-primary text-lg">
-                                #ORD-001
-                            </h3>
-                            <p class="text-xs text-base-content/60">
-                                20 Okt 2025, 14:30
-                            </p>
-                        </div>
-                        <span class="badge badge-warning">
-                            Menunggu Penjemputan
-                        </span>
-                    </div>
-
-                    <div class="divider my-2"></div>
-
-                    {{-- Kurir Info --}}
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="avatar avatar-placeholder">
-                            <div class="bg-primary text-primary-content w-10 rounded-full">
-                                <span class="text-sm">BS</span>
-                            </div>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-semibold">Budi Santoso</p>
-                            <p class="text-xs text-base-content/60">Kurir</p>
-                        </div>
-                    </div>
-
-                    {{-- Order Info --}}
-                    <div class="bg-base-200 rounded-lg p-3 space-y-2">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-base-content/70">Layanan</span>
-                            <span class="font-semibold">Cuci Komplit + Setrika</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-base-content/70">Berat</span>
-                            <span class="font-semibold">3 kg</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-base-content/70">Harga/kg</span>
-                            <span class="font-semibold">Rp 5.000</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-base-content/70">Metode Pembayaran</span>
-                            <span class="font-semibold">Bayar Dimuka</span>
-                        </div>
-                        <div class="divider my-1"></div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-base-content/70">Jumlah Bayar</span>
-                            <span class="font-semibold text-right text-primary text-base">Rp 15.000</span>
-                        </div>
-                    </div>
-
-                    {{-- Action Button --}}
-                    <x-button label="Detail Pesanan" link="{{ route('pelanggan.pesanan.detail', 1) }}" icon="solar.bill-list-bold-duotone"
-                        class="btn-primary btn-sm btn-block mt-3" />
-                </div>
-            </div>
         </div>
-
-        {{-- View All Orders Button --}}
-        <x-button link="{{ route('pelanggan.pesanan') }}" label="Lihat Semua Pesanan" icon="o-arrow-right"
-            class="btn-block btn-md btn-accent" />
     </div>
 </section>

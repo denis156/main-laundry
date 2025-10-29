@@ -10,7 +10,7 @@
 
     <div class="space-y-4">
         {{-- Card Informasi Transaksi & Pembayaran --}}
-        <div class="card bg-base-300 shadow-lg">
+        <div class="card bg-base-300 shadow">
             <div class="card-body p-4">
                 {{-- Invoice & Payment Status Badge --}}
                 <div class="flex items-start justify-between">
@@ -109,7 +109,7 @@
                     </h3>
 
                     <img src="{{ asset('storage/' . $this->payment->payment_proof_url) }}" alt="Bukti Pembayaran"
-                        class="w-full rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
+                        class="w-full rounded-lg shadow cursor-pointer"
                         onclick="document.getElementById('payment_proof_modal').showModal()" />
 
                     {{-- Modal untuk preview image --}}
