@@ -9,7 +9,7 @@ use Livewire\Component;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Auth;
 
-class StatsBeranda extends Component
+class Stats extends Component
 {
     /**
      * Get authenticated customer
@@ -44,6 +44,6 @@ class StatsBeranda extends Component
 
     public function render()
     {
-        return view('livewire.pelanggan.components.stats-beranda');
+        return view('livewire.pelanggan.components.stats');
     }
 }

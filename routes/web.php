@@ -72,9 +72,9 @@ Route::prefix('pelanggan')->name('pelanggan.')->group(function () {
     Route::middleware('auth.guard:customer')->group(function () {
         Route::get('/', BerandaPelanggan::class)->name('beranda');
         Route::get('/pesanan', PesananPelanggan::class)->name('pesanan');
+        Route::get('/pesanan/{id}', DetailPesananPelanggan::class)->name('pesanan.detail');
         Route::get('/buat-pesanan', BuatPesananPelanggan::class)->name('buat-pesanan');
         Route::get('/info', InfoPelanggan::class)->name('info');
-        Route::get('/detail-pesanan', DetailPesananPelanggan::class)->name('pesanan.detail');
         Route::get('/profil', ProfilPelanggan::class)->name('profil');
 
         // Logout

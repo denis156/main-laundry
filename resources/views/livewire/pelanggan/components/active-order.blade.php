@@ -89,7 +89,7 @@
                 @endif
 
                 {{-- Action Button --}}
-                <x-button label="Detail Pesanan" link="{{ route('pelanggan.pesanan.detail') }}"
+                <x-button label="Detail Pesanan" link="{{ route('pelanggan.pesanan.detail', $transaction->id) }}"
                     icon="solar.bill-list-bold-duotone" class="btn-primary btn-sm btn-block mt-3" />
             </div>
         </div>

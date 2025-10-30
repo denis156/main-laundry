@@ -4,7 +4,7 @@
 
     <div class="space-y-4">
         {{-- Stats Cards Component --}}
-        <livewire:pelanggan.components.stats-beranda />
+        <livewire:pelanggan.components.stats />
 
         {{-- Welcome Card --}}
         <x-card class="bg-base-300 shadow" title="Hai {{ $this->greeting }}" subtitle="{{ $this->todayDate }}" separator>
