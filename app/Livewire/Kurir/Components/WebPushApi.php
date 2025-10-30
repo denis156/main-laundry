@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Livewire\Kurir\Components;
 
+use Exception;
 use Livewire\Component;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
 
 class WebPushApi extends Component
 {
@@ -33,8 +34,8 @@ class WebPushApi extends Component
             );
 
             $this->dispatch('webpush-subscribed');
-        } catch (\Exception $e) {
-            \Log::error('Web Push subscription failed: ' . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Web Push subscription failed: ' . $e->getMessage());
             $this->dispatch('webpush-error', message: 'Failed to subscribe');
         }
     }
@@ -56,8 +57,8 @@ class WebPushApi extends Component
             $courier->deletePushSubscription($endpoint);
 
             $this->dispatch('webpush-unsubscribed');
-        } catch (\Exception $e) {
-            \Log::error('Web Push unsubscription failed: ' . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Web Push unsubscription failed: ' . $e->getMessage());
             $this->dispatch('webpush-error', message: 'Failed to unsubscribe');
         }
     }
@@ -67,6 +68,6 @@ class WebPushApi extends Component
      */
     public function getPublicKey(): string
     {
-        return config('webpush.vapid.public_key', '');
+        return config('webpush.vapid.public_key');
     }
 }
