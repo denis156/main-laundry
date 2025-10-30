@@ -42,8 +42,8 @@ class Login extends Component
             $minutes = ceil($seconds / 60);
 
             $this->error(
-                'Terlalu Banyak Percobaan',
-                "Silakan coba lagi dalam {$minutes} menit.",
+                title: 'Terlalu Banyak Percobaan!',
+                description: "Silakan coba lagi dalam {$minutes} menit.",
                 position: 'toast-top toast-end',
                 timeout: 5000
             );
@@ -63,8 +63,8 @@ class Login extends Component
                 Auth::guard('courier')->logout();
 
                 $this->error(
-                    'Akun Tidak Aktif',
-                    'Akun Anda tidak aktif. Silakan hubungi admin.',
+                    title: 'Akun Tidak Aktif!',
+                    description: 'Akun Anda tidak aktif. Silakan hubungi admin.',
                     position: 'toast-top toast-end',
                     timeout: 4000
                 );
@@ -85,8 +85,8 @@ class Login extends Component
             session()->regenerate();
 
             $this->success(
-                'Login Berhasil!',
-                'Selamat datang ' . $courier->name,
+                title: 'Login Berhasil!',
+                description: 'Selamat datang ' . $courier->name,
                 position: 'toast-top toast-end',
                 timeout: 3000,
                 redirectTo: route('kurir.beranda')
@@ -98,8 +98,8 @@ class Login extends Component
             }
 
             $this->error(
-                'Login Gagal',
-                'Email atau password yang Anda masukkan salah.',
+                title: 'Login Gagal!',
+                description: 'Email atau password yang Anda masukkan salah.',
                 position: 'toast-top toast-end',
                 timeout: 3000
             );

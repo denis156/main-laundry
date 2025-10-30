@@ -330,7 +330,12 @@ class Pesanan extends Component
         $transaction = $query->first();
 
         if (!$transaction) {
-            $this->error('Pesanan tidak ditemukan, tidak bisa dikonfirmasi, atau di luar area layanan Anda.');
+            $this->error(
+                title: 'Pesanan Tidak Ditemukan!',
+                description: 'Pesanan tidak ditemukan, tidak bisa dikonfirmasi, atau di luar area layanan Anda.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -339,7 +344,12 @@ class Pesanan extends Component
             'workflow_status' => 'confirmed',
         ]);
 
-        $this->success('Pesanan berhasil diambil dan dikonfirmasi! Silahkan hubungi customer untuk koordinasi pickup.');
+        $this->success(
+            title: 'Pesanan Dikonfirmasi!',
+            description: 'Pesanan berhasil diambil dan dikonfirmasi! Silahkan hubungi customer untuk koordinasi pickup.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
 
         // Close modal dan reset selected transaction
         $this->showConfirmModal = false;
@@ -382,7 +392,12 @@ class Pesanan extends Component
         $transaction = $query->first();
 
         if (!$transaction) {
-            $this->error('Pesanan tidak ditemukan, tidak bisa dibatalkan, atau di luar area layanan Anda.');
+            $this->error(
+                title: 'Pesanan Tidak Ditemukan!',
+                description: 'Pesanan tidak ditemukan, tidak bisa dibatalkan, atau di luar area layanan Anda.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -392,7 +407,12 @@ class Pesanan extends Component
             'workflow_status' => 'cancelled',
         ]);
 
-        $this->success('Pesanan berhasil dibatalkan.');
+        $this->success(
+            title: 'Pesanan Dibatalkan!',
+            description: 'Pesanan berhasil dibatalkan.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
 
         // Close modal dan reset selected transaction
         $this->showCancelModal = false;
@@ -421,7 +441,12 @@ class Pesanan extends Component
 
         // Validasi berat harus diisi
         if (empty($this->weights[$this->selectedTransactionId]) || $this->weights[$this->selectedTransactionId] <= 0) {
-            $this->error('Berat cucian harus diisi dan lebih dari 0 kg!');
+            $this->error(
+                title: 'Berat Harus Diisi!',
+                description: 'Berat cucian harus diisi dan lebih dari 0 kg.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -431,7 +456,12 @@ class Pesanan extends Component
             ->first();
 
         if (!$transaction) {
-            $this->error('Pesanan tidak ditemukan atau tidak bisa diupdate.');
+            $this->error(
+                title: 'Tidak Bisa Diupdate!',
+                description: 'Pesanan tidak ditemukan atau tidak bisa diupdate.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -446,7 +476,12 @@ class Pesanan extends Component
             'total_price' => $totalPrice,
         ]);
 
-        $this->success('Pesanan berhasil ditandai sudah dijemput dengan berat ' . $weight . ' kg!');
+        $this->success(
+            title: 'Pesanan Dijemput!',
+            description: 'Pesanan berhasil ditandai sudah dijemput dengan berat ' . $weight . ' kg.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
 
         // Clear inputs setelah berhasil
         unset($this->weights[$this->selectedTransactionId]);
@@ -497,7 +532,12 @@ class Pesanan extends Component
             ->first();
 
         if (!$transaction) {
-            $this->error('Pesanan tidak ditemukan atau tidak bisa diupdate.');
+            $this->error(
+                title: 'Tidak Bisa Diupdate!',
+                description: 'Pesanan tidak ditemukan atau tidak bisa diupdate.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -505,7 +545,12 @@ class Pesanan extends Component
             'workflow_status' => 'at_loading_post',
         ]);
 
-        $this->success('Pesanan berhasil ditandai sudah di pos loading!');
+        $this->success(
+            title: 'Pesanan Di Pos!',
+            description: 'Pesanan berhasil ditandai sudah di pos loading.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
 
         // Close modal dan reset selected transaction
         $this->showAtLoadingPostModal = false;
@@ -537,7 +582,12 @@ class Pesanan extends Component
             ->first();
 
         if (!$transaction) {
-            $this->error('Pesanan tidak ditemukan atau tidak bisa diupdate.');
+            $this->error(
+                title: 'Tidak Bisa Diupdate!',
+                description: 'Pesanan tidak ditemukan atau tidak bisa diupdate.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -545,7 +595,12 @@ class Pesanan extends Component
             'workflow_status' => 'out_for_delivery',
         ]);
 
-        $this->success('Pesanan berhasil ditandai dalam pengiriman!');
+        $this->success(
+            title: 'Dalam Pengiriman!',
+            description: 'Pesanan berhasil ditandai dalam pengiriman.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
 
         // Close modal dan reset selected transaction
         $this->showOutForDeliveryModal = false;
@@ -578,7 +633,12 @@ class Pesanan extends Component
             ->first();
 
         if (!$transaction) {
-            $this->error('Pesanan tidak ditemukan atau tidak bisa diupdate.');
+            $this->error(
+                title: 'Tidak Bisa Diupdate!',
+                description: 'Pesanan tidak ditemukan atau tidak bisa diupdate.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -586,7 +646,12 @@ class Pesanan extends Component
             'workflow_status' => 'delivered',
         ]);
 
-        $this->success('Pesanan berhasil ditandai terkirim!');
+        $this->success(
+            title: 'Pesanan Terkirim!',
+            description: 'Pesanan berhasil ditandai terkirim.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
 
         // Close modal dan reset selected transaction
         $this->showDeliveredModal = false;

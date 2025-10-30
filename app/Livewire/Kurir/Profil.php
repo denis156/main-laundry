@@ -211,7 +211,12 @@ class Profil extends Component
 
             // Verifikasi password lama
             if (!Hash::check($this->current_password, $this->courier->password)) {
-                $this->error('Password lama tidak sesuai!');
+                $this->error(
+                    title: 'Password Salah!',
+                    description: 'Password lama tidak sesuai.',
+                    position: 'toast-top toast-end',
+                    timeout: 3000
+                );
                 return;
             }
 
@@ -226,7 +231,12 @@ class Profil extends Component
             $this->new_password_confirmation = '';
         }
 
-        $this->success('Profil berhasil diperbarui!');
+        $this->success(
+            title: 'Profil Diperbarui!',
+            description: 'Profil Anda berhasil diperbarui.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
     }
 
     public function updatedAvatar(): void
@@ -249,7 +259,12 @@ class Profil extends Component
         ]);
 
         $this->avatar = null;
-        $this->success('Foto profil berhasil diperbarui!');
+        $this->success(
+            title: 'Foto Profil Diperbarui!',
+            description: 'Foto profil Anda berhasil diperbarui.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
     }
 
     public function logout(): void

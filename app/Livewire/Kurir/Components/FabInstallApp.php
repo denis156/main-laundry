@@ -56,8 +56,8 @@ class FabInstallApp extends Component
         $this->showFab = false;
 
         $this->success(
-            'Aplikasi berhasil diinstall!',
-            'Cek home screen Anda.',
+            title: 'Aplikasi Berhasil Diinstall!',
+            description: 'Cek home screen Anda.',
             position: 'toast-top toast-end',
             timeout: 3000
         );
@@ -68,8 +68,8 @@ class FabInstallApp extends Component
         $this->installWebApp = false;
 
         $this->info(
-            'Install dibatalkan',
-            'Anda bisa install kapan saja.',
+            title: 'Install Dibatalkan',
+            description: 'Anda bisa install kapan saja.',
             position: 'toast-top toast-end',
             timeout: 3000
         );
@@ -80,8 +80,8 @@ class FabInstallApp extends Component
         $this->installWebApp = false;
 
         $this->warning(
-            'Install tidak tersedia',
-            'Aplikasi mungkin sudah ter-install.',
+            title: 'Install Tidak Tersedia',
+            description: 'Aplikasi mungkin sudah ter-install.',
             position: 'toast-top toast-end',
             timeout: 3000
         );

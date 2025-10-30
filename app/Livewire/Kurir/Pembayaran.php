@@ -172,7 +172,12 @@ class Pembayaran extends Component
     {
         // Validasi file
         if (empty($this->paymentProofs[$this->selectedPaymentId])) {
-            $this->error('Bukti pembayaran harus diupload!');
+            $this->error(
+                title: 'Bukti Pembayaran Kosong!',
+                description: 'Anda harus upload bukti pembayaran terlebih dahulu.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -180,14 +185,24 @@ class Pembayaran extends Component
         $payment = Payment::find($this->selectedPaymentId);
 
         if (!$payment) {
-            $this->error('Payment tidak ditemukan!');
+            $this->error(
+                title: 'Payment Tidak Ditemukan!',
+                description: 'Data payment tidak ditemukan di sistem.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
         // Validasi ownership
         $courier = Auth::guard('courier')->user();
         if ($payment->courier_motorcycle_id !== $courier->id) {
-            $this->error('Anda tidak memiliki akses untuk upload bukti pembayaran ini!');
+            $this->error(
+                title: 'Akses Ditolak!',
+                description: 'Anda tidak memiliki akses untuk upload bukti pembayaran ini.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -205,7 +220,12 @@ class Pembayaran extends Component
             'payment_status' => 'paid',
         ]);
 
-        $this->success('Bukti pembayaran berhasil diupload!');
+        $this->success(
+            title: 'Bukti Berhasil Diupload!',
+            description: 'Bukti pembayaran berhasil disimpan.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
 
         // Clear input untuk payment ini
         unset($this->paymentProofs[$this->selectedPaymentId]);

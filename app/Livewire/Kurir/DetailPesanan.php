@@ -188,7 +188,12 @@ class DetailPesanan extends Component
         $assignedPos = $courier->assignedPos;
 
         if ($this->transaction->workflow_status !== 'pending_confirmation') {
-            $this->error('Pesanan tidak bisa dikonfirmasi dengan status saat ini.');
+            $this->error(
+                title: 'Tidak Bisa Dikonfirmasi!',
+                description: 'Pesanan tidak bisa dikonfirmasi dengan status saat ini.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -197,7 +202,12 @@ class DetailPesanan extends Component
         $isInArea = TransactionAreaFilter::isCustomerInPosArea($customerVillage, $assignedPos);
 
         if (!$isInArea) {
-            $this->error('Pesanan di luar area layanan Anda.');
+            $this->error(
+                title: 'Di Luar Area Layanan!',
+                description: 'Pesanan ini berada di luar area layanan Anda.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -206,7 +216,12 @@ class DetailPesanan extends Component
             'workflow_status' => 'confirmed',
         ]);
 
-        $this->success('Pesanan berhasil diambil dan dikonfirmasi!');
+        $this->success(
+            title: 'Pesanan Dikonfirmasi!',
+            description: 'Pesanan berhasil diambil dan dikonfirmasi.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
         $this->showConfirmModal = false;
         $this->transaction->refresh();
     }
@@ -228,7 +243,12 @@ class DetailPesanan extends Component
         $courier = Auth::guard('courier')->user();
 
         if ($this->transaction->workflow_status !== 'pending_confirmation') {
-            $this->error('Pesanan tidak bisa dibatalkan dengan status saat ini.');
+            $this->error(
+                title: 'Tidak Bisa Dibatalkan!',
+                description: 'Pesanan tidak bisa dibatalkan dengan status saat ini.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -238,7 +258,12 @@ class DetailPesanan extends Component
             'workflow_status' => 'cancelled',
         ]);
 
-        $this->success('Pesanan berhasil dibatalkan.');
+        $this->success(
+            title: 'Pesanan Dibatalkan!',
+            description: 'Pesanan berhasil dibatalkan.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
         $this->showCancelModal = false;
         $this->transaction->refresh();
     }
@@ -259,13 +284,23 @@ class DetailPesanan extends Component
         $courier = Auth::guard('courier')->user();
 
         if ($this->transaction->workflow_status !== 'confirmed') {
-            $this->error('Pesanan tidak bisa diupdate dengan status saat ini.');
+            $this->error(
+                title: 'Tidak Bisa Diupdate!',
+                description: 'Pesanan tidak bisa diupdate dengan status saat ini.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
         // Validasi berat harus diisi
         if (empty($this->weight) || $this->weight <= 0) {
-            $this->error('Berat cucian harus diisi dan lebih dari 0 kg!');
+            $this->error(
+                title: 'Berat Harus Diisi!',
+                description: 'Berat cucian harus diisi dan lebih dari 0 kg.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -279,7 +314,12 @@ class DetailPesanan extends Component
             'total_price' => $totalPrice,
         ]);
 
-        $this->success('Pesanan berhasil ditandai sudah dijemput dengan berat ' . $this->weight . ' kg!');
+        $this->success(
+            title: 'Pesanan Dijemput!',
+            description: 'Pesanan berhasil ditandai sudah dijemput dengan berat ' . $this->weight . ' kg.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
 
         // Clear inputs
         $this->weight = null;
@@ -316,7 +356,12 @@ class DetailPesanan extends Component
     public function markAsAtLoadingPost(): void
     {
         if ($this->transaction->workflow_status !== 'picked_up') {
-            $this->error('Pesanan tidak bisa diupdate dengan status saat ini.');
+            $this->error(
+                title: 'Tidak Bisa Diupdate!',
+                description: 'Pesanan tidak bisa diupdate dengan status saat ini.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -324,7 +369,12 @@ class DetailPesanan extends Component
             'workflow_status' => 'at_loading_post',
         ]);
 
-        $this->success('Pesanan berhasil ditandai sudah di pos loading!');
+        $this->success(
+            title: 'Pesanan Di Pos!',
+            description: 'Pesanan berhasil ditandai sudah di pos loading.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
         $this->showAtLoadingPostModal = false;
         $this->transaction->refresh();
     }
@@ -343,7 +393,12 @@ class DetailPesanan extends Component
     public function markAsOutForDelivery(): void
     {
         if ($this->transaction->workflow_status !== 'washing_completed') {
-            $this->error('Pesanan tidak bisa diupdate dengan status saat ini.');
+            $this->error(
+                title: 'Tidak Bisa Diupdate!',
+                description: 'Pesanan tidak bisa diupdate dengan status saat ini.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -351,7 +406,12 @@ class DetailPesanan extends Component
             'workflow_status' => 'out_for_delivery',
         ]);
 
-        $this->success('Pesanan berhasil ditandai dalam pengiriman!');
+        $this->success(
+            title: 'Dalam Pengiriman!',
+            description: 'Pesanan berhasil ditandai dalam pengiriman.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
         $this->showOutForDeliveryModal = false;
         $this->transaction->refresh();
     }
@@ -370,7 +430,12 @@ class DetailPesanan extends Component
     public function markAsDelivered(): void
     {
         if ($this->transaction->workflow_status !== 'out_for_delivery') {
-            $this->error('Pesanan tidak bisa diupdate dengan status saat ini.');
+            $this->error(
+                title: 'Tidak Bisa Diupdate!',
+                description: 'Pesanan tidak bisa diupdate dengan status saat ini.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -378,7 +443,12 @@ class DetailPesanan extends Component
             'workflow_status' => 'delivered',
         ]);
 
-        $this->success('Pesanan berhasil ditandai terkirim!');
+        $this->success(
+            title: 'Pesanan Terkirim!',
+            description: 'Pesanan berhasil ditandai terkirim.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
 
         $this->showDeliveredModal = false;
         $this->transaction->refresh();

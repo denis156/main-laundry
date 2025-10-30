@@ -82,7 +82,12 @@ class DetailPembayaran extends Component
     {
         // Validasi file
         if (empty($this->paymentProof)) {
-            $this->error('Bukti pembayaran harus diupload!');
+            $this->error(
+                title: 'Bukti Pembayaran Kosong!',
+                description: 'Anda harus upload bukti pembayaran terlebih dahulu.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -90,7 +95,12 @@ class DetailPembayaran extends Component
         $payment = Payment::where('transaction_id', $this->transaction->id)->first();
 
         if (!$payment) {
-            $this->error('Record pembayaran belum dibuat! Payment akan otomatis dibuat saat status berubah.');
+            $this->error(
+                title: 'Record Pembayaran Belum Ada!',
+                description: 'Payment akan otomatis dibuat saat status berubah.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
@@ -108,7 +118,12 @@ class DetailPembayaran extends Component
             'payment_status' => 'paid',
         ]);
 
-        $this->success('Bukti pembayaran berhasil diupload!');
+        $this->success(
+            title: 'Bukti Berhasil Diupload!',
+            description: 'Bukti pembayaran berhasil disimpan.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
 
         // Clear inputs
         $this->paymentProof = null;
