@@ -124,7 +124,12 @@ class BuatPesanan extends Component
             $diffInSeconds = $formLoadedTime->diffInSeconds($submittedTime);
 
             if ($diffInSeconds < 3) {
-                $this->error('Form submission terlalu cepat. Mohon coba lagi.');
+                $this->error(
+                    title: 'Submission Terlalu Cepat!',
+                    description: 'Mohon tunggu beberapa detik sebelum submit.',
+                    position: 'toast-top toast-end',
+                    timeout: 3000
+                );
                 return;
             }
         }
@@ -180,7 +185,7 @@ class BuatPesanan extends Component
                 'invoice_number' => $invoiceNumber,
                 'customer_id' => $customer->id,
                 'service_id' => $service->id,
-                'courier_motorcycle_id' => null, // Akan diassign nanti oleh admin/sistem
+                'courier_motorcycle_id' => null, // Akan diassign nanti oleh admin/kurir
                 'pos_id' => $pos?->id,
                 'weight' => 0, // Akan diisi setelah kurir timbang
                 'price_per_kg' => $service->price_per_kg, // Simpan harga saat ini untuk historical
@@ -205,8 +210,9 @@ class BuatPesanan extends Component
 
             // Tampilkan success message
             $this->success(
-                'Pesanan berhasil dibuat! Nomor invoice: ' . $invoiceNumber,
-                position: 'toast-top toast-center',
+                title: 'Pesanan berhasil dibuat!',
+                description: 'Nomor invoice: ' . $invoiceNumber,
+                position: 'toast-top toast-end',
                 timeout: 5000,
                 redirectTo: route('pelanggan.pesanan')
             );
@@ -221,7 +227,12 @@ class BuatPesanan extends Component
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            $this->error('Terjadi kesalahan saat membuat pesanan. Silakan coba lagi.');
+            $this->error(
+                title: 'Gagal Membuat Pesanan!',
+                description: 'Terjadi kesalahan. Silakan coba lagi.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
         }
     }
 

@@ -126,14 +126,24 @@ class DetailPesanan extends Component
     public function cancelOrder()
     {
         if ($this->transaction->workflow_status !== 'pending_confirmation') {
-            $this->error('Hanya pesanan dengan status pending yang bisa dibatalkan');
+            $this->error(
+                title: 'Tidak Dapat Dibatalkan!',
+                description: 'Hanya pesanan dengan status pending yang bisa dibatalkan.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
         $this->transaction->workflow_status = 'cancelled';
         $this->transaction->save();
 
-        $this->success('Pesanan berhasil dibatalkan');
+        $this->success(
+            title: 'Pesanan Dibatalkan!',
+            description: 'Pesanan Anda berhasil dibatalkan.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
         $this->showCancelModal = false;
 
         // Redirect back to pesanan list

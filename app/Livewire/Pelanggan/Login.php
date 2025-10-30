@@ -62,8 +62,8 @@ class Login extends Component
             $minutes = ceil($seconds / 60);
 
             $this->error(
-                'Terlalu Banyak Percobaan',
-                "Silakan coba lagi dalam {$minutes} menit.",
+                title: 'Terlalu Banyak Percobaan!',
+                description: "Silakan coba lagi dalam {$minutes} menit.",
                 position: 'toast-top toast-end',
                 timeout: 5000
             );
@@ -92,16 +92,16 @@ class Login extends Component
 
             if ($isProfileIncomplete) {
                 $this->warning(
-                    'Profil Belum Lengkap',
-                    'Silakan lengkapi data profil Anda terlebih dahulu.',
+                    title: 'Profil Belum Lengkap!',
+                    description: 'Silakan lengkapi data profil Anda terlebih dahulu.',
                     position: 'toast-top toast-end',
                     timeout: 5000,
                     redirectTo: route('pelanggan.profil')
                 );
             } else {
                 $this->success(
-                    'Login Berhasil!',
-                    'Selamat datang ' . $customer->name,
+                    title: 'Login Berhasil!',
+                    description: 'Selamat datang ' . $customer->name,
                     position: 'toast-top toast-end',
                     timeout: 3000,
                     redirectTo: route('pelanggan.beranda')
@@ -114,8 +114,8 @@ class Login extends Component
             }
 
             $this->error(
-                'Login Gagal',
-                'Nomor telepon atau password yang Anda masukkan salah.',
+                title: 'Login Gagal!',
+                description: 'Nomor telepon atau password yang Anda masukkan salah.',
                 position: 'toast-top toast-end',
                 timeout: 3000
             );

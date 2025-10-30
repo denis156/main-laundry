@@ -20,8 +20,8 @@ class Profil extends Component
         // Tampilkan toast dari session jika ada
         if (session()->has('warning')) {
             $this->warning(
-                'Profil Belum Lengkap',
-                session('warning'),
+                title: 'Profil Belum Lengkap!',
+                description: session('warning'),
                 position: 'toast-top toast-end',
                 timeout: 5000
             );
@@ -29,8 +29,8 @@ class Profil extends Component
 
         if (session()->has('success')) {
             $this->success(
-                'Login Berhasil',
-                session('success'),
+                title: 'Login Berhasil!',
+                description: session('success'),
                 position: 'toast-top toast-end',
                 timeout: 3000
             );

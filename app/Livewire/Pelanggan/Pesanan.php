@@ -213,19 +213,34 @@ class Pesanan extends Component
         $transaction = Transaction::find($this->selectedTransactionId);
 
         if (!$transaction || $transaction->customer_id !== Auth::guard('customer')->id()) {
-            $this->error('Pesanan tidak ditemukan');
+            $this->error(
+                title: 'Pesanan Tidak Ditemukan!',
+                description: 'Pesanan yang Anda cari tidak tersedia.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
         if ($transaction->workflow_status !== 'pending_confirmation') {
-            $this->error('Hanya pesanan dengan status pending yang bisa dibatalkan');
+            $this->error(
+                title: 'Tidak Dapat Dibatalkan!',
+                description: 'Hanya pesanan dengan status pending yang bisa dibatalkan.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
             return;
         }
 
         $transaction->workflow_status = 'cancelled';
         $transaction->save();
 
-        $this->success('Pesanan berhasil dibatalkan');
+        $this->success(
+            title: 'Pesanan Dibatalkan!',
+            description: 'Pesanan Anda berhasil dibatalkan.',
+            position: 'toast-top toast-end',
+            timeout: 3000
+        );
         $this->showCancelModal = false;
         $this->selectedTransactionId = null;
 
