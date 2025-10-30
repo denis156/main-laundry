@@ -13,7 +13,7 @@ use App\Livewire\Kurir\DetailPesanan;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Kurir\DetailPembayaran;
 use App\Livewire\Kurir\Components\OfflinePage;
-use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Livewire\Components\GoogleAuth;
 use App\Livewire\Pelanggan\Login as PelangganLogin;
 use App\Livewire\Pelanggan\Info as InfoPelanggan;
 use App\Livewire\Pelanggan\Profil as ProfilPelanggan;
@@ -64,8 +64,8 @@ Route::prefix('pelanggan')->name('pelanggan.')->group(function () {
         Route::get('/masuk', PelangganLogin::class)->name('login');
 
         // Google OAuth Routes
-        Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('auth.google');
-        Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+        Route::get('/auth/google', [GoogleAuth::class, 'redirectToGoogle'])->name('auth.google');
+        Route::get('/auth/google/callback', [GoogleAuth::class, 'handleGoogleCallback'])->name('auth.google.callback');
     });
 
     // Protected Routes (Harus Login)

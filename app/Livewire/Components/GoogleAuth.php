@@ -2,24 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Auth;
+namespace App\Livewire\Components;
 
 use Exception;
 use App\Models\Customer;
+use Livewire\Component;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 
 /**
- * Google OAuth Authentication Controller
+ * Google OAuth Authentication Component
  *
  * Menangani autentikasi customer menggunakan Google OAuth 2.0
  * - Auto-register customer baru jika belum ada di database
  * - Update data Google OAuth untuk customer yang sudah ada
  * - Menyimpan OAuth token untuk akses Google API di masa depan
+ *
+ * Component ini tidak memiliki view, hanya berisi logika seperti WebPushApi
  */
-class GoogleAuthController extends Controller
+class GoogleAuth extends Component
 {
     /**
      * Redirect ke Google OAuth
@@ -31,6 +33,7 @@ class GoogleAuthController extends Controller
 
     /**
      * Handle callback dari Google
+     * Dipanggil dari route setelah user authorize di Google
      */
     public function handleGoogleCallback()
     {
@@ -92,12 +95,12 @@ class GoogleAuthController extends Controller
                                    empty($customer->detail_address);
 
             if ($isProfileIncomplete) {
-                // Redirect ke profil dengan pesan warning
+                // Redirect ke profil dengan flash message
                 return redirect()->route('pelanggan.profil')
                     ->with('warning', 'Silakan lengkapi data profil Anda terlebih dahulu, ' . $customer->name . '!');
             }
 
-            // Redirect ke intended atau beranda dengan pesan success
+            // Redirect ke intended atau beranda dengan flash message
             return redirect()->intended(route('pelanggan.beranda'))
                 ->with('success', 'Selamat datang kembali, ' . $customer->name . '!');
         } catch (Exception $e) {
@@ -111,5 +114,15 @@ class GoogleAuthController extends Controller
             return redirect()->route('pelanggan.login')
                 ->with('error', 'Login dengan Google gagal: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Component ini tidak memiliki view
+     * Hanya berisi logika untuk handle OAuth, seperti WebPushApi
+     */
+    public function render()
+    {
+        // Tidak perlu render view, component ini hanya untuk logic
+        return null;
     }
 }
