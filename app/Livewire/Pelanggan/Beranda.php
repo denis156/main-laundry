@@ -7,6 +7,7 @@ namespace App\Livewire\Pelanggan;
 use Carbon\Carbon;
 use App\Models\Transaction;
 use Livewire\Component;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
@@ -88,6 +89,16 @@ class Beranda extends Component
         $csPhone = config('sosmed.phone');
 
         return "https://wa.me/{$csPhone}?text={$encodedMessage}";
+    }
+
+    /**
+     * Refresh active orders when notified via Echo
+     */
+    #[On('refresh-active-orders')]
+    public function refreshActiveOrders(): void
+    {
+        unset($this->activeOrders);
+        unset($this->totalOrdersCount);
     }
 
     public function render()

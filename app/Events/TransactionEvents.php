@@ -64,6 +64,7 @@ class TransactionEvents implements ShouldBroadcast
             'customer_name' => $this->transaction->customer?->name,
             'customer_village' => $this->transaction->customer?->village_name,
             'courier_id' => $this->transaction->courier_motorcycle_id,
+            'courier_name' => $this->transaction->courierMotorcycle?->name,
             'pos_id' => $this->transaction->pos_id,
             'service_id' => $this->transaction->service_id,
             'service_name' => $this->transaction->service?->name,

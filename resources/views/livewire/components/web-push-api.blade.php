@@ -1,2 +1,7 @@
 {{-- Invisible component - no UI, hanya untuk handle API calls dari JavaScript --}}
-<div wire:id="web-push-api" style="display: none;"></div>
+<div x-data="{
+    init() {
+        // Register component ke global scope agar bisa diakses dari webPush.js
+        window.WebPushApiComponent = @this;
+    }
+}" style="display: none;"></div>

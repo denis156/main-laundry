@@ -175,11 +175,9 @@ async function getVapidPublicKey() {
 
     // Prioritas 2: Ambil dari Livewire component (fallback)
     try {
-        const webPushComponent = Livewire.find('web-push-api');
-
-        if (webPushComponent) {
+        if (window.WebPushApiComponent) {
             logger.log('[WebPush] Getting VAPID key from Livewire component...');
-            const response = await webPushComponent.call('getPublicKey');
+            const response = await window.WebPushApiComponent.call('getPublicKey');
             return response || null;
         }
     } catch (error) {
@@ -205,14 +203,12 @@ async function sendSubscriptionToServer(subscription) {
         };
 
         // Find WebPushApi Livewire component dan call method
-        const webPushComponent = Livewire.find('web-push-api');
-
-        if (!webPushComponent) {
+        if (!window.WebPushApiComponent) {
             logger.warn('[WebPush] WebPushApi component not found, skipping server save');
             return;
         }
 
-        await webPushComponent.call('subscribe', subscriptionData);
+        await window.WebPushApiComponent.call('subscribe', subscriptionData);
 
         logger.log('[WebPush] Subscription sent to server');
     } catch (error) {
@@ -229,14 +225,12 @@ async function deleteSubscriptionFromServer(endpoint) {
 
     try {
         // Find WebPushApi Livewire component dan call method
-        const webPushComponent = Livewire.find('web-push-api');
-
-        if (!webPushComponent) {
+        if (!window.WebPushApiComponent) {
             logger.warn('[WebPush] WebPushApi component not found, skipping server delete');
             return;
         }
 
-        await webPushComponent.call('unsubscribe', endpoint);
+        await window.WebPushApiComponent.call('unsubscribe', endpoint);
         logger.log('[WebPush] Subscription deleted from server');
     } catch (error) {
         logger.error('[WebPush] Failed to delete subscription:', error);

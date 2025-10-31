@@ -28,24 +28,36 @@ document.addEventListener('livewire:init', () => {
 
                 // Dispatch event untuk play ringtone dan show notification
                 // Kurir: HANYA untuk orderan baru (created)
-                // Pelanggan: Untuk status update (confirmed) - akan diimplementasi nanti
+                // Pelanggan: Untuk status update (confirmed)
                 if (event.action === 'created' && isRelevantForUser) {
-                    logger.log('[Echo] Playing ringtone for NEW order');
+                    logger.log('[Echo] Playing ringtone for NEW order (Kurir)');
                     Livewire.dispatch('play-order-ringtone');
 
                     // Show browser notification jika permission granted
-                    showBrowserNotification(event);
+                    showBrowserNotification(event, 'kurir');
                 } else if (event.action === 'updated' && isRelevantForUser) {
-                    logger.log('[Echo] Skipping ringtone - status update only (not new order)');
+                    // Untuk pelanggan: play ringtone ketika order dikonfirmasi
+                    if (shouldPlayRingtoneForCustomer(event)) {
+                        logger.log('[Echo] Playing ringtone for CONFIRMED order (Pelanggan)');
+                        Livewire.dispatch('play-order-ringtone');
+
+                        // Show browser notification jika permission granted
+                        showBrowserNotification(event, 'pelanggan');
+                    } else {
+                        logger.log('[Echo] Skipping ringtone - status update only (not confirmed)');
+                    }
                 } else if (!isRelevantForUser) {
                     logger.log('[Echo] Skipping ringtone - transaction not relevant for this user');
                 }
 
                 // Dispatch Livewire events untuk refresh semua components
-                // Semua component akan refresh otomatis tanpa polling
+                // Kurir components
                 Livewire.dispatch('refresh-orders');
                 Livewire.dispatch('refresh-new-orders');
                 Livewire.dispatch('refresh-stats');
+
+                // Pelanggan components
+                Livewire.dispatch('refresh-active-orders');
 
                 logger.log('[Echo] All components refreshed for action:', event.action);
             });
@@ -59,13 +71,23 @@ document.addEventListener('livewire:init', () => {
 /**
  * Cek apakah transaction harus membunyikan ringtone untuk user ini
  * Kurir: Logika sama dengan TransactionAreaFilter::isCustomerInPosArea() di backend
- * Pelanggan: Filter berdasarkan customer_id (akan diimplementasi)
+ * Pelanggan: Filter berdasarkan customer_id
  *
  * @param {Object} event - Transaction event dari broadcast
  * @returns {boolean} - True jika harus play ringtone, false jika skip
  */
 function shouldPlayRingtone(event) {
-    // Ambil data area POS dari global config (di-set dari mobile.blade.php)
+    // Untuk pelanggan: cek apakah transaction ini milik customer yang login
+    const customerId = window.CUSTOMER_ID;
+    if (customerId) {
+        const isMyOrder = event.customer_id === customerId;
+        logger.log('[Echo] Customer ID:', customerId);
+        logger.log('[Echo] Transaction customer ID:', event.customer_id);
+        logger.log('[Echo] Is my order:', isMyOrder);
+        return isMyOrder;
+    }
+
+    // Untuk kurir: filter berdasarkan area POS
     const posArea = window.COURIER_POS_AREA || [];
     const customerVillage = event.customer_village;
 
@@ -92,13 +114,45 @@ function shouldPlayRingtone(event) {
 }
 
 /**
- * Show browser notification untuk pesanan baru
+ * Cek apakah customer harus play ringtone untuk order yang dikonfirmasi
+ * Customer hanya play ringtone jika order mereka dikonfirmasi (status berubah ke 'confirmed')
+ *
+ * @param {Object} event - Transaction event dari broadcast
+ * @returns {boolean} - True jika harus play ringtone, false jika skip
+ */
+function shouldPlayRingtoneForCustomer(event) {
+    const customerId = window.CUSTOMER_ID;
+
+    // Hanya untuk pelanggan yang login
+    if (!customerId) {
+        return false;
+    }
+
+    // Cek apakah ini order milik customer yang login
+    if (event.customer_id !== customerId) {
+        logger.log('[Echo] Not my order, skipping ringtone');
+        return false;
+    }
+
+    // Cek apakah status berubah ke 'confirmed'
+    if (event.workflow_status === 'confirmed') {
+        logger.log('[Echo] Order confirmed for customer:', customerId);
+        return true;
+    }
+
+    logger.log('[Echo] Order status is not confirmed:', event.workflow_status);
+    return false;
+}
+
+/**
+ * Show browser notification untuk pesanan baru atau konfirmasi
  * Jika app sedang tidak fokus, browser notification akan muncul
  * Jika app sedang fokus, skip notification (user sudah lihat di UI)
  *
  * @param {Object} event - Transaction event dari broadcast
+ * @param {string} userType - 'kurir' atau 'pelanggan'
  */
-function showBrowserNotification(event) {
+function showBrowserNotification(event, userType = 'kurir') {
     logger.log('[Notification] Checking browser notification...');
 
     // Cek apakah browser support Notification API
@@ -121,15 +175,26 @@ function showBrowserNotification(event) {
 
     // Create notification
     try {
-        const customerName = event.customer_name || 'Customer';
+        let title, body, url;
         const serviceName = event.service_name || 'Layanan';
         const invoiceNumber = event.invoice_number || '-';
-
-        const title = 'Pesanan Baru Masuk!';
-        const body = `Pesanan dari ${customerName} - ${serviceName} (${invoiceNumber})`;
         const icon = '/image/app.png';
         const badge = '/image/app.png';
         const tag = `transaction-${event.transaction_id}`;
+
+        if (userType === 'pelanggan') {
+            // Notification untuk customer (order dikonfirmasi)
+            const courierName = event.courier_name || 'Kurir';
+            title = 'Pesanan Dikonfirmasi!';
+            body = `${courierName} telah menerima pesanan ${serviceName} Anda (${invoiceNumber})`;
+            url = `/pelanggan/detail-pesanan/${event.transaction_id}`;
+        } else {
+            // Notification untuk kurir (order baru)
+            const customerName = event.customer_name || 'Customer';
+            title = 'Pesanan Baru Masuk!';
+            body = `Pesanan dari ${customerName} - ${serviceName} (${invoiceNumber})`;
+            url = `/kurir/detail-pesanan/${event.transaction_id}`;
+        }
 
         const notification = new Notification(title, {
             body: body,
@@ -140,7 +205,7 @@ function showBrowserNotification(event) {
             vibrate: [200, 100, 200, 100, 200],
             data: {
                 transaction_id: event.transaction_id,
-                url: `/kurir/detail-pesanan/${event.transaction_id}`
+                url: url
             }
         });
 
@@ -157,7 +222,7 @@ function showBrowserNotification(event) {
             notification.close();
         };
 
-        logger.log('[Notification] Browser notification shown');
+        logger.log('[Notification] Browser notification shown for', userType);
     } catch (error) {
         logger.error('[Notification] Failed to show notification:', error);
     }

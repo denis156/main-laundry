@@ -6,6 +6,7 @@ namespace App\Livewire\Pelanggan\Components;
 
 use App\Models\Transaction;
 use Livewire\Component;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
@@ -25,6 +26,15 @@ class ActiveOrder extends Component
             ->whereNotIn('workflow_status', ['delivered', 'cancelled'])
             ->orderBy('order_date', 'desc')
             ->get();
+    }
+
+    /**
+     * Refresh active orders when notified via Echo
+     */
+    #[On('refresh-active-orders')]
+    public function refreshActiveOrders(): void
+    {
+        unset($this->activeTransactions);
     }
 
     public function render()

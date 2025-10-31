@@ -12,6 +12,7 @@ use App\Events\TransactionEvents;
 use App\Models\CourierMotorcycle;
 use Illuminate\Support\Facades\Log;
 use App\Notifications\NewTransactionNotification;
+use App\Notifications\OrderConfirmedNotification;
 
 class TransactionObserver
 {
@@ -90,12 +91,37 @@ class TransactionObserver
     }
 
     /**
+     * Send web push notification ke customer ketika order dikonfirmasi
+     */
+    private function sendWebPushToCustomer(Transaction $transaction): void
+    {
+        // Get customer dan pastikan punya push subscription
+        $customer = $transaction->customer;
+
+        if (!$customer || !$customer->pushSubscriptions()->exists()) {
+            return;
+        }
+
+        try {
+            $customer->notify(new OrderConfirmedNotification($transaction));
+        } catch (Exception $e) {
+            Log::error("Failed to send web push to customer {$customer->id}: " . $e->getMessage());
+        }
+    }
+
+    /**
      * Handle the Transaction "updated" event.
      * Auto-create Payment record berdasarkan workflow_status dan payment_timing.
      * Broadcast event untuk real-time notifications.
+     * Send web push ke customer ketika order dikonfirmasi.
      */
     public function updated(Transaction $transaction): void
     {
+        // Send web push ke customer ketika order dikonfirmasi oleh kurir
+        if ($transaction->wasChanged('workflow_status') && $transaction->workflow_status === 'confirmed') {
+            $this->sendWebPushToCustomer($transaction);
+        }
+
         // Auto-create Payment ketika workflow_status berubah ke status tertentu
         if ($transaction->wasChanged('workflow_status')) {
             // Bayar Saat Jemput: Payment dibuat saat status 'picked_up' + weight sudah diinput

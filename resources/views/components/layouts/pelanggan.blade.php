@@ -77,6 +77,14 @@
         @endpersist
     @endauth
 
+    {{-- AUDIO RINGTONE - Persistent audio element untuk notifikasi pesanan --}}
+    @persist('order-ringtone-audio')
+        <audio id="order-ringtone" preload="auto">
+            <source src="{{ asset('music/ringtone.wav') }}" type="audio/wav">
+            Your browser does not support the audio element.
+        </audio>
+    @endpersist
+
     {{-- Livewire Script --}}
     @livewireScripts
 </body>

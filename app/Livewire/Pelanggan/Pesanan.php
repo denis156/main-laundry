@@ -7,6 +7,7 @@ namespace App\Livewire\Pelanggan;
 use Mary\Traits\Toast;
 use App\Models\Transaction;
 use Livewire\Component;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
@@ -78,6 +79,16 @@ class Pesanan extends Component
             ->skip(($this->currentPage - 1) * $this->perPage)
             ->take($this->perPage)
             ->get();
+    }
+
+    /**
+     * Refresh orders when notified via Echo
+     */
+    #[On('refresh-orders')]
+    public function refreshOrders(): void
+    {
+        unset($this->transactions);
+        unset($this->totalTransactions);
     }
 
     /**
