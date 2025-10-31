@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Observers;
 
-use App\Events\TransactionEvents;
-use App\Models\CourierMotorcycle;
+use Exception;
 use App\Models\Payment;
 use App\Models\Transaction;
-use App\Notifications\NewTransactionNotification;
 use Illuminate\Support\Str;
+use App\Events\TransactionEvents;
+use App\Models\CourierMotorcycle;
+use Illuminate\Support\Facades\Log;
+use App\Notifications\NewTransactionNotification;
 
 class TransactionObserver
 {
@@ -81,8 +83,8 @@ class TransactionObserver
         foreach ($couriers as $courier) {
             try {
                 $courier->notify(new NewTransactionNotification($transaction));
-            } catch (\Exception $e) {
-                \Log::error("Failed to send web push to courier {$courier->id}: " . $e->getMessage());
+            } catch (Exception $e) {
+                Log::error("Failed to send web push to courier {$courier->id}: " . $e->getMessage());
             }
         }
     }
