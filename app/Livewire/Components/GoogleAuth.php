@@ -115,14 +115,4 @@ class GoogleAuth extends Component
                 ->with('error', 'Login dengan Google gagal: ' . $e->getMessage());
         }
     }
-
-    /**
-     * Component ini tidak memiliki view
-     * Hanya berisi logika untuk handle OAuth, seperti WebPushApi
-     */
-    public function render()
-    {
-        // Tidak perlu render view, component ini hanya untuk logic
-        return null;
-    }
 }
