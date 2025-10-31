@@ -10,8 +10,8 @@
     {{-- Favicon --}}
     <link rel="icon" type="image/svg+xml" href="{{ asset('image/favico.svg') }}">
 
-    {{-- PWA Manifest --}}
-    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    {{-- PWA Manifest - Dynamic untuk Kurir --}}
+    <link rel="manifest" href="{{ route('manifest.kurir') }}">
     <meta name="theme-color" content="#3b82f6">
 
     {{-- Android PWA --}}

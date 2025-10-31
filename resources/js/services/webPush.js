@@ -1,7 +1,9 @@
 // ==========================================
 // WEB PUSH NOTIFICATION SERVICE
 // ==========================================
-// Menangani web push notifications untuk kurir
+// Menangani web push notifications untuk mobile apps (kurir & pelanggan)
+// PENTING: Web Push bekerja via Service Worker, jadi tetap bisa menerima
+// notifikasi bahkan saat app tertutup (background notifications)
 
 import { logger } from '../utils/logger.js';
 

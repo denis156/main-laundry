@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Livewire\Kurir\DetailPesanan;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Kurir\DetailPembayaran;
+use App\Helper\ManifestHelper;
 use App\Livewire\Components\OfflinePage;
 use App\Livewire\Components\GoogleAuth;
 use App\Livewire\Pelanggan\Login as PelangganLogin;
@@ -26,6 +27,10 @@ use App\Livewire\Pelanggan\DetailPesanan as DetailPesananPelanggan;
 Route::get('/', function () {
     return view('landing-page');
 })->name('index');
+
+// Dynamic Manifest for PWA - Using ManifestHelper
+Route::get('/manifest-kurir.json', fn() => response()->json(ManifestHelper::kurirManifest()))->name('manifest.kurir');
+Route::get('/manifest-pelanggan.json', fn() => response()->json(ManifestHelper::pelangganManifest()))->name('manifest.pelanggan');
 
 // Kurir Routes
 Route::prefix('kurir')->name('kurir.')->group(function () {
@@ -59,6 +64,9 @@ Route::prefix('kurir')->name('kurir.')->group(function () {
 
 // Pelanggan Routes (Customer)
 Route::prefix('pelanggan')->name('pelanggan.')->group(function () {
+    // Offline Page (Accessible tanpa auth)
+    Route::get('/offline', OfflinePage::class)->name('offline');
+
     // Guest Routes (Belum Login)
     Route::middleware('guest:customer')->group(function () {
         Route::get('/masuk', PelangganLogin::class)->name('login');

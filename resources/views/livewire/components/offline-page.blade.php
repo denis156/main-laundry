@@ -1,3 +1,8 @@
+@php
+    $layoutView = $layout ?? 'components.layouts.kurir';
+@endphp
+
+<x-dynamic-component :component="$layoutView">
 {{-- Offline Page - Ditampilkan saat tidak ada koneksi internet --}}
 <section class="bg-base-100">
     {{-- Header --}}
@@ -36,7 +41,7 @@
 
             <x-slot:actions separator>
                 {{-- Back to Home --}}
-                <x-button link="{{ route('kurir.beranda') }}" icon="solar.home-bold-duotone" label="Kembali ke Beranda"
+                <x-button link="{{ $this->getBerandaRoute() }}" icon="solar.home-bold-duotone" label="Kembali ke Beranda"
                     class="btn-secondary" />
 
                 {{-- Retry Button --}}
@@ -130,3 +135,5 @@
     // Initial check
     updateConnectionStatus();
 </script>
+</section>
+</x-dynamic-component>

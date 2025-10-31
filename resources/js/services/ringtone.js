@@ -16,8 +16,8 @@ document.addEventListener('livewire:init', () => {
     let pendingRingtone = false;
 
     // Definisikan array events terlebih dahulu agar bisa diakses di unlockAudio
-    // Tambahkan lebih banyak event untuk unlock audio lebih cepat
-    const events = ['click', 'touchstart', 'touchend', 'mousedown', 'keydown', 'scroll', 'mousemove', 'touchmove'];
+    // Minimal events yang diperlukan untuk unlock audio
+    const events = ['click', 'touchstart'];
 
     // Fungsi untuk handle interaksi user - didefinisikan lebih awal untuk referensi
     function handleUserInteraction() {
@@ -77,17 +77,9 @@ document.addEventListener('livewire:init', () => {
     }
 
     // Tambahkan event listeners yang akan retry sampai audio ter-unlock
-    // Gunakan once: true untuk click/touch agar lebih efficient
+    // Hanya gunakan click dan touchstart untuk efisiensi
     document.addEventListener('click', handleUserInteraction, { passive: true, once: false });
     document.addEventListener('touchstart', handleUserInteraction, { passive: true, once: false });
-    document.addEventListener('touchend', handleUserInteraction, { passive: true, once: false });
-    document.addEventListener('mousedown', handleUserInteraction, { passive: true, once: false });
-    document.addEventListener('keydown', handleUserInteraction, { passive: true, once: false });
-
-    // Gunakan once: true untuk scroll/mousemove karena sering triggered
-    document.addEventListener('scroll', handleUserInteraction, { passive: true, once: true });
-    document.addEventListener('mousemove', handleUserInteraction, { passive: true, once: true });
-    document.addEventListener('touchmove', handleUserInteraction, { passive: true, once: true });
 
     // Coba unlock saat Livewire navigasi ke halaman baru
     Livewire.hook('navigated', () => {

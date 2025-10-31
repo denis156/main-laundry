@@ -3,6 +3,10 @@
 // ==========================================
 // Menangani event transaction dari Laravel Echo
 // dan dispatch Livewire events untuk refresh components
+//
+// PENTING: File ini HANYA handle real-time events via WebSocket (Echo/Reverb)
+// Data transaksi TIDAK di-cache oleh Service Worker
+// Jika offline, transaksi tidak akan muncul sampai online kembali
 
 import { logger } from '../utils/logger.js';
 
@@ -16,21 +20,25 @@ document.addEventListener('livewire:init', () => {
                 logger.log('[Echo] Transaction event received:', event);
                 logger.log('[Echo] Action:', event.action);
 
-                // Cek apakah transaction ini relevan untuk kurir yang login
-                const isRelevantForCourier = shouldPlayRingtone(event);
-                logger.log('[Echo] Is relevant for this courier:', isRelevantForCourier);
+                // Cek apakah transaction ini relevan untuk user yang login
+                // Untuk kurir: Filter berdasarkan area (TransactionAreaFilter.php)
+                // Untuk pelanggan: Filter berdasarkan customer_id
+                const isRelevantForUser = shouldPlayRingtone(event);
+                logger.log('[Echo] Is relevant for this user:', isRelevantForUser);
 
-                // Dispatch event untuk play ringtone dan show notification HANYA untuk orderan baru (created)
-                if (event.action === 'created' && isRelevantForCourier) {
+                // Dispatch event untuk play ringtone dan show notification
+                // Kurir: HANYA untuk orderan baru (created)
+                // Pelanggan: Untuk status update (confirmed) - akan diimplementasi nanti
+                if (event.action === 'created' && isRelevantForUser) {
                     logger.log('[Echo] Playing ringtone for NEW order');
                     Livewire.dispatch('play-order-ringtone');
 
                     // Show browser notification jika permission granted
                     showBrowserNotification(event);
-                } else if (event.action === 'updated' && isRelevantForCourier) {
+                } else if (event.action === 'updated' && isRelevantForUser) {
                     logger.log('[Echo] Skipping ringtone - status update only (not new order)');
-                } else if (!isRelevantForCourier) {
-                    logger.log('[Echo] Skipping ringtone - transaction outside courier area');
+                } else if (!isRelevantForUser) {
+                    logger.log('[Echo] Skipping ringtone - transaction not relevant for this user');
                 }
 
                 // Dispatch Livewire events untuk refresh semua components
@@ -49,8 +57,9 @@ document.addEventListener('livewire:init', () => {
 });
 
 /**
- * Cek apakah transaction harus membunyikan ringtone untuk kurir ini
- * Logika sama dengan TransactionAreaFilter::isCustomerInPosArea() di backend
+ * Cek apakah transaction harus membunyikan ringtone untuk user ini
+ * Kurir: Logika sama dengan TransactionAreaFilter::isCustomerInPosArea() di backend
+ * Pelanggan: Filter berdasarkan customer_id (akan diimplementasi)
  *
  * @param {Object} event - Transaction event dari broadcast
  * @returns {boolean} - True jika harus play ringtone, false jika skip

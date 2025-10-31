@@ -1,48 +1,41 @@
 // ==========================================
-// SERVICE WORKER - FALLBACK (DEPRECATED)
+// SERVICE WORKER - KURIR APP
 // ==========================================
-// File ini hanya fallback, gunakan sw-kurir.js atau sw-pelanggan.js
-// Service Worker yang sesuai akan di-register otomatis berdasarkan route
+// PWA Service Worker untuk offline functionality dan caching
+//
+// PENTING: Service Worker ini HANYA cache static assets (CSS, JS, images)
+// DATA TRANSAKSI TIDAK DI-CACHE - selalu fetch dari server via internet
+// Jika offline, transaksi tidak akan muncul sampai online kembali
 
-console.warn('[SW] Using fallback sw.js - please use sw-kurir.js or sw-pelanggan.js instead');
+const CACHE_NAME = 'main-laundry-kurir-v1';
+const STATIC_CACHE = 'main-laundry-kurir-static-v1';
+const DYNAMIC_CACHE = 'main-laundry-kurir-dynamic-v1';
 
-const CACHE_NAME = 'main-laundry-fallback-v1';
-const STATIC_CACHE = 'main-laundry-fallback-static-v1';
-const DYNAMIC_CACHE = 'main-laundry-fallback-dynamic-v1';
-
-// Minimal assets
+// Assets yang akan di-cache saat install (static assets)
+// JANGAN cache halaman HTML! Hanya cache assets statis
 const STATIC_ASSETS = [
     '/image/app.png',
+    '/manifest-kurir.json',
 ];
 
-// Default offline (will be overridden by specific SW)
+// Offline page URL (untuk fallback saat network failed)
 const OFFLINE_URL = '/kurir/offline';
 
-// Install event - cache static assets & offline page
+// Install event - cache static assets only
 self.addEventListener('install', (event) => {
     console.log('[SW] Installing service worker...');
 
     event.waitUntil(
-        Promise.all([
-            // Cache static assets
-            caches.open(STATIC_CACHE)
-                .then((cache) => {
-                    console.log('[SW] Caching static assets');
-                    return cache.addAll(STATIC_ASSETS);
-                })
-                .catch((error) => {
-                    console.error('[SW] Failed to cache static assets:', error);
-                }),
-            // Cache offline page
-            caches.open(CACHE_NAME)
-                .then((cache) => {
-                    console.log('[SW] Caching offline page');
-                    return cache.add(new Request(OFFLINE_URL, { cache: 'reload' }));
-                })
-                .catch((error) => {
-                    console.error('[SW] Failed to cache offline page:', error);
-                })
-        ])
+        // Cache static assets only
+        // JANGAN cache offline page di install karena butuh auth/session
+        caches.open(STATIC_CACHE)
+            .then((cache) => {
+                console.log('[SW] Caching static assets');
+                return cache.addAll(STATIC_ASSETS);
+            })
+            .catch((error) => {
+                console.error('[SW] Failed to cache static assets:', error);
+            })
     );
 
     // Force service worker untuk langsung aktif tanpa menunggu

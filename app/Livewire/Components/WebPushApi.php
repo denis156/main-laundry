@@ -12,14 +12,17 @@ use Illuminate\Support\Facades\Auth;
 class WebPushApi extends Component
 {
     /**
-     * Subscribe kurir ke web push notifications
+     * Subscribe user ke web push notifications
+     * Support untuk kurir dan pelanggan
      * Dipanggil dari frontend setelah user grant permission
      */
     public function subscribe(array $subscription): void
     {
-        $courier = Auth::guard('courier')->user();
+        // Cek guard mana yang sedang login
+        /** @var \App\Models\CourierMotorcycle|\App\Models\Customer|null $user */
+        $user = Auth::guard('courier')->user() ?? Auth::guard('customer')->user();
 
-        if (!$courier) {
+        if (!$user) {
             $this->dispatch('webpush-error', message: 'User not authenticated');
             return;
         }
@@ -27,7 +30,8 @@ class WebPushApi extends Component
         try {
             // Update atau create subscription
             // Package laravel-notification-channels/webpush otomatis handle ini via HasPushSubscriptions trait
-            $courier->updatePushSubscription(
+            // Method updatePushSubscription() dari trait NotificationChannels\WebPush\HasPushSubscriptions
+            $user->updatePushSubscription(
                 $subscription['endpoint'],
                 $subscription['keys']['p256dh'] ?? null,
                 $subscription['keys']['auth'] ?? null
@@ -41,20 +45,24 @@ class WebPushApi extends Component
     }
 
     /**
-     * Unsubscribe kurir dari web push notifications
+     * Unsubscribe user dari web push notifications
+     * Support untuk kurir dan pelanggan
      */
     public function unsubscribe(string $endpoint): void
     {
-        $courier = Auth::guard('courier')->user();
+        // Cek guard mana yang sedang login
+        /** @var \App\Models\CourierMotorcycle|\App\Models\Customer|null $user */
+        $user = Auth::guard('courier')->user() ?? Auth::guard('customer')->user();
 
-        if (!$courier) {
+        if (!$user) {
             $this->dispatch('webpush-error', message: 'User not authenticated');
             return;
         }
 
         try {
             // Delete subscription berdasarkan endpoint
-            $courier->deletePushSubscription($endpoint);
+            // Method deletePushSubscription() dari trait NotificationChannels\WebPush\HasPushSubscriptions
+            $user->deletePushSubscription($endpoint);
 
             $this->dispatch('webpush-unsubscribed');
         } catch (Exception $e) {

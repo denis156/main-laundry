@@ -12,19 +12,33 @@ let pwaInstallSetupDone = false; // Flag untuk prevent duplicate setup
 /**
  * Register service worker
  * Service worker akan di-cache untuk offline functionality
+ * @param {string} swPath - Path ke service worker file (default: auto-detect)
  * @returns {Promise<ServiceWorkerRegistration>}
  */
-export function registerServiceWorker() {
+export function registerServiceWorker(swPath = null) {
     // Jika sudah pernah dipanggil, return promise yang sama
     if (swRegistrationPromise) {
         return swRegistrationPromise;
     }
 
+    // Auto-detect SW path berdasarkan current URL
+    if (!swPath) {
+        const currentPath = window.location.pathname;
+        if (currentPath.startsWith('/kurir')) {
+            swPath = '/sw-kurir.js';
+        } else if (currentPath.startsWith('/pelanggan')) {
+            swPath = '/sw-pelanggan.js';
+        } else {
+            swPath = '/sw.js'; // fallback
+        }
+    }
+
     if ('serviceWorker' in navigator) {
         swRegistrationPromise = navigator.serviceWorker
-            .register('/sw.js')
+            .register(swPath)
             .then((registration) => {
                 logger.log('[SW] Service Worker registered successfully:', registration.scope);
+                logger.log('[SW] Using SW file:', swPath);
                 return registration;
             })
             .catch((error) => {

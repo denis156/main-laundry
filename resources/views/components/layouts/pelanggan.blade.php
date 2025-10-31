@@ -10,8 +10,8 @@
     {{-- Favicon --}}
     <link rel="icon" type="image/svg+xml" href="{{ asset('image/favico.svg') }}">
 
-    {{-- PWA Manifest --}}
-    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    {{-- PWA Manifest - Dynamic untuk Pelanggan --}}
+    <link rel="manifest" href="{{ route('manifest.pelanggan') }}">
     <meta name="theme-color" content="#3b82f6">
 
     {{-- Android PWA --}}
@@ -33,7 +33,21 @@
     @livewireStyles
 
     {{-- Vite --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/mobile.js'])
+
+    {{-- Pass customer data to JavaScript for filtering (if needed) --}}
+    @auth('customer')
+        @php
+            $customer = Auth::guard('customer')->user();
+        @endphp
+        <script>
+            // Global config untuk customer
+            window.CUSTOMER_ID = @json($customer?->id);
+
+            // VAPID public key untuk web push notifications
+            window.VAPID_PUBLIC_KEY = @json(config('webpush.vapid.public_key'));
+        </script>
+    @endauth
 </head>
 
 <body class="min-h-dvh bg-base-100 ">
@@ -55,6 +69,13 @@
 
     {{-- LOADING INDICATOR --}}
     <livewire:components.loading />
+
+    {{-- WEB PUSH API - Invisible Livewire component untuk handle web push subscription --}}
+    @auth('customer')
+        @persist('web-push-api')
+            <livewire:components.web-push-api />
+        @endpersist
+    @endauth
 
     {{-- Livewire Script --}}
     @livewireScripts
