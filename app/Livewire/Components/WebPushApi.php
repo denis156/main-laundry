@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\Kurir\Components;
+namespace App\Livewire\Components;
 
 use Exception;
 use Livewire\Component;

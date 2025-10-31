@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Kurir\Components;
+namespace App\Livewire\Components;
 
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -128,9 +128,9 @@ class FabInstallApp extends Component
 
     public function render()
     {
-        return view('livewire.kurir.components.fab-install-app', [
+        return view('livewire.components.fab-install-app', [
             'appName' => config('app.name'),
-            'appVersion' => config('app.kurir_version'),
+            'appVersion' => config('app.mobile_version'),
         ]);
     }
 }

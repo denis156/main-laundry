@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\Kurir\Components;
+namespace App\Livewire\Components;
 
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -23,6 +23,6 @@ class OfflinePage extends Component
 
     public function render()
     {
-        return view('livewire.kurir.components.offline-page');
+        return view('livewire.components.offline-page');
     }
 }

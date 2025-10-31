@@ -26,14 +26,10 @@
 
                     {{-- Judul dan Deskripsi --}}
                     <div class="space-y-2">
-                        <h3 class="text-2xl font-bold text-accent">Kurir <span
-                                class="text-primary">{{ $appName }}</span>
-                        </h3>
+                        <h3 class="text-2xl font-bold text-primary">{{ $appName }}</h3>
                         <p class="text-sm text-secondary font-medium">Versi {{ $appVersion }}</p>
                         <p class="text-base-content/70 max-w-sm">
-                            Install aplikasi kurir ini ke perangkat Anda untuk akses yang lebih cepat dan pengalaman
-                            yang lebih
-                            baik
+                            Install aplikasi ini ke perangkat Anda untuk akses yang lebih cepat dan pengalaman yang lebih baik
                         </p>
                     </div>
                 </div>

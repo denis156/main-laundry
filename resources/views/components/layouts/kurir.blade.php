@@ -33,7 +33,7 @@
     @livewireStyles
 
     {{-- Vite --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/kurir.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/mobile.js'])
 
     {{-- Pass courier POS area data to JavaScript for filtering --}}
     @auth('courier')
@@ -84,7 +84,7 @@
     {{-- WEB PUSH API - Invisible Livewire component untuk handle web push subscription --}}
     @auth('courier')
         @persist('web-push-api')
-            <livewire:kurir.components.web-push-api />
+            <livewire:components.web-push-api />
         @endpersist
     @endauth
 

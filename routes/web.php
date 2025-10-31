@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Livewire\Kurir\DetailPesanan;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Kurir\DetailPembayaran;
-use App\Livewire\Kurir\Components\OfflinePage;
+use App\Livewire\Components\OfflinePage;
 use App\Livewire\Components\GoogleAuth;
 use App\Livewire\Pelanggan\Login as PelangganLogin;
 use App\Livewire\Pelanggan\Info as InfoPelanggan;

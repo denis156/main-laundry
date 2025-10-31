@@ -33,7 +33,7 @@
     @livewireStyles
 
     {{-- Vite --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/kurir.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/mobile.js'])
 
 </head>
 
@@ -48,7 +48,7 @@
     {{--  TOAST area --}}
     <x-toast />
     {{-- FAB Install App --}}
-    <livewire:kurir.components.fab-install-app />
+    <livewire:components.fab-install-app />
 
     {{-- Livewire Script --}}
     @livewireScripts

@@ -1,4 +1,4 @@
-// Kurir application entry point
+// Mobile application entry point (Kurir & Pelanggan)
 // Import ringtone functionality for new order notifications
 import './services/ringtone';
 

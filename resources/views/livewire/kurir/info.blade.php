@@ -305,8 +305,8 @@
                         <span class="font-semibold">Kurir {{ config('app.name') }}</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-sm text-base-content/70">Versi Kurir</span>
-                        <span class="badge badge-primary">v{{ config('app.kurir_version') }}</span>
+                        <span class="text-sm text-base-content/70">Versi Aplikasi</span>
+                        <span class="badge badge-primary">v{{ config('app.mobile_version') }}</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-base-content/70">Environment</span>

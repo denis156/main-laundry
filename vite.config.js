@@ -9,7 +9,7 @@ export default defineConfig({
                 'resources/css/filament/admin/theme.css',
                 'resources/css/app.css',
                 'resources/js/app.js',
-                'resources/js/kurir.js'
+                'resources/js/mobile.js'
             ],
             refresh: true,
         }),
