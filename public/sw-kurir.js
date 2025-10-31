@@ -7,9 +7,9 @@
 // DATA TRANSAKSI TIDAK DI-CACHE - selalu fetch dari server via internet
 // Jika offline, transaksi tidak akan muncul sampai online kembali
 
-const CACHE_NAME = 'main-laundry-kurir-v1';
-const STATIC_CACHE = 'main-laundry-kurir-static-v1';
-const DYNAMIC_CACHE = 'main-laundry-kurir-dynamic-v1';
+const CACHE_NAME = 'main-laundry-kurir-v1.0.0';
+const STATIC_CACHE = 'main-laundry-kurir-static-v1.0.0';
+const DYNAMIC_CACHE = 'main-laundry-kurir-dynamic-v1.0.0';
 
 // Assets yang akan di-cache saat install (static assets)
 // JANGAN cache halaman HTML! Hanya cache assets statis
@@ -38,8 +38,8 @@ self.addEventListener('install', (event) => {
             })
     );
 
-    // Force service worker untuk langsung aktif tanpa menunggu
-    self.skipWaiting();
+    // TIDAK auto skipWaiting - tunggu user klik tombol update di modal
+    console.log('[SW] Service worker installed, waiting for user confirmation...');
 });
 
 // Activate event - cleanup old caches
@@ -279,5 +279,15 @@ self.addEventListener('sync', (event) => {
             // Sync logic di sini
             Promise.resolve()
         );
+    }
+});
+
+// Message handler - terima perintah dari client (modal update)
+self.addEventListener('message', (event) => {
+    console.log('[SW] Message received:', event.data);
+
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        console.log('[SW] User confirmed update, activating new service worker...');
+        self.skipWaiting();
     }
 });

@@ -39,6 +39,15 @@ export function registerServiceWorker(swPath = null) {
             .then((registration) => {
                 logger.log('[SW] Service Worker registered successfully:', registration.scope);
                 logger.log('[SW] Using SW file:', swPath);
+
+                // Setup auto-update checker
+                setupAutoUpdateChecker(registration);
+
+                // Check for updates on registration
+                registration.update().catch(err => {
+                    logger.warn('[SW] Initial update check failed:', err);
+                });
+
                 return registration;
             })
             .catch((error) => {
@@ -52,6 +61,66 @@ export function registerServiceWorker(swPath = null) {
         logger.warn('[SW] Service Worker not supported in this browser');
         return Promise.reject(new Error('Service Worker not supported'));
     }
+}
+
+/**
+ * Setup automatic update checker untuk service worker
+ * Check for updates setiap 1 jam dan saat page visible
+ * @param {ServiceWorkerRegistration} registration
+ */
+function setupAutoUpdateChecker(registration) {
+    logger.log('[SW] Setting up auto-update checker...');
+
+    // Check saat page load apakah ada SW waiting (dari refresh sebelumnya)
+    if (registration.waiting) {
+        logger.log('[SW] Found waiting service worker on page load, showing update modal...');
+        if (window.Livewire) {
+            window.Livewire.dispatch('sw-update-available');
+        }
+    }
+
+    // Check for updates setiap 1 jam
+    setInterval(() => {
+        logger.log('[SW] Checking for updates (scheduled)...');
+        registration.update().catch(err => {
+            logger.warn('[SW] Update check failed:', err);
+        });
+    }, 60 * 60 * 1000); // 1 jam
+
+    // Check for updates saat page menjadi visible (user buka app lagi)
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            logger.log('[SW] Page visible, checking for updates...');
+            registration.update().catch(err => {
+                logger.warn('[SW] Update check failed:', err);
+            });
+        }
+    });
+
+    // Listen untuk SW updates yang sudah waiting
+    registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        logger.log('[SW] New service worker found, installing...');
+
+        newWorker.addEventListener('statechange', () => {
+            logger.log('[SW] New SW state:', newWorker.state);
+
+            // Jika SW baru sudah installed dan waiting, tampilkan modal update
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                logger.log('[SW] New service worker installed! Showing update modal...');
+
+                // Dispatch event ke Livewire untuk show modal update
+                if (window.Livewire) {
+                    window.Livewire.dispatch('sw-update-available');
+                }
+
+                // TIDAK auto-reload lagi, biarkan user klik tombol di modal
+                // Modal persistent akan force user untuk update
+            }
+        });
+    });
+
+    logger.log('[SW] Auto-update checker setup completed');
 }
 
 /**

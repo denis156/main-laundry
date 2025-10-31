@@ -6,9 +6,9 @@
 
 console.warn('[SW] Using fallback sw.js - please use sw-kurir.js or sw-pelanggan.js instead');
 
-const CACHE_NAME = 'main-laundry-fallback-v1';
-const STATIC_CACHE = 'main-laundry-fallback-static-v1';
-const DYNAMIC_CACHE = 'main-laundry-fallback-dynamic-v1';
+const CACHE_NAME = 'main-laundry-fallback-v1.0.0';
+const STATIC_CACHE = 'main-laundry-fallback-static-v1.0.0';
+const DYNAMIC_CACHE = 'main-laundry-fallback-dynamic-v1.0.0';
 
 // Minimal assets
 const STATIC_ASSETS = [
@@ -18,35 +18,25 @@ const STATIC_ASSETS = [
 // Default offline (will be overridden by specific SW)
 const OFFLINE_URL = '/kurir/offline';
 
-// Install event - cache static assets & offline page
+// Install event - cache static assets only
 self.addEventListener('install', (event) => {
     console.log('[SW] Installing service worker...');
 
     event.waitUntil(
-        Promise.all([
-            // Cache static assets
-            caches.open(STATIC_CACHE)
-                .then((cache) => {
-                    console.log('[SW] Caching static assets');
-                    return cache.addAll(STATIC_ASSETS);
-                })
-                .catch((error) => {
-                    console.error('[SW] Failed to cache static assets:', error);
-                }),
-            // Cache offline page
-            caches.open(CACHE_NAME)
-                .then((cache) => {
-                    console.log('[SW] Caching offline page');
-                    return cache.add(new Request(OFFLINE_URL, { cache: 'reload' }));
-                })
-                .catch((error) => {
-                    console.error('[SW] Failed to cache offline page:', error);
-                })
-        ])
+        // Cache static assets only
+        // JANGAN cache offline page di install karena butuh auth/session
+        caches.open(STATIC_CACHE)
+            .then((cache) => {
+                console.log('[SW] Caching static assets');
+                return cache.addAll(STATIC_ASSETS);
+            })
+            .catch((error) => {
+                console.error('[SW] Failed to cache static assets:', error);
+            })
     );
 
-    // Force service worker untuk langsung aktif tanpa menunggu
-    self.skipWaiting();
+    // TIDAK auto skipWaiting - tunggu user klik tombol update di modal
+    console.log('[SW] Service worker installed, waiting for user confirmation...');
 });
 
 // Activate event - cleanup old caches
@@ -286,5 +276,15 @@ self.addEventListener('sync', (event) => {
             // Sync logic di sini
             Promise.resolve()
         );
+    }
+});
+
+// Message handler - terima perintah dari client (modal update)
+self.addEventListener('message', (event) => {
+    console.log('[SW] Message received:', event.data);
+
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        console.log('[SW] User confirmed update, activating new service worker...');
+        self.skipWaiting();
     }
 });

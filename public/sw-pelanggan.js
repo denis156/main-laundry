@@ -7,9 +7,9 @@
 // DATA TRANSAKSI TIDAK DI-CACHE - selalu fetch dari server via internet
 // Jika offline, transaksi tidak akan muncul sampai online kembali
 
-const CACHE_NAME = 'main-laundry-pelanggan-v1';
-const STATIC_CACHE = 'main-laundry-pelanggan-static-v1';
-const DYNAMIC_CACHE = 'main-laundry-pelanggan-dynamic-v1';
+const CACHE_NAME = 'main-laundry-pelanggan-v1.0.0';
+const STATIC_CACHE = 'main-laundry-pelanggan-static-v1.0.0';
+const DYNAMIC_CACHE = 'main-laundry-pelanggan-dynamic-v1.0.0';
 
 // Assets yang akan di-cache saat install (static assets)
 // JANGAN cache halaman HTML! Hanya cache assets statis
@@ -38,8 +38,8 @@ self.addEventListener('install', (event) => {
             })
     );
 
-    // Force service worker untuk langsung aktif tanpa menunggu
-    self.skipWaiting();
+    // TIDAK auto skipWaiting - tunggu user klik tombol update di modal
+    console.log('[SW] Service worker installed, waiting for user confirmation...');
 });
 
 // Activate event - cleanup old caches
@@ -239,20 +239,20 @@ self.addEventListener('notificationclick', (event) => {
     }
 
     // Default action atau 'view' action - buka URL
-    const urlToOpen = event.notification.data?.url || '/kurir/pesanan';
+    const urlToOpen = event.notification.data?.url || '/pelanggan/pesanan';
 
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true })
             .then((clientList) => {
-                // Cari window yang sudah terbuka ke base URL (kurir app)
+                // Cari window yang sudah terbuka ke base URL (pelanggan app)
                 const baseUrl = new URL(urlToOpen, self.location.origin);
 
                 for (const client of clientList) {
                     const clientUrl = new URL(client.url);
 
-                    // Jika ada window yang terbuka ke kurir app, focus dan navigate
+                    // Jika ada window yang terbuka ke pelanggan app, focus dan navigate
                     if (clientUrl.origin === baseUrl.origin &&
-                        clientUrl.pathname.startsWith('/kurir')) {
+                        clientUrl.pathname.startsWith('/pelanggan')) {
                         console.log('[SW] Focusing existing window and navigating to:', baseUrl.href);
                         return client.focus().then(() => {
                             // Navigate ke URL target
@@ -279,5 +279,15 @@ self.addEventListener('sync', (event) => {
             // Sync logic di sini
             Promise.resolve()
         );
+    }
+});
+
+// Message handler - terima perintah dari client (modal update)
+self.addEventListener('message', (event) => {
+    console.log('[SW] Message received:', event.data);
+
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        console.log('[SW] User confirmed update, activating new service worker...');
+        self.skipWaiting();
     }
 });

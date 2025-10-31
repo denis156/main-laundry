@@ -85,6 +85,11 @@
         </audio>
     @endpersist
 
+    {{-- UPDATE REQUIRED MODAL - Force update saat ada versi baru --}}
+    @persist('update-required')
+        <livewire:components.update-required />
+    @endpersist
+
     {{-- Livewire Script --}}
     @livewireScripts
 </body>
