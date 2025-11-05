@@ -27,7 +27,7 @@ class ManifestHelper
             'description' => 'Aplikasi kurir untuk Main Laundry - kelola pengiriman laundry dengan mudah',
             'start_url' => '/kurir/',
             'scope' => '/kurir/',
-            'display' => 'fullscreen',
+            'display' => 'standalone',
             'orientation' => 'portrait',
             'background_color' => '#ffffff',
             'theme_color' => '#3b82f6',
@@ -49,7 +49,7 @@ class ManifestHelper
             'description' => 'Aplikasi pelanggan Main Laundry - pesan dan lacak laundry Anda dengan mudah',
             'start_url' => '/pelanggan/',
             'scope' => '/pelanggan/',
-            'display' => 'fullscreen',
+            'display' => 'standalone',
             'orientation' => 'portrait',
             'background_color' => '#ffffff',
             'theme_color' => '#3b82f6',
@@ -67,27 +67,71 @@ class ManifestHelper
     private static function getIcons(): array
     {
         return [
+            // Icon maskable untuk Android adaptive icons (paling penting!)
             [
-                'src' => '/image/app.png',
+                'src' => '/image/manifest-icons/main-512x512-adaptive.png',
+                'sizes' => '512x512',
+                'type' => 'image/png',
+                'purpose' => 'maskable'
+            ],
+            // Icon standard untuk most platforms
+            [
+                'src' => '/image/manifest-icons/main-512x512-notif.png',
                 'sizes' => '512x512',
                 'type' => 'image/png',
                 'purpose' => 'any'
             ],
             [
-                'src' => '/image/app.png',
-                'sizes' => '512x512',
+                'src' => '/image/manifest-icons/main-384x384.png',
+                'sizes' => '384x384',
                 'type' => 'image/png',
-                'purpose' => 'maskable'
+                'purpose' => 'any'
             ],
             [
-                'src' => '/image/app.png',
+                'src' => '/image/manifest-icons/main-256x256.png',
+                'sizes' => '256x256',
+                'type' => 'image/png',
+                'purpose' => 'any'
+            ],
+            [
+                'src' => '/image/manifest-icons/main-192x192.png',
                 'sizes' => '192x192',
                 'type' => 'image/png',
                 'purpose' => 'any'
             ],
             [
-                'src' => '/image/app.png',
-                'sizes' => '180x180',
+                'src' => '/image/manifest-icons/main-152x152.png',
+                'sizes' => '152x152',
+                'type' => 'image/png',
+                'purpose' => 'any'
+            ],
+            [
+                'src' => '/image/manifest-icons/main-144x144.png',
+                'sizes' => '144x144',
+                'type' => 'image/png',
+                'purpose' => 'any'
+            ],
+            [
+                'src' => '/image/manifest-icons/main-128x128.png',
+                'sizes' => '128x128',
+                'type' => 'image/png',
+                'purpose' => 'any'
+            ],
+            [
+                'src' => '/image/manifest-icons/main-96x96.png',
+                'sizes' => '96x96',
+                'type' => 'image/png',
+                'purpose' => 'any'
+            ],
+            [
+                'src' => '/image/manifest-icons/main-72x72.png',
+                'sizes' => '72x72',
+                'type' => 'image/png',
+                'purpose' => 'any'
+            ],
+            [
+                'src' => '/image/manifest-icons/main-48x48.png',
+                'sizes' => '48x48',
                 'type' => 'image/png',
                 'purpose' => 'any'
             ]

@@ -39,8 +39,8 @@ class NewTransactionNotification extends Notification
 
         return (new WebPushMessage)
             ->title('Pesanan Baru Masuk!')
-            ->icon('/image/app.png')
-            ->badge('/image/app.png')
+            ->icon('/image/manifest-icons/main-512x512-notif.png')
+            ->badge('/image/manifest-icons/main-512x512-notif.png')
             ->body("Pesanan dari {$customerName} - {$serviceName} ({$invoiceNumber})")
             ->action('Lihat Detail', 'view_transaction')
             ->data([

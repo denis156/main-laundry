@@ -14,7 +14,9 @@ const DYNAMIC_CACHE = 'main-laundry-pelanggan-dynamic-v1.0.0';
 // Assets yang akan di-cache saat install (static assets)
 // JANGAN cache halaman HTML! Hanya cache assets statis
 const STATIC_ASSETS = [
-    '/image/app.png',
+    '/image/manifest-icons/main-512x512-notif.png',
+    '/image/manifest-icons/main-512x512-adaptive.png',
+    '/image/manifest-icons/main-192x192.png',
     '/manifest-pelanggan.json',
 ];
 
@@ -181,8 +183,8 @@ self.addEventListener('push', (event) => {
         const title = data.title || 'Pesanan Baru';
         const options = {
             body: data.body || 'Ada pesanan baru masuk',
-            icon: data.icon || '/image/app.png',
-            badge: data.badge || '/image/app.png',
+            icon: data.icon || '/image/manifest-icons/main-512x512-notif.png',
+            badge: data.badge || '/image/manifest-icons/main-512x512-notif.png',
             vibrate: data.vibrate || [200, 100, 200, 100, 200],
             tag: data.tag || 'transaction-notification',
             requireInteraction: true, // Notification tidak auto-close
@@ -212,8 +214,8 @@ self.addEventListener('push', (event) => {
         // Fallback notification jika parsing gagal
         const fallbackOptions = {
             body: 'Ada pesanan baru masuk',
-            icon: '/image/app.png',
-            badge: '/image/app.png',
+            icon: '/image/manifest-icons/main-512x512-notif.png',
+            badge: '/image/manifest-icons/main-512x512-notif.png',
             vibrate: [200, 100, 200],
             data: {
                 url: '/kurir/pesanan'

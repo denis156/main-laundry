@@ -39,8 +39,8 @@ class OrderConfirmedNotification extends Notification
 
         return (new WebPushMessage)
             ->title('Pesanan Dikonfirmasi!')
-            ->icon('/image/app.png')
-            ->badge('/image/app.png')
+            ->icon('/image/manifest-icons/main-512x512-notif.png')
+            ->badge('/image/manifest-icons/main-512x512-notif.png')
             ->body("{$courierName} telah menerima pesanan {$serviceName} Anda ({$invoiceNumber})")
             ->action('Lihat Detail', 'view_transaction')
             ->data([
