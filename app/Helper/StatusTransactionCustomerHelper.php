@@ -47,10 +47,12 @@ class StatusTransactionCustomerHelper
     {
         return [
             'pending_confirmation' => 'Pending',
-            'confirmed' => 'Dikonfirmasi',
-            'picked_up' => 'Diproses',
-            'in_washing' => 'Dicuci',
-            'out_for_delivery' => 'Diantar',
+            'confirmed' => 'Konfirmasi',
+            'picked_up' => 'Proses',
+            'at_loading_post' => 'Proses',
+            'in_washing' => 'Cuci',
+            'washing_completed' => 'Cuci',
+            'out_for_delivery' => 'Pengantaran',
             'delivered' => 'Selesai',
             'cancelled' => 'Batal',
         ];

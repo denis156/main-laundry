@@ -64,7 +64,7 @@
                         // Define timeline steps based on helper status
                         $timelineSteps = [
                             ['key' => 'confirmed', 'text' => StatusTransactionCustomerHelper::getStatusText('confirmed')],
-                            ['key' => 'picked_up', 'text' => 'Diproses'],
+                            ['key' => 'picked_up', 'text' => StatusTransactionCustomerHelper::getStatusText('picked_up')],
                             ['key' => 'in_washing', 'text' => StatusTransactionCustomerHelper::getStatusText('in_washing')],
                             ['key' => 'out_for_delivery', 'text' => StatusTransactionCustomerHelper::getStatusText('out_for_delivery')],
                             ['key' => 'delivered', 'text' => StatusTransactionCustomerHelper::getStatusText('delivered')]
