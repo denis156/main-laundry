@@ -28,7 +28,7 @@
                             <input type="radio" name="payment_timing" value="on_pickup" wire:model.live="payment_timing"
                                 class="radio radio-accent hidden peer" />
                             <div
-                                class="card border border-secondary/54 bg-base-100 hover:border-accent peer-checked:border-accent peer-checked:text-accent-content peer-checked:bg-accent transition-all">
+                                class="card border border-secondary/54 bg-base-100 hover:border-accent peer-checked:border-accent peer-checked:text-accent-content peer-checked:bg-accent/48 transition-all">
                                 <div class="card-body p-4">
                                     <div class="flex items-start gap-3">
                                         <div class="bg-warning/20 p-2 rounded">
@@ -53,7 +53,7 @@
                             <input type="radio" name="payment_timing" value="on_delivery" wire:model.live="payment_timing"
                                 class="radio radio-accent hidden peer" />
                             <div
-                                class="card border border-secondary/54 bg-base-100 hover:border-accent peer-checked:border-accent peer-checked:text-accent-content peer-checked:bg-accent transition-all">
+                                class="card border border-secondary/54 bg-base-100 hover:border-accent peer-checked:border-accent peer-checked:text-accent-content peer-checked:bg-accent/48 transition-all">
                                 <div class="card-body p-4">
                                     <div class="flex items-start gap-3">
                                         <div class="bg-info/20 p-2 rounded">
