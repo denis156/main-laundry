@@ -9,79 +9,6 @@
     </x-header>
 
     <div class="space-y-4">
-        {{-- Timeline Status (only show if not pending or cancelled) --}}
-        @if (!in_array($transaction->workflow_status, ['pending_confirmation', 'cancelled']))
-            <ul class="timeline timeline-horizontal w-full">
-                {{-- Dikonfirmasi (Start/Top) --}}
-                <li>
-                    <div class="timeline-start timeline-box text-xs">Dikonfirmasi</div>
-                    <div class="timeline-middle">
-                        @if (in_array($transaction->workflow_status, ['confirmed', 'picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered']))
-                            <x-icon name="solar.check-circle-bold" class="w-5 h-5 text-success" />
-                        @else
-                            <x-icon name="solar.close-circle-bold-duotone" class="w-5 h-5 text-secondary" />
-                        @endif
-                    </div>
-                    <hr class="{{ in_array($transaction->workflow_status, ['confirmed', 'picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered']) ? 'bg-success' : 'bg-secondary' }}" />
-                </li>
-
-                {{-- Diproses (End/Bottom) --}}
-                <li>
-                    <hr class="{{ in_array($transaction->workflow_status, ['picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered']) ? 'bg-success' : 'bg-secondary' }}" />
-                    <div class="timeline-middle">
-                        @if (in_array($transaction->workflow_status, ['picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered']))
-                            <x-icon name="solar.check-circle-bold" class="w-5 h-5 text-success" />
-                        @else
-                            <x-icon name="solar.close-circle-bold-duotone" class="w-5 h-5 text-secondary" />
-                        @endif
-                    </div>
-                    <div class="timeline-end timeline-box text-xs">Diproses</div>
-                    <hr class="{{ in_array($transaction->workflow_status, ['in_washing', 'washing_completed', 'out_for_delivery', 'delivered']) ? 'bg-success' : 'bg-secondary' }}" />
-                </li>
-
-                {{-- Dicuci (Start/Top) --}}
-                <li>
-                    <hr class="{{ in_array($transaction->workflow_status, ['in_washing', 'washing_completed', 'out_for_delivery', 'delivered']) ? 'bg-success' : 'bg-secondary' }}" />
-                    <div class="timeline-start timeline-box text-xs">Dicuci</div>
-                    <div class="timeline-middle">
-                        @if (in_array($transaction->workflow_status, ['in_washing', 'washing_completed', 'out_for_delivery', 'delivered']))
-                            <x-icon name="solar.check-circle-bold" class="w-5 h-5 text-success" />
-                        @else
-                            <x-icon name="solar.close-circle-bold-duotone" class="w-5 h-5 text-secondary" />
-                        @endif
-                    </div>
-                    <hr class="{{ in_array($transaction->workflow_status, ['out_for_delivery', 'delivered']) ? 'bg-success' : 'bg-secondary' }}" />
-                </li>
-
-                {{-- Diantar (End/Bottom) --}}
-                <li>
-                    <hr class="{{ in_array($transaction->workflow_status, ['out_for_delivery', 'delivered']) ? 'bg-success' : 'bg-secondary' }}" />
-                    <div class="timeline-middle">
-                        @if (in_array($transaction->workflow_status, ['out_for_delivery', 'delivered']))
-                            <x-icon name="solar.check-circle-bold" class="w-5 h-5 text-success" />
-                        @else
-                            <x-icon name="solar.close-circle-bold-duotone" class="w-5 h-5 text-secondary" />
-                        @endif
-                    </div>
-                    <div class="timeline-end timeline-box text-xs">Diantar</div>
-                    <hr class="{{ $transaction->workflow_status === 'delivered' ? 'bg-success' : 'bg-secondary' }}" />
-                </li>
-
-                {{-- Selesai (Start/Top) --}}
-                <li>
-                    <hr class="{{ $transaction->workflow_status === 'delivered' ? 'bg-success' : 'bg-secondary' }}" />
-                    <div class="timeline-start timeline-box text-xs">Selesai</div>
-                    <div class="timeline-middle">
-                        @if ($transaction->workflow_status === 'delivered')
-                            <x-icon name="solar.check-circle-bold" class="w-5 h-5 text-success" />
-                        @else
-                            <x-icon name="solar.close-circle-bold-duotone" class="w-5 h-5 text-secondary" />
-                        @endif
-                    </div>
-                </li>
-            </ul>
-        @endif
-
         {{-- Single Card with All Data --}}
         <div class="card bg-base-300 shadow">
             <div class="card-body p-4">
@@ -121,6 +48,97 @@
                                 <p class="text-xs text-base-content/60">{{ $transaction->courierMotorcycle->vehicle_number }}</p>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="divider my-2"></div>
+                @endif
+
+                {{-- Timeline Status (only show if not pending or cancelled) --}}
+                @if (!in_array($transaction->workflow_status, ['pending_confirmation', 'cancelled']))
+                    <h3 class="font-bold text-base mb-2 flex items-center gap-2">
+                        <x-icon name="solar.clock-circle-bold-duotone" class="w-4 h-4 text-primary" />
+                        Status Pesanan
+                    </h3>
+
+                    @php
+                        // Define timeline steps based on helper status
+                        $timelineSteps = [
+                            ['key' => 'confirmed', 'text' => StatusTransactionCustomerHelper::getStatusText('confirmed')],
+                            ['key' => 'picked_up', 'text' => 'Diproses'],
+                            ['key' => 'in_washing', 'text' => StatusTransactionCustomerHelper::getStatusText('in_washing')],
+                            ['key' => 'out_for_delivery', 'text' => StatusTransactionCustomerHelper::getStatusText('out_for_delivery')],
+                            ['key' => 'delivered', 'text' => StatusTransactionCustomerHelper::getStatusText('delivered')]
+                        ];
+                    @endphp
+                    <div class="bg-base-200 rounded-lg p-3">
+                        <ul class="timeline timeline-vertical">
+                            @foreach ($timelineSteps as $index => $step)
+                                @php
+                                    // Check if step is active based on workflow status
+                                    $isStepActive = false;
+                                    $isNextStepActive = false;
+
+                                    switch($step['key']) {
+                                        case 'confirmed':
+                                            $isStepActive = in_array($transaction->workflow_status, ['confirmed', 'picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered']);
+                                            $isNextStepActive = in_array($transaction->workflow_status, ['picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered']);
+                                            break;
+                                        case 'picked_up':
+                                            $isStepActive = in_array($transaction->workflow_status, ['picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered']);
+                                            $isNextStepActive = in_array($transaction->workflow_status, ['in_washing', 'washing_completed', 'out_for_delivery', 'delivered']);
+                                            break;
+                                        case 'in_washing':
+                                            $isStepActive = in_array($transaction->workflow_status, ['in_washing', 'washing_completed', 'out_for_delivery', 'delivered']);
+                                            $isNextStepActive = in_array($transaction->workflow_status, ['out_for_delivery', 'delivered']);
+                                            break;
+                                        case 'out_for_delivery':
+                                            $isStepActive = in_array($transaction->workflow_status, ['out_for_delivery', 'delivered']);
+                                            $isNextStepActive = $transaction->workflow_status === 'delivered';
+                                            break;
+                                        case 'delivered':
+                                            $isStepActive = $transaction->workflow_status === 'delivered';
+                                            $isNextStepActive = false;
+                                            break;
+                                    }
+
+                                    $isEvenIndex = $index % 2 === 0;
+                                @endphp
+
+                                <li>
+                                    {{-- Previous line (for steps after first) --}}
+                                    @if ($index > 0)
+                                        <hr class="{{ $isStepActive ? 'bg-success' : 'bg-secondary' }}" />
+                                    @endif
+
+                                    @if ($isEvenIndex)
+                                        {{-- Start/Top position --}}
+                                        <div class="timeline-start timeline-box text-xs">{{ $step['text'] }}</div>
+                                        <div class="timeline-middle">
+                                            @if ($isStepActive)
+                                                <x-icon name="solar.check-circle-bold" class="w-5 h-5 text-success" />
+                                            @else
+                                                <x-icon name="solar.close-circle-bold-duotone" class="w-5 h-5 text-secondary" />
+                                            @endif
+                                        </div>
+                                    @else
+                                        {{-- End/Bottom position --}}
+                                        <div class="timeline-middle">
+                                            @if ($isStepActive)
+                                                <x-icon name="solar.check-circle-bold" class="w-5 h-5 text-success" />
+                                            @else
+                                                <x-icon name="solar.close-circle-bold-duotone" class="w-5 h-5 text-secondary" />
+                                            @endif
+                                        </div>
+                                        <div class="timeline-end timeline-box text-xs">{{ $step['text'] }}</div>
+                                    @endif
+
+                                    {{-- Next line (except for last step) --}}
+                                    @if ($index < count($timelineSteps) - 1)
+                                        <hr class="{{ $isNextStepActive ? 'bg-success' : 'bg-secondary' }}" />
+                                    @endif
+                                </li>
+                            @endforeach
+                        </ul>
                     </div>
 
                     <div class="divider my-2"></div>
