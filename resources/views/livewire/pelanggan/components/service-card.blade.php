@@ -11,7 +11,7 @@
                     <img src="{{ asset('image/logo.png') }}" alt="Logo" class="w-full h-full object-contain">
                 </div>
 
-                <h2 class="font-bold text-base-content">{{ $service->name }}</h2>
+                <h2 class="text-sm font-bold text-base-content">{{ $service->name }}</h2>
                 <p class="text-xs text-base-content/80">{{ $this->formatDuration($service->duration_days) }}</p>
                 <div class="divider my-1"></div>
                 <div class="flex items-baseline justify-between">
