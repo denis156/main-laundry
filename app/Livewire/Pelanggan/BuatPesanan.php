@@ -25,7 +25,7 @@ class BuatPesanan extends Component
 
     // Form properties
     public ?int $service_id = null;
-    public string $payment_timing = '';
+    public string $payment_timing = 'on_pickup';
     public string $detail_address = '';
     public string $notes = '';
     public ?string $form_loaded_at = null;
@@ -206,7 +206,8 @@ class BuatPesanan extends Component
             DB::commit();
 
             // Reset form
-            $this->reset(['service_id', 'payment_timing', 'detail_address', 'notes']);
+            $this->reset(['service_id', 'detail_address', 'notes']);
+            $this->payment_timing = 'on_pickup'; // Reset ke default
 
             // Tampilkan success message
             $this->success(

@@ -40,7 +40,7 @@
                                         </div>
                                         @if($payment_timing === 'on_pickup')
                                             <div>
-                                                <x-icon name="o-check-circle" class="w-5 h-5 text-accent" />
+                                                <x-icon name="o-check-circle" class="w-5 h-5 text-accent-content" />
                                             </div>
                                         @endif
                                     </div>
@@ -65,7 +65,7 @@
                                         </div>
                                         @if($payment_timing === 'on_delivery')
                                             <div>
-                                                <x-icon name="o-check-circle" class="w-5 h-5 text-accent" />
+                                                <x-icon name="o-check-circle" class="w-5 h-5 text-accent-content" />
                                             </div>
                                         @endif
                                     </div>
