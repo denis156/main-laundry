@@ -13,10 +13,10 @@ class StatusTransactionCustomerHelper
     {
         return match ($workflowStatus) {
             'pending_confirmation' => 'Pending',
-            'confirmed' => 'Dikonfirmasi',
-            'picked_up', 'at_loading_post' => 'Diproses',
-            'in_washing', 'washing_completed' => 'Dicuci',
-            'out_for_delivery' => 'Diantar',
+            'confirmed' => 'Konfirmasi',
+            'picked_up', 'at_loading_post' => 'Proses',
+            'in_washing', 'washing_completed' => 'Cuci',
+            'out_for_delivery' => 'Pengantaran',
             'delivered' => 'Selesai',
             'cancelled' => 'Batal',
             default => $workflowStatus,
