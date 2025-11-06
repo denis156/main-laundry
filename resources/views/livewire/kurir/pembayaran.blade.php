@@ -40,9 +40,7 @@
                                     Dibayar: {{ $payment->formatted_payment_date }}
                                 </p>
                             </div>
-                            <x-button
-                                icon="solar.eye-bold"
-                                class="btn-circle btn-accent btn-md"
+                            <x-button icon="solar.eye-bold" class="btn-circle btn-accent btn-md"
                                 link="{{ route('kurir.pembayaran.detail', $payment->transaction->id) }}" />
                         </div>
 
@@ -51,9 +49,10 @@
                         {{-- Customer Info --}}
                         <div class="flex items-center gap-3 mb-2">
                             <div class="avatar">
-                                <div class="ring-accent ring-offset-base-100 w-10 h-10 rounded-full ring-2 ring-offset-2">
+                                <div
+                                    class="ring-accent ring-offset-base-100 w-10 h-10 rounded-full ring-2 ring-offset-2">
                                     <img src="{{ $payment->transaction->customer?->getFilamentAvatarUrl() }}"
-                                         alt="{{ $payment->transaction->customer?->name ?? 'Customer' }}" />
+                                        alt="{{ $payment->transaction->customer?->name ?? 'Customer' }}" />
                                 </div>
                             </div>
                             <div class="flex-1">
@@ -147,27 +146,29 @@
         <div class="flex justify-center gap-2 mt-4">
             @if ($canLoadLess && $hasMore)
                 {{-- Tampilkan kedua tombol jika bukan di halaman pertama dan masih ada data --}}
-                <x-button wire:click="loadLess" label="Tampilkan Lebih Sedikit"
-                    icon="solar.minus-circle-bold-duotone" class="btn-secondary" />
-                <x-button wire:click="loadMore" label="Tampilkan Lebih Banyak"
-                    icon="solar.add-circle-bold-duotone" class="btn-accent" />
+                <x-button wire:click="loadLess" label="Tampilkan Lebih Sedikit" icon="solar.minus-circle-bold-duotone"
+                    class="btn-secondary" />
+                <x-button wire:click="loadMore" label="Tampilkan Lebih Banyak" icon="solar.add-circle-bold-duotone"
+                    class="btn-accent" />
             @elseif ($canLoadLess && !$hasMore)
                 {{-- Hanya tombol "Lebih Sedikit" jika sudah di akhir --}}
-                <x-button wire:click="loadLess" label="Tampilkan Lebih Sedikit"
-                    icon="solar.minus-circle-bold-duotone" class="btn-secondary btn-block" />
+                <x-button wire:click="loadLess" label="Tampilkan Lebih Sedikit" icon="solar.minus-circle-bold-duotone"
+                    class="btn-secondary btn-block" />
             @else
                 {{-- Tombol "Lebih Banyak" jika di halaman pertama (disabled jika data <= 5) --}}
-                <x-button wire:click="loadMore" label="Tampilkan Lebih Banyak"
-                    icon="solar.add-circle-bold-duotone" class="btn-accent btn-block"
-                    :disabled="!$hasMore" />
+                <x-button wire:click="loadMore" label="Tampilkan Lebih Banyak" icon="solar.add-circle-bold-duotone"
+                    class="btn-accent btn-block" :disabled="!$hasMore" />
             @endif
         </div>
     </div>
 
     {{-- Modal Konfirmasi Upload Bukti Pembayaran --}}
-    <x-modal wire:model="showUploadModal" title="Upload Bukti Pembayaran" subtitle="Konfirmasi untuk mengupload bukti pembayaran?" class="modal-bottom sm:modal-middle" persistent separator>
+    <x-modal wire:model="showUploadModal" title="Upload Bukti Pembayaran"
+        subtitle="Konfirmasi untuk mengupload bukti pembayaran?" class="modal-bottom sm:modal-middle" persistent
+        separator>
         <div class="py-4">
-            <p class="text-base-content/70">Pastikan file yang diupload adalah bukti pembayaran yang valid dan jelas terbaca.</p>
+            <p class="text-base-content/70">Pastikan file yang diupload adalah bukti pembayaran yang valid dan jelas
+                terbaca.</p>
             <div class="mt-3 p-3 bg-warning/10 rounded-lg border border-warning/20">
                 <p class="text-sm text-warning">
                     <strong>Perhatian:</strong> Setelah upload, status pembayaran akan otomatis berubah menjadi "Lunas".

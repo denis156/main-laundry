@@ -179,9 +179,9 @@
         {{-- Pagination Buttons --}}
         <div class="flex justify-center gap-2 mt-4">
             @if ($this->canLoadLess && $this->hasMore)
-                <x-button wire:click="loadLess" label="Tampilkan Lebih Sedikit"
+                <x-button wire:click="loadLess" label="Lebih Sedikit"
                     icon="solar.minus-circle-bold-duotone" class="btn-secondary" />
-                <x-button wire:click="loadMore" label="Tampilkan Lebih Banyak"
+                <x-button wire:click="loadMore" label="Lebih Banyak"
                     icon="solar.add-circle-bold-duotone" class="btn-accent" />
             @elseif ($this->canLoadLess && !$this->hasMore)
                 <x-button wire:click="loadLess" label="Tampilkan Lebih Sedikit"

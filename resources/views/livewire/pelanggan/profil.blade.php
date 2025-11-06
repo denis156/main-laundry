@@ -24,9 +24,10 @@
             </div>
         </x-card>
 
-        
+
         {{-- Form Update Profil & Password --}}
-        <x-card class="bg-base-300" title="Informasi Akun" subtitle="Kelola data pribadi dan keamanan akun Anda" shadow separator>
+        <x-card class="bg-base-300" title="Informasi Akun" subtitle="Kelola data pribadi dan keamanan akun Anda" shadow
+            separator>
             <x-form wire:submit="save">
                 <x-input label="Nama Lengkap" wire:model.blur="name" icon="solar.user-bold-duotone" />
                 <x-input label="Email" wire:model.blur="email" type="email" icon="solar.letter-bold-duotone" />
@@ -35,20 +36,20 @@
 
                 <div class="divider">Alamat</div>
 
-                @if(!empty($district_code) && !empty($village_code))
+                @if (!empty($district_code) && !empty($village_code))
                     <p class="text-sm text-base-content/70 mb-2">Wilayah: Kota Kendari, Sulawesi Tenggara</p>
                 @endif
 
-                <x-select label="Kecamatan" wire:model.live="district_code"
-                    :options="$districts" option-value="code" option-label="name"
-                    icon="solar.map-point-bold-duotone" hint="Pilih kecamatan tempat tinggal" placeholder="Pilih kecamatan" />
+                <x-select label="Kecamatan" wire:model.live="district_code" :options="$districts" option-value="code"
+                    option-label="name" icon="solar.map-point-bold-duotone" hint="Pilih kecamatan tempat tinggal"
+                    placeholder="Pilih kecamatan" />
 
-                <x-select label="Desa/Kelurahan" wire:model.live="village_code"
-                    :options="$villages" option-value="code" option-label="name"
-                    icon="solar.home-bold-duotone" hint="Pilih desa/kelurahan tempat tinggal"
+                <x-select label="Desa/Kelurahan" wire:model.live="village_code" :options="$villages" option-value="code"
+                    option-label="name" icon="solar.home-bold-duotone" hint="Pilih desa/kelurahan tempat tinggal"
                     placeholder="Pilih desa/kelurahan" :disabled="empty($district_code)" />
                 <x-textarea label="Detail Alamat" wire:model.blur="detail_address"
-                    icon="solar.document-text-bold-duotone" hint="Detail tambahan alamat (RT/RW, patokan, dll)" rows="2" />
+                    icon="solar.document-text-bold-duotone" hint="Detail tambahan alamat (RT/RW, patokan, dll)"
+                    rows="2" />
                 <x-textarea label="Alamat Lengkap" wire:model="computed_address" readonly
                     icon="solar.building-bold-duotone" hint="Alamat otomatis ter-generate"
                     class="textarea textarea-bordered textarea-disabled" rows="2" />

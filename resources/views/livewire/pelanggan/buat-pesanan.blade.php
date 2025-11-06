@@ -25,8 +25,8 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {{-- Option: Bayar Saat Jemput --}}
                         <label class="cursor-pointer">
-                            <input type="radio" name="payment_timing" value="on_pickup" wire:model.live="payment_timing"
-                                class="radio radio-accent hidden peer" />
+                            <input type="radio" name="payment_timing" value="on_pickup"
+                                wire:model.live="payment_timing" class="radio radio-accent hidden peer" />
                             <div
                                 class="card border border-secondary/54 bg-base-100 hover:border-accent peer-checked:border-accent peer-checked:text-accent-content peer-checked:bg-accent/60 transition-all">
                                 <div class="card-body p-4">
@@ -38,7 +38,7 @@
                                             <h4 class="font-bold">Bayar Saat Jemput</h4>
                                             <p class="text-sm">Bayar setelah cucian ditimbang</p>
                                         </div>
-                                        @if($payment_timing === 'on_pickup')
+                                        @if ($payment_timing === 'on_pickup')
                                             <div>
                                                 <x-icon name="o-check-circle" class="w-5 h-5 text-accent-content" />
                                             </div>
@@ -50,8 +50,8 @@
 
                         {{-- Option: Bayar Saat Antar --}}
                         <label class="cursor-pointer">
-                            <input type="radio" name="payment_timing" value="on_delivery" wire:model.live="payment_timing"
-                                class="radio radio-accent hidden peer" />
+                            <input type="radio" name="payment_timing" value="on_delivery"
+                                wire:model.live="payment_timing" class="radio radio-accent hidden peer" />
                             <div
                                 class="card border border-secondary/54 bg-base-100 hover:border-accent peer-checked:border-accent peer-checked:text-accent-content peer-checked:bg-accent/60 transition-all">
                                 <div class="card-body p-4">
@@ -63,7 +63,7 @@
                                             <h4 class="font-bold">Bayar Saat Antar</h4>
                                             <p class="text-sm">Bayar saat cucian diantar kembali</p>
                                         </div>
-                                        @if($payment_timing === 'on_delivery')
+                                        @if ($payment_timing === 'on_delivery')
                                             <div>
                                                 <x-icon name="o-check-circle" class="w-5 h-5 text-accent-content" />
                                             </div>
@@ -85,16 +85,13 @@
 
                 {{-- Alamat Lengkap --}}
                 <x-textarea label="Alamat Lengkap" icon="solar.map-point-bold-duotone" rows="3"
-                    wire:model="displayAddress"
-                    readonly
-                    hint="Alamat dari profil. Ubah di halaman Profil jika perlu"
+                    wire:model="displayAddress" readonly hint="Alamat dari profil. Ubah di halaman Profil jika perlu"
                     class="textarea textarea-bordered textarea-disabled" />
 
                 {{-- Catatan Tambahan --}}
                 <x-textarea label="Catatan Tambahan (Opsional)" icon="solar.document-text-bold-duotone" rows="3"
                     placeholder="Contoh: Tolong jangan pakai pewangi, saya alergi"
-                    hint="Permintaan khusus untuk cucian Anda"
-                    wire:model="notes" />
+                    hint="Permintaan khusus untuk cucian Anda" wire:model="notes" />
 
                 {{-- Action Buttons --}}
                 <x-slot:actions>
@@ -109,6 +106,6 @@
         </x-card>
     </div>
 
-      {{-- Modal Lengkapi Profil --}}
+    {{-- Modal Lengkapi Profil --}}
     <livewire:pelanggan.components.lengkapi-profil-modal />
 </section>

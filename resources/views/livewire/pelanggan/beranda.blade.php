@@ -42,10 +42,11 @@
             <livewire:pelanggan.components.service-card />
         </x-card>
 
-        <div class="divider divider-accent text-accent font-bold">Pesanan Aktif</div>
-
-        {{-- Active Order Component --}}
-        <livewire:pelanggan.components.active-order />
+        <x-card class="bg-base-300 shadow" title="Pesanan Aktif"
+            subtitle="Lacak status pesanan laundry kamu yang sedang diproses" separator>
+            {{-- Active Order Component --}}
+            <livewire:pelanggan.components.active-order />
+        </x-card>
     </div>
 
-  </section>
+</section>

@@ -1,13 +1,6 @@
 {{-- Update Required Modal - Force user untuk update app --}}
-<x-modal
-    wire:model="showModal"
-    title="Pembaruan Tersedia"
-    subtitle="Aplikasi perlu diperbarui"
-    class="modal-bottom sm:modal-middle"
-    persistent
-    separator
-    class="backdrop-blur"
->
+<x-modal wire:model="showModal" title="Pembaruan Tersedia" subtitle="Aplikasi perlu diperbarui" persistent separator
+    class="modal-bottom sm:modal-middle backdrop-blur">
     <div class="space-y-4">
         {{-- Icon Update --}}
         <div class="flex justify-center">
@@ -28,61 +21,58 @@
     </div>
 
     <x-slot:actions>
-        <x-button
-            label="Perbarui Sekarang"
-            class="btn-primary w-full"
-            wire:click="reloadApp"
-            icon="o-arrow-path"
-            spinner="reloadApp"
-        />
+        <x-button label="Perbarui Sekarang" class="btn-primary w-full" wire:click="reloadApp" icon="o-arrow-path"
+            spinner="reloadApp" />
     </x-slot:actions>
 </x-modal>
 
 {{-- Listen untuk force reload event dari Livewire --}}
 @script
-<script>
-$wire.on('force-reload-app', async () => {
-    console.log('[Update] User clicked update button');
+    <script>
+        $wire.on('force-reload-app', async () => {
+            console.log('[Update] User clicked update button');
 
-    // Tunggu animasi modal close selesai (300ms untuk Mary UI modal)
-    await new Promise(resolve => setTimeout(resolve, 300));
+            // Tunggu animasi modal close selesai (300ms untuk Mary UI modal)
+            await new Promise(resolve => setTimeout(resolve, 300));
 
-    if (!('serviceWorker' in navigator)) {
-        console.log('[Update] Service worker not supported, reloading...');
-        window.location.reload();
-        return;
-    }
+            if (!('serviceWorker' in navigator)) {
+                console.log('[Update] Service worker not supported, reloading...');
+                window.location.reload();
+                return;
+            }
 
-    try {
-        const registration = await navigator.serviceWorker.getRegistration();
+            try {
+                const registration = await navigator.serviceWorker.getRegistration();
 
-        if (!registration) {
-            console.log('[Update] No registration found, reloading...');
-            window.location.reload();
-            return;
-        }
+                if (!registration) {
+                    console.log('[Update] No registration found, reloading...');
+                    window.location.reload();
+                    return;
+                }
 
-        const waitingWorker = registration.waiting;
+                const waitingWorker = registration.waiting;
 
-        if (!waitingWorker) {
-            console.log('[Update] No waiting worker, reloading...');
-            window.location.reload();
-            return;
-        }
+                if (!waitingWorker) {
+                    console.log('[Update] No waiting worker, reloading...');
+                    window.location.reload();
+                    return;
+                }
 
-        // Kirim message ke WAITING worker (bukan controller!)
-        console.log('[Update] Sending SKIP_WAITING to waiting worker...');
-        waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+                // Kirim message ke WAITING worker (bukan controller!)
+                console.log('[Update] Sending SKIP_WAITING to waiting worker...');
+                waitingWorker.postMessage({
+                    type: 'SKIP_WAITING'
+                });
 
-        // Listen untuk controllerchange (SW baru jadi active)
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-            console.log('[Update] New service worker activated, reloading...');
-            window.location.reload();
+                // Listen untuk controllerchange (SW baru jadi active)
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    console.log('[Update] New service worker activated, reloading...');
+                    window.location.reload();
+                });
+            } catch (error) {
+                console.error('[Update] Error during update:', error);
+                window.location.reload();
+            }
         });
-    } catch (error) {
-        console.error('[Update] Error during update:', error);
-        window.location.reload();
-    }
-});
-</script>
+    </script>
 @endscript

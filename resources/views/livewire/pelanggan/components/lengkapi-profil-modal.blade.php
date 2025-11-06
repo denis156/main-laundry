@@ -1,12 +1,6 @@
 {{-- Modal Lengkapi Profil --}}
-<x-modal
-    wire:model="showModal"
-    title="Profil Belum Lengkap"
-    subtitle="Halo, {{ $customerName ?: 'Pelanggan' }}!"
-    class="modal-bottom sm:modal-middle"
-    persistent
-    separator
->
+<x-modal wire:model="showModal" title="Profil Belum Lengkap" subtitle="Halo, {{ $customerName ?: 'Pelanggan' }}!"
+    class="modal-bottom sm:modal-middle" persistent separator>
     <div class="space-y-4">
         {{-- Icon Warning --}}
         <div class="flex justify-center">
@@ -44,28 +38,13 @@
 
     <x-slot:actions>
         <div class="grid grid-cols-2 gap-2 w-full">
-            @if($redirectFrom === 'buat-pesanan')
-                <x-button
-                    label="Kembali"
-                    wire:click="close"
-                    class="btn-outline"
-                    icon="solar.arrow-left-linear"
-                />
+            @if ($redirectFrom === 'buat-pesanan')
+                <x-button label="Kembali" wire:click="close" class="btn-outline" icon="solar.arrow-left-linear" />
             @else
-                <x-button
-                    label="Batal"
-                    wire:click="close"
-                    class="btn-outline"
-                    icon="solar.close-circle-bold"
-                />
+                <x-button label="Batal" wire:click="close" class="btn-outline" icon="solar.close-circle-bold" />
             @endif
-            <x-button
-                label="Lengkapi Profil"
-                wire:click="goToProfil"
-                class="btn-primary"
-                icon="solar.user-circle-bold-duotone"
-                spinner="goToProfil"
-            />
+            <x-button label="Lengkapi Profil" wire:click="goToProfil" class="btn-primary"
+                icon="solar.user-circle-bold-duotone" spinner="goToProfil" />
         </div>
     </x-slot:actions>
 </x-modal>

@@ -2,9 +2,11 @@
 <section class="bg-base-100" wire:poll.25s.visible>
     {{-- Header --}}
     <x-header icon="solar.wallet-money-bold-duotone" icon-classes="text-primary w-6 h-6" title="Detail Pembayaran"
-        subtitle="Pelanggan atas nama {{ $transaction->customer?->name ?? 'Customer tidak ditemukan' }}" separator progress-indicator>
+        subtitle="Pelanggan atas nama {{ $transaction->customer?->name ?? 'Customer tidak ditemukan' }}" separator
+        progress-indicator>
         <x-slot:actions>
-            <x-button icon="solar.undo-left-linear" link="{{ route('kurir.pembayaran') }}" class="btn-circle btn-secondary" />
+            <x-button icon="solar.undo-left-linear" link="{{ route('kurir.pembayaran') }}"
+                class="btn-circle btn-secondary" />
         </x-slot:actions>
     </x-header>
 
@@ -56,7 +58,8 @@
                         <div class="divider my-1"></div>
                         <div>
                             <p class="text-xs text-base-content/70 mb-1">Alamat</p>
-                            <p class="text-sm font-semibold text-primary leading-relaxed">{{ $transaction->customer->address }}</p>
+                            <p class="text-sm font-semibold text-primary leading-relaxed">
+                                {{ $transaction->customer->address }}</p>
                         </div>
                     @endif
                 </div>
@@ -119,8 +122,8 @@
                                 <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
                             </form>
                             <h3 class="font-bold text-lg mb-4">Bukti Pembayaran</h3>
-                            <img src="{{ asset('storage/' . $this->payment->payment_proof_url) }}" alt="Bukti Pembayaran"
-                                class="w-full rounded-lg" />
+                            <img src="{{ asset('storage/' . $this->payment->payment_proof_url) }}"
+                                alt="Bukti Pembayaran" class="w-full rounded-lg" />
                         </div>
                         <form method="dialog" class="modal-backdrop">
                             <button>close</button>
@@ -177,9 +180,8 @@
 
                     @if ($hasPayment && !$hasBukti)
                         {{-- Ada Payment tapi belum ada bukti - Tampilkan hanya Upload --}}
-                        <x-button wire:click="openUploadModal" label="Upload Bukti"
-                            icon="solar.upload-bold-duotone" class="btn-success btn-sm btn-block"
-                            :disabled="empty($paymentProof)" />
+                        <x-button wire:click="openUploadModal" label="Upload Bukti" icon="solar.upload-bold-duotone"
+                            class="btn-success btn-sm btn-block" :disabled="empty($paymentProof)" />
                     @endif
                 </div>
             </div>
@@ -187,9 +189,12 @@
     </div>
 
     {{-- Modal Konfirmasi Upload Bukti Pembayaran --}}
-    <x-modal wire:model="showUploadModal" title="Upload Bukti Pembayaran" subtitle="Konfirmasi untuk mengupload bukti pembayaran?" class="modal-bottom sm:modal-middle" persistent separator>
+    <x-modal wire:model="showUploadModal" title="Upload Bukti Pembayaran"
+        subtitle="Konfirmasi untuk mengupload bukti pembayaran?" class="modal-bottom sm:modal-middle" persistent
+        separator>
         <div class="py-4">
-            <p class="text-base-content/70">Pastikan file yang diupload adalah bukti pembayaran yang valid dan jelas terbaca.</p>
+            <p class="text-base-content/70">Pastikan file yang diupload adalah bukti pembayaran yang valid dan jelas
+                terbaca.</p>
             <div class="mt-3 p-3 bg-warning/10 rounded-lg border border-warning/20">
                 <p class="text-sm text-warning">
                     <strong>Perhatian:</strong> Setelah upload, status pembayaran akan otomatis berubah menjadi "Lunas".

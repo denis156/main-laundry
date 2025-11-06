@@ -1,10 +1,7 @@
 <section id="beranda" class="bg-primary/14 scroll-mt-16 min-h-dvh flex items-center relative overflow-hidden">
     {{-- Background Decorations --}}
-    <x-landing-page.bg-decoration
-        topRight="kaos-kotor-menjadi-kaos-bersinar.svg"
-        bottomLeft="botol-pewangi.svg"
-        topLeft="dus-detergent.svg"
-        bottomRight="mesin-cuci.svg" />
+    <x-landing-page.bg-decoration topRight="kaos-kotor-menjadi-kaos-bersinar.svg" bottomLeft="botol-pewangi.svg"
+        topLeft="dus-detergent.svg" bottomRight="mesin-cuci.svg" />
 
     <div class="container mx-auto px-4 py-16 lg:py-24 relative z-10">
         <div class="flex flex-col lg:flex-row-reverse items-center gap-12">
@@ -20,7 +17,8 @@
 
             {{-- Content --}}
             <div class="flex-1 text-center lg:text-left">
-                <p class="text-base sm:text-xl lg:text-2xl bg-accent rounded-full py-2 px-3 sm:px-4 text-base-100 font-bold mb-6 text-center mx-auto lg:mx-0 w-fit">
+                <p
+                    class="text-base sm:text-xl lg:text-2xl bg-accent rounded-full py-2 px-3 sm:px-4 text-base-100 font-bold mb-6 text-center mx-auto lg:mx-0 w-fit">
                     MAIN LAUNDRY TELAH HADIR DI KOTA ANDA!
                 </p>
                 <h1 class="text-4xl lg:text-6xl font-bold text-accent leading-tight mb-4">
@@ -28,7 +26,8 @@
                     <span class="text-primary">Tetap Bersih!</span>
                 </h1>
                 <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 mb-6 mx-auto lg:mx-0 w-fit">
-                    <p class="text-xl sm:text-2xl lg:text-3xl bg-error rounded-full py-2 px-3 sm:px-4 text-base-100 font-bold">
+                    <p
+                        class="text-xl sm:text-2xl lg:text-3xl bg-error rounded-full py-2 px-3 sm:px-4 text-base-100 font-bold">
                         Rp 3.000/kg — Dijemputin
                     </p>
                     <span class="text-3xl sm:text-4xl lg:text-5xl font-black text-error animate-pulse">GRATIS!</span>

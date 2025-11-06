@@ -41,10 +41,12 @@
                                 <x-icon name="solar.phone-bold-duotone" class="w-4 h-4 text-success" />
                                 <span class="text-sm font-semibold">WhatsApp</span>
                             </div>
-                            <span class="text-sm">{{ $this->hasCSWhatsApp() ? config('sosmed.phone') : 'Tidak tersedia' }}</span>
+                            <span
+                                class="text-sm">{{ $this->hasCSWhatsApp() ? config('sosmed.phone') : 'Tidak tersedia' }}</span>
                         </div>
                         @if ($this->hasCSWhatsApp())
-                            <a href="{{ $this->getWhatsAppCSUrl() }}" target="_blank" class="btn btn-success btn-sm w-full">
+                            <a href="{{ $this->getWhatsAppCSUrl() }}" target="_blank"
+                                class="btn btn-success btn-sm w-full">
                                 <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
                                 Hubungi via WhatsApp
                             </a>
@@ -63,7 +65,8 @@
                                 <x-icon name="solar.letter-bold-duotone" class="w-4 h-4 text-info" />
                                 <span class="text-sm font-semibold">Email</span>
                             </div>
-                            <span class="text-sm">{{ $this->hasCSEmail() ? config('sosmed.email') : 'Tidak tersedia' }}</span>
+                            <span
+                                class="text-sm">{{ $this->hasCSEmail() ? config('sosmed.email') : 'Tidak tersedia' }}</span>
                         </div>
                         @if ($this->hasCSEmail())
                             <a href="mailto:{{ config('sosmed.email') }}" class="btn btn-info btn-sm w-full">
@@ -188,7 +191,8 @@
                             <div class="text-sm space-y-2">
                                 @foreach ($this->getWorkflowStatuses() as $status)
                                     <div class="flex items-center gap-2">
-                                        <span class="badge {{ $status['badge'] }} badge-xs whitespace-nowrap">{{ $status['label'] }}</span>
+                                        <span
+                                            class="badge {{ $status['badge'] }} badge-xs whitespace-nowrap">{{ $status['label'] }}</span>
                                         <span>{{ $status['description'] }}</span>
                                     </div>
                                 @endforeach

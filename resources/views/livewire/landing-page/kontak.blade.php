@@ -1,9 +1,6 @@
 <section id="kontak" class="bg-base-200 scroll-mt-16 min-h-dvh py-16 lg:py-24 relative overflow-hidden">
     {{-- Background Decorations --}}
-    <x-landing-page.bg-decoration
-        topRight="kurir.svg"
-        bottomLeft="smartphone.svg"
-        topLeft="mobil.svg"
+    <x-landing-page.bg-decoration topRight="kurir.svg" bottomLeft="smartphone.svg" topLeft="mobil.svg"
         bottomRight="pos.svg" />
 
     <div class="container mx-auto px-4 relative z-10">
@@ -40,7 +37,8 @@
                                 <div class="card-body p-6">
                                     <div class="flex items-center gap-4">
                                         <div class="bg-{{ $contact['color'] }}/10 p-4 rounded-full">
-                                            <x-icon name="{{ $contact['icon'] }}" class="h-8 w-8 text-{{ $contact['color'] }}" />
+                                            <x-icon name="{{ $contact['icon'] }}"
+                                                class="h-8 w-8 text-{{ $contact['color'] }}" />
                                         </div>
                                         <div>
                                             <h4 class="font-bold text-lg text-{{ $contact['color'] }}">
@@ -62,12 +60,8 @@
             <div data-aos="fade-left">
                 <div class="card bg-base-300 shadow-xl h-full overflow-hidden">
                     <div class="card-body p-0">
-                        <iframe
-                            src="{{ $address['mapEmbed'] }}"
-                            class="w-full h-[500px] lg:h-full min-h-[500px]"
-                            style="border:0;"
-                            allowfullscreen=""
-                            loading="lazy"
+                        <iframe src="{{ $address['mapEmbed'] }}" class="w-full h-[500px] lg:h-full min-h-[500px]"
+                            style="border:0;" allowfullscreen="" loading="lazy"
                             referrerpolicy="no-referrer-when-downgrade">
                         </iframe>
                     </div>
@@ -78,7 +72,8 @@
         {{-- CTA Section --}}
         <div data-aos="fade-up">
             <div class="text-center mt-16 transition-all duration-500">
-                <div class="card bg-gradient-to-br from-primary/20 via-accent/20 to-secondary/20 border-2 border-primary/20">
+                <div
+                    class="card bg-gradient-to-br from-primary/20 via-accent/20 to-secondary/20 border-2 border-primary/20">
                     <div class="card-body text-center py-12">
                         <div class="max-w-2xl mx-auto">
                             <div class="mb-6">
@@ -92,7 +87,8 @@
                                 <strong class="text-accent">CS kami akan segera merespon pertanyaan Anda.</strong>
                             </p>
                             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                                <a href="https://wa.me/{{ $whatsappNumber }}?text={{ urlencode($whatsappMessage) }}" target="_blank"
+                                <a href="https://wa.me/{{ $whatsappNumber }}?text={{ urlencode($whatsappMessage) }}"
+                                    target="_blank"
                                     class="btn btn-success btn-lg rounded-full gap-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all">
                                     <x-icon name="mdi.whatsapp" class="h-6 w-6" />
                                     Tanya ke CS

@@ -32,8 +32,7 @@
                 <x-input label="Email" wire:model.blur="email" type="email" icon="solar.letter-bold-duotone" />
                 <x-input label="No. Telepon" wire:model.blur="phone" prefix="+62"
                     hint="Bisa tulis dengan 08 atau langsung 8" maxlength="15" />
-                <x-input label="Plat Nomor" wire:model.blur="vehicle_number"
-                    icon="solar.transmission-bold-duotone" />
+                <x-input label="Plat Nomor" wire:model.blur="vehicle_number" icon="solar.transmission-bold-duotone" />
 
                 <x-password label="Password Lama" wire:model.blur="current_password" type="password"
                     icon="solar.lock-bold-duotone" hint="Kosongkan jika tidak ingin mengubah password" right />

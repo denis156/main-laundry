@@ -37,10 +37,12 @@
                                 <x-icon name="solar.phone-bold-duotone" class="w-4 h-4 text-success" />
                                 <span class="text-sm font-semibold">WhatsApp</span>
                             </div>
-                            <span class="text-sm">{{ $this->hasCSWhatsApp() ? config('sosmed.phone') : 'Tidak tersedia' }}</span>
+                            <span
+                                class="text-sm">{{ $this->hasCSWhatsApp() ? config('sosmed.phone') : 'Tidak tersedia' }}</span>
                         </div>
                         @if ($this->hasCSWhatsApp())
-                            <a href="{{ $this->getWhatsAppCSUrl() }}" target="_blank" class="btn btn-success btn-sm w-full">
+                            <a href="{{ $this->getWhatsAppCSUrl() }}" target="_blank"
+                                class="btn btn-success btn-sm w-full">
                                 <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
                                 Hubungi via WhatsApp
                             </a>
@@ -59,7 +61,8 @@
                                 <x-icon name="solar.letter-bold-duotone" class="w-4 h-4 text-info" />
                                 <span class="text-sm font-semibold">Email</span>
                             </div>
-                            <span class="text-sm">{{ $this->hasCSEmail() ? config('sosmed.email') : 'Tidak tersedia' }}</span>
+                            <span
+                                class="text-sm">{{ $this->hasCSEmail() ? config('sosmed.email') : 'Tidak tersedia' }}</span>
                         </div>
                         @if ($this->hasCSEmail())
                             <a href="mailto:{{ config('sosmed.email') }}" class="btn btn-info btn-sm w-full">
@@ -127,7 +130,8 @@
                                             @if ($service->duration_days == 0)
                                                 <span class="text-xs badge badge-warning">Same Day</span>
                                             @else
-                                                <span class="text-xs badge badge-info">{{ $service->duration_days }} hari</span>
+                                                <span class="text-xs badge badge-info">{{ $service->duration_days }}
+                                                    hari</span>
                                             @endif
                                         </div>
                                     </div>
@@ -171,7 +175,8 @@
                             <div class="text-sm space-y-2">
                                 @foreach ($this->getWorkflowStatuses() as $status)
                                     <div class="flex items-center gap-2">
-                                        <span class="badge {{ $status['badge'] }} badge-xs whitespace-nowrap">{{ $status['label'] }}</span>
+                                        <span
+                                            class="badge {{ $status['badge'] }} badge-xs whitespace-nowrap">{{ $status['label'] }}</span>
                                         <span>{{ $status['description'] }}</span>
                                     </div>
                                 @endforeach
@@ -179,7 +184,7 @@
                         </x-slot:content>
                     </x-collapse>
 
-                  </div>
+                </div>
             </div>
         </div>
 
@@ -249,7 +254,8 @@
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-base-content/70">Environment</span>
-                        <span class="badge {{ config('app.env') === 'production' ? 'badge-success' : 'badge-warning' }}">
+                        <span
+                            class="badge {{ config('app.env') === 'production' ? 'badge-success' : 'badge-warning' }}">
                             {{ ucfirst(config('app.env')) }}
                         </span>
                     </div>

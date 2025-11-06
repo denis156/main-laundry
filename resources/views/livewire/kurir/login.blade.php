@@ -18,8 +18,8 @@
 
             {{-- Login Button --}}
             <x-slot:actions>
-                <x-button label="Masuk" type="submit" icon="solar.login-linear"
-                    class="btn-primary btn-block" spinner="login" />
+                <x-button label="Masuk" type="submit" icon="solar.login-linear" class="btn-primary btn-block"
+                    spinner="login" />
             </x-slot:actions>
         </x-form>
 

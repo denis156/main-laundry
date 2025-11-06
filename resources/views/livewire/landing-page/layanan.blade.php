@@ -1,10 +1,7 @@
 <section id="layanan" class="bg-base-300 scroll-mt-16 min-h-dvh py-16 lg:py-24 relative overflow-hidden">
     {{-- Background Decorations --}}
-    <x-landing-page.bg-decoration
-        topRight="mesin-cuci-di-maintenence.svg"
-        bottomLeft="anakperempuan-pegang-detergent.svg"
-        topLeft="tutup-mesin-cuci.svg"
-        bottomRight="wanita-menjemur.svg" />
+    <x-landing-page.bg-decoration topRight="mesin-cuci-di-maintenence.svg" bottomLeft="anakperempuan-pegang-detergent.svg"
+        topLeft="tutup-mesin-cuci.svg" bottomRight="wanita-menjemur.svg" />
 
     <div class="container mx-auto px-4 relative z-10">
         {{-- Section Header --}}
@@ -19,7 +16,8 @@
                 </h2>
                 <p class="text-xl text-base-content opacity-80 max-w-2xl mx-auto">
                     Kami adalah <strong class="text-primary">ekspresi gaya hidup baru di kotamu</strong> —
-                    <span class="text-accent font-semibold">"main sepuasnya, baju kotormu biar kami yang beresin."</span>
+                    <span class="text-accent font-semibold">"main sepuasnya, baju kotormu biar kami yang
+                        beresin."</span>
                 </p>
             </div>
         </div>
@@ -117,7 +115,8 @@
         {{-- CTA Section --}}
         <div data-aos="fade-up">
             <div class="text-center mt-16 transition-all duration-500">
-                <div class="card bg-gradient-to-br from-accent/20 via-primary/20 to-secondary/20 border-2 border-accent/20">
+                <div
+                    class="card bg-gradient-to-br from-accent/20 via-primary/20 to-secondary/20 border-2 border-accent/20">
                     <div class="card-body text-center py-12">
                         <div class="max-w-2xl mx-auto">
                             <div class="mb-6">

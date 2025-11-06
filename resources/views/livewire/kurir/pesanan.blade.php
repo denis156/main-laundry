@@ -52,9 +52,7 @@
                                     {{ $transaction->formatted_order_date }}
                                 </p>
                             </div>
-                            <x-button
-                                icon="solar.eye-bold"
-                                class="btn-circle btn-accent btn-md"
+                            <x-button icon="solar.eye-bold" class="btn-circle btn-accent btn-md"
                                 link="{{ route('kurir.pesanan.detail', $transaction->id) }}" />
                         </div>
 
@@ -63,9 +61,10 @@
                         {{-- Customer Info --}}
                         <div class="flex items-center gap-3 mb-2">
                             <div class="avatar">
-                                <div class="ring-accent ring-offset-base-100 w-10 h-10 rounded-full ring-2 ring-offset-2">
+                                <div
+                                    class="ring-accent ring-offset-base-100 w-10 h-10 rounded-full ring-2 ring-offset-2">
                                     <img src="{{ $transaction->customer?->getFilamentAvatarUrl() }}"
-                                         alt="{{ $transaction->customer?->name ?? 'Customer' }}" />
+                                        alt="{{ $transaction->customer?->name ?? 'Customer' }}" />
                                 </div>
                             </div>
                             <div class="flex-1">
@@ -156,9 +155,13 @@
                             @if ($transaction->workflow_status === 'pending_confirmation')
                                 {{-- Status: Pending Confirmation - Tampilkan Batalkan + Ambil Pesanan --}}
                                 <div class="grid grid-cols-2 gap-2">
-                                    <x-button wire:click="openCancelModal({{ $transaction->id }})" label="Batalkan Pesanan" icon="solar.close-circle-bold-duotone" class="btn-error btn-sm" />
+                                    <x-button wire:click="openCancelModal({{ $transaction->id }})"
+                                        label="Batalkan Pesanan" icon="solar.close-circle-bold-duotone"
+                                        class="btn-error btn-sm" />
 
-                                    <x-button wire:click="openConfirmModal({{ $transaction->id }})" label="Ambil Pesanan" icon="solar.check-circle-bold-duotone" class="btn-accent btn-sm" />
+                                    <x-button wire:click="openConfirmModal({{ $transaction->id }})"
+                                        label="Ambil Pesanan" icon="solar.check-circle-bold-duotone"
+                                        class="btn-accent btn-sm" />
                                 </div>
                             @elseif ($transaction->workflow_status === 'confirmed')
                                 {{-- Status: Confirmed - Tampilkan Input Berat + WhatsApp + Dijemput --}}
@@ -172,42 +175,30 @@
 
                                 <div class="grid grid-cols-2 gap-2">
                                     @if ($transaction->customer?->phone && $transaction->customer?->name)
-                                        <x-button
-                                            label="WhatsApp"
-                                            icon="solar.chat-round-bold-duotone"
+                                        <x-button label="WhatsApp" icon="solar.chat-round-bold-duotone"
                                             link="{{ $this->getWhatsAppUrl($transaction->customer->phone, $transaction->customer->name, $transaction) }}"
-                                            external
-                                            class="btn-success btn-sm" />
+                                            external class="btn-success btn-sm" />
                                     @endif
 
-                                    <x-button
-                                        wire:click="openPickedUpModal({{ $transaction->id }})"
-                                        label="Dijemput"
+                                    <x-button wire:click="openPickedUpModal({{ $transaction->id }})" label="Dijemput"
                                         icon="solar.box-bold-duotone"
                                         class="btn-warning btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}"
                                         :disabled="empty($weights[$transaction->id]) || $weights[$transaction->id] <= 0" />
                                 </div>
                             @elseif ($transaction->workflow_status === 'picked_up')
                                 {{-- Status: Picked Up - Tampilkan Sudah di Pos --}}
-                                <x-button
-                                    wire:click="openAtLoadingPostModal({{ $transaction->id }})"
-                                    label="Sudah di Pos"
-                                    icon="solar.map-point-bold-duotone"
+                                <x-button wire:click="openAtLoadingPostModal({{ $transaction->id }})"
+                                    label="Sudah di Pos" icon="solar.map-point-bold-duotone"
                                     class="btn-warning btn-sm btn-block" />
                             @elseif (in_array($transaction->workflow_status, ['at_loading_post', 'in_washing']))
                                 {{-- Status: At Loading Post / In Washing - Tampilkan WhatsApp + Mengantar (disabled) --}}
                                 <div class="grid grid-cols-2 gap-2">
                                     @if ($transaction->customer?->phone && $transaction->customer?->name)
-                                        <x-button
-                                            label="WhatsApp"
-                                            icon="solar.chat-round-bold-duotone"
-                                            class="btn-success btn-sm"
-                                            disabled />
+                                        <x-button label="WhatsApp" icon="solar.chat-round-bold-duotone"
+                                            class="btn-success btn-sm" disabled />
                                     @endif
 
-                                    <x-button
-                                        label="Mengantar"
-                                        icon="solar.delivery-bold-duotone"
+                                    <x-button label="Mengantar" icon="solar.delivery-bold-duotone"
                                         class="btn-accent btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}"
                                         disabled />
                                 </div>
@@ -215,27 +206,19 @@
                                 {{-- Status: Washing Completed - Tampilkan WhatsApp + Mengantar --}}
                                 <div class="grid grid-cols-2 gap-2">
                                     @if ($transaction->customer?->phone && $transaction->customer?->name)
-                                        <x-button
-                                            label="WhatsApp"
-                                            icon="solar.chat-round-bold-duotone"
+                                        <x-button label="WhatsApp" icon="solar.chat-round-bold-duotone"
                                             link="{{ $this->getWhatsAppUrlForDelivery($transaction->customer->phone, $transaction->customer->name, $transaction) }}"
-                                            external
-                                            class="btn-success btn-sm" />
+                                            external class="btn-success btn-sm" />
                                     @endif
 
-                                    <x-button
-                                        wire:click="openOutForDeliveryModal({{ $transaction->id }})"
-                                        label="Mengantar"
-                                        icon="solar.delivery-bold-duotone"
+                                    <x-button wire:click="openOutForDeliveryModal({{ $transaction->id }})"
+                                        label="Mengantar" icon="solar.delivery-bold-duotone"
                                         class="btn-accent btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}" />
                                 </div>
                             @elseif ($transaction->workflow_status === 'out_for_delivery')
                                 {{-- Status: Out for Delivery - Tampilkan Terkirim --}}
-                                <x-button
-                                    wire:click="openDeliveredModal({{ $transaction->id }})"
-                                    label="Terkirim"
-                                    icon="solar.check-circle-bold-duotone"
-                                    class="btn-success btn-sm btn-block"
+                                <x-button wire:click="openDeliveredModal({{ $transaction->id }})" label="Terkirim"
+                                    icon="solar.check-circle-bold-duotone" class="btn-success btn-sm btn-block"
                                     :disabled="$transaction->payment_status !== 'paid'" />
                             @endif
                         </div>
@@ -265,23 +248,24 @@
                 {{-- Tampilkan kedua tombol jika bukan di halaman pertama dan masih ada data --}}
                 <x-button wire:click="loadLess" label="Tampilkan Lebih Sedikit"
                     icon="solar.minus-circle-bold-duotone" class="btn-secondary" />
-                <x-button wire:click="loadMore" label="Tampilkan Lebih Banyak"
-                    icon="solar.add-circle-bold-duotone" class="btn-accent" />
+                <x-button wire:click="loadMore" label="Tampilkan Lebih Banyak" icon="solar.add-circle-bold-duotone"
+                    class="btn-accent" />
             @elseif ($canLoadLess && !$hasMore)
                 {{-- Hanya tombol "Lebih Sedikit" jika sudah di akhir --}}
                 <x-button wire:click="loadLess" label="Tampilkan Lebih Sedikit"
                     icon="solar.minus-circle-bold-duotone" class="btn-secondary btn-block" />
             @else
                 {{-- Tombol "Lebih Banyak" jika di halaman pertama (disabled jika data <= 5) --}}
-                <x-button wire:click="loadMore" label="Tampilkan Lebih Banyak"
-                    icon="solar.add-circle-bold-duotone" class="btn-accent btn-block"
-                    :disabled="!$hasMore" />
+                <x-button wire:click="loadMore" label="Tampilkan Lebih Banyak" icon="solar.add-circle-bold-duotone"
+                    class="btn-accent btn-block" :disabled="!$hasMore" />
             @endif
         </div>
     </div>
 
     {{-- Modal Konfirmasi Batalkan Pesanan --}}
-    <x-modal wire:model="showCancelModal" title="Batalkan Pesanan" subtitle="Apakah Anda yakin ingin membatalkan pesanan ini?" class="modal-bottom sm:modal-middle" persistent separator>
+    <x-modal wire:model="showCancelModal" title="Batalkan Pesanan"
+        subtitle="Apakah Anda yakin ingin membatalkan pesanan ini?" class="modal-bottom sm:modal-middle" persistent
+        separator>
         <div class="py-4">
             <p class="text-base-content/70">Pesanan yang dibatalkan tidak dapat dikembalikan.</p>
         </div>
@@ -292,7 +276,8 @@
     </x-modal>
 
     {{-- Modal Konfirmasi Ambil Pesanan --}}
-    <x-modal wire:model="showConfirmModal" title="Ambil Pesanan" subtitle="Konfirmasi untuk mengambil pesanan ini?" class="modal-bottom sm:modal-middle" persistent separator>
+    <x-modal wire:model="showConfirmModal" title="Ambil Pesanan" subtitle="Konfirmasi untuk mengambil pesanan ini?"
+        class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Anda akan bertanggung jawab untuk menjemput dan mengantar pesanan ini.</p>
         </div>
@@ -303,7 +288,8 @@
     </x-modal>
 
     {{-- Modal Konfirmasi Dijemput --}}
-    <x-modal wire:model="showPickedUpModal" title="Tandai Dijemput" subtitle="Konfirmasi pesanan sudah dijemput?" class="modal-bottom sm:modal-middle" persistent separator>
+    <x-modal wire:model="showPickedUpModal" title="Tandai Dijemput" subtitle="Konfirmasi pesanan sudah dijemput?"
+        class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pastikan berat cucian sudah diisi dengan benar sebelum melanjutkan.</p>
         </div>
@@ -314,7 +300,8 @@
     </x-modal>
 
     {{-- Modal Konfirmasi Sudah di Pos --}}
-    <x-modal wire:model="showAtLoadingPostModal" title="Tandai Sudah di Pos" subtitle="Konfirmasi pesanan sudah tiba di pos?" class="modal-bottom sm:modal-middle" persistent separator>
+    <x-modal wire:model="showAtLoadingPostModal" title="Tandai Sudah di Pos"
+        subtitle="Konfirmasi pesanan sudah tiba di pos?" class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pesanan akan ditandai sudah berada di pos loading.</p>
         </div>
@@ -325,7 +312,8 @@
     </x-modal>
 
     {{-- Modal Konfirmasi Mengantar --}}
-    <x-modal wire:model="showOutForDeliveryModal" title="Tandai Mengantar" subtitle="Konfirmasi akan mengantar pesanan ini?" class="modal-bottom sm:modal-middle" persistent separator>
+    <x-modal wire:model="showOutForDeliveryModal" title="Tandai Mengantar"
+        subtitle="Konfirmasi akan mengantar pesanan ini?" class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pesanan akan ditandai sedang dalam pengiriman.</p>
         </div>
@@ -336,9 +324,11 @@
     </x-modal>
 
     {{-- Modal Konfirmasi Terkirim --}}
-    <x-modal wire:model="showDeliveredModal" title="Tandai Terkirim" subtitle="Konfirmasi pesanan sudah terkirim?" class="modal-bottom sm:modal-middle" persistent separator>
+    <x-modal wire:model="showDeliveredModal" title="Tandai Terkirim" subtitle="Konfirmasi pesanan sudah terkirim?"
+        class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
-            <p class="text-base-content/70">Pastikan pesanan sudah diterima oleh customer dan pembayaran sudah dilakukan jika ada.</p>
+            <p class="text-base-content/70">Pastikan pesanan sudah diterima oleh customer dan pembayaran sudah
+                dilakukan jika ada.</p>
         </div>
         <x-slot:actions>
             <x-button label="Batal" wire:click="$set('showDeliveredModal', false)" />

@@ -2,7 +2,8 @@
 <section class="bg-base-100" wire:poll.25s.visible>
     {{-- Header --}}
     <x-header icon="solar.bill-list-bold-duotone" icon-classes="text-primary w-6 h-6" title="Detail Pesanan"
-        subtitle="Pelanggan atas nama {{ $transaction->customer?->name ?? 'Customer tidak ditemukan' }}" separator progress-indicator>
+        subtitle="Pelanggan atas nama {{ $transaction->customer?->name ?? 'Customer tidak ditemukan' }}" separator
+        progress-indicator>
         <x-slot:actions>
             <x-button icon="solar.undo-left-linear" link="{{ route('kurir.pesanan') }}" class="btn-circle btn-secondary" />
         </x-slot:actions>
@@ -52,7 +53,8 @@
                         <div class="divider my-1"></div>
                         <div>
                             <p class="text-xs text-base-content/70 mb-1">Alamat</p>
-                            <p class="text-sm font-semibold text-primary leading-relaxed">{{ $transaction->customer->address }}</p>
+                            <p class="text-sm font-semibold text-primary leading-relaxed">
+                                {{ $transaction->customer->address }}</p>
                         </div>
                     @endif
                 </div>
@@ -160,16 +162,11 @@
                         {{-- Status: At Loading Post / In Washing - Tampilkan WhatsApp + Mengantar (disabled) --}}
                         <div class="grid grid-cols-2 gap-2">
                             @if ($transaction->customer?->phone && $transaction->customer?->name)
-                                <x-button
-                                    label="WhatsApp"
-                                    icon="solar.chat-round-bold-duotone"
-                                    class="btn-success btn-sm"
-                                    disabled />
+                                <x-button label="WhatsApp" icon="solar.chat-round-bold-duotone"
+                                    class="btn-success btn-sm" disabled />
                             @endif
 
-                            <x-button
-                                label="Mengantar"
-                                icon="solar.delivery-bold-duotone"
+                            <x-button label="Mengantar" icon="solar.delivery-bold-duotone"
                                 class="btn-accent btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}"
                                 disabled />
                         </div>
@@ -178,7 +175,8 @@
                         <div class="grid grid-cols-2 gap-2">
                             @if ($transaction->customer?->phone && $transaction->customer?->name)
                                 <x-button label="WhatsApp" icon="solar.chat-round-bold-duotone"
-                                    link="{{ $this->getWhatsAppUrlForDelivery() }}" external class="btn-success btn-sm" />
+                                    link="{{ $this->getWhatsAppUrlForDelivery() }}" external
+                                    class="btn-success btn-sm" />
                             @endif
 
                             <x-button wire:click="openOutForDeliveryModal" label="Dalam Pengiriman"
@@ -197,7 +195,9 @@
     </div>
 
     {{-- Modal Konfirmasi Batalkan Pesanan --}}
-    <x-modal wire:model="showCancelModal" title="Batalkan Pesanan" subtitle="Apakah Anda yakin ingin membatalkan pesanan ini?" class="modal-bottom sm:modal-middle" persistent separator>
+    <x-modal wire:model="showCancelModal" title="Batalkan Pesanan"
+        subtitle="Apakah Anda yakin ingin membatalkan pesanan ini?" class="modal-bottom sm:modal-middle" persistent
+        separator>
         <div class="py-4">
             <p class="text-base-content/70">Pesanan yang dibatalkan tidak dapat dikembalikan.</p>
         </div>
@@ -208,7 +208,8 @@
     </x-modal>
 
     {{-- Modal Konfirmasi Ambil Pesanan --}}
-    <x-modal wire:model="showConfirmModal" title="Ambil Pesanan" subtitle="Konfirmasi untuk mengambil pesanan ini?" class="modal-bottom sm:modal-middle" persistent separator>
+    <x-modal wire:model="showConfirmModal" title="Ambil Pesanan" subtitle="Konfirmasi untuk mengambil pesanan ini?"
+        class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Anda akan bertanggung jawab untuk menjemput dan mengantar pesanan ini.</p>
         </div>
@@ -219,7 +220,8 @@
     </x-modal>
 
     {{-- Modal Konfirmasi Dijemput --}}
-    <x-modal wire:model="showPickedUpModal" title="Tandai Dijemput" subtitle="Konfirmasi pesanan sudah dijemput?" class="modal-bottom sm:modal-middle" persistent separator>
+    <x-modal wire:model="showPickedUpModal" title="Tandai Dijemput" subtitle="Konfirmasi pesanan sudah dijemput?"
+        class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pastikan berat cucian sudah diisi dengan benar sebelum melanjutkan.</p>
         </div>
@@ -230,7 +232,8 @@
     </x-modal>
 
     {{-- Modal Konfirmasi Sudah di Pos --}}
-    <x-modal wire:model="showAtLoadingPostModal" title="Tandai Sudah di Pos" subtitle="Konfirmasi pesanan sudah tiba di pos?" class="modal-bottom sm:modal-middle" persistent separator>
+    <x-modal wire:model="showAtLoadingPostModal" title="Tandai Sudah di Pos"
+        subtitle="Konfirmasi pesanan sudah tiba di pos?" class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pesanan akan ditandai sudah berada di pos loading.</p>
         </div>
@@ -241,7 +244,8 @@
     </x-modal>
 
     {{-- Modal Konfirmasi Mengantar --}}
-    <x-modal wire:model="showOutForDeliveryModal" title="Tandai Mengantar" subtitle="Konfirmasi akan mengantar pesanan ini?" class="modal-bottom sm:modal-middle" persistent separator>
+    <x-modal wire:model="showOutForDeliveryModal" title="Tandai Mengantar"
+        subtitle="Konfirmasi akan mengantar pesanan ini?" class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pesanan akan ditandai sedang dalam pengiriman.</p>
         </div>
@@ -252,9 +256,11 @@
     </x-modal>
 
     {{-- Modal Konfirmasi Terkirim --}}
-    <x-modal wire:model="showDeliveredModal" title="Tandai Terkirim" subtitle="Konfirmasi pesanan sudah terkirim?" class="modal-bottom sm:modal-middle" persistent separator>
+    <x-modal wire:model="showDeliveredModal" title="Tandai Terkirim" subtitle="Konfirmasi pesanan sudah terkirim?"
+        class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
-            <p class="text-base-content/70">Pastikan pesanan sudah diterima oleh customer dan pembayaran sudah dilakukan jika ada.</p>
+            <p class="text-base-content/70">Pastikan pesanan sudah diterima oleh customer dan pembayaran sudah
+                dilakukan jika ada.</p>
         </div>
         <x-slot:actions>
             <x-button label="Batal" wire:click="$set('showDeliveredModal', false)" />

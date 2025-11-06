@@ -7,8 +7,7 @@
         <livewire:kurir.components.stats-beranda />
 
         {{-- Welcome Card --}}
-        <x-card class="bg-base-300 shadow" title="Hai {{ $this->greeting }}"
-            subtitle="{{ $this->todayDate }}" separator>
+        <x-card class="bg-base-300 shadow" title="Hai {{ $this->greeting }}" subtitle="{{ $this->todayDate }}" separator>
             <x-slot:menu>
                 @if ($this->assignedPos)
                     <x-badge value="{{ $this->assignedPos->name }}" class="badge-primary badge-xs md:badge-sm" />
@@ -29,8 +28,8 @@
         </x-card>
 
         {{-- Quick Actions --}}
-        <x-card class="bg-base-300 shadow" body-class="grid grid-cols-2 gap-4"
-            title="Aksi Cepat" subtitle="Pilih aksi yang ingin kamu lakukan sekarang" separator>
+        <x-card class="bg-base-300 shadow" body-class="grid grid-cols-2 gap-4" title="Aksi Cepat"
+            subtitle="Pilih aksi yang ingin kamu lakukan sekarang" separator>
             <x-button link="{{ $this->getWhatsAppCSUrl() }}" target="_blank" icon="solar.chat-round-bold-duotone"
                 label="Hubungi CS" class="btn-success btn-lg btn-block col-span-2" external />
             <x-button link="{{ route('kurir.pesanan') }}" icon="solar.bill-list-bold-duotone" label="Pesanan"

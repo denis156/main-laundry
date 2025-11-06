@@ -4,7 +4,8 @@
     <x-header icon="solar.bill-check-bold-duotone" icon-classes="text-primary w-6 h-6" title="Detail Pesanan"
         subtitle="Informasi lengkap pesanan laundry kamu" separator>
         <x-slot:actions>
-            <x-button icon="solar.undo-left-linear" link="{{ route('pelanggan.pesanan') }}" class="btn-circle btn-secondary" />
+            <x-button icon="solar.undo-left-linear" link="{{ route('pelanggan.pesanan') }}"
+                class="btn-circle btn-secondary" />
         </x-slot:actions>
     </x-header>
 
@@ -20,7 +21,8 @@
                             {{ $transaction->formatted_order_date }}
                         </p>
                     </div>
-                    <span class="badge {{ StatusTransactionCustomerHelper::getStatusBadgeColor($transaction->workflow_status) }}">
+                    <span
+                        class="badge {{ StatusTransactionCustomerHelper::getStatusBadgeColor($transaction->workflow_status) }}">
                         {{ StatusTransactionCustomerHelper::getStatusText($transaction->workflow_status) }}
                     </span>
                 </div>
@@ -37,15 +39,17 @@
                     <div class="bg-base-200 rounded-lg p-3 mb-3">
                         <div class="flex items-center gap-3">
                             <div class="avatar">
-                                <div class="ring-accent ring-offset-base-100 w-12 h-12 rounded-full ring-2 ring-offset-2">
+                                <div
+                                    class="ring-accent ring-offset-base-100 w-12 h-12 rounded-full ring-2 ring-offset-2">
                                     <img src="{{ $transaction->courierMotorcycle->getFilamentAvatarUrl() }}"
-                                         alt="{{ $transaction->courierMotorcycle->name }}" />
+                                        alt="{{ $transaction->courierMotorcycle->name }}" />
                                 </div>
                             </div>
                             <div class="flex-1">
                                 <p class="font-semibold">{{ $transaction->courierMotorcycle->name }}</p>
                                 <p class="text-xs text-base-content/60">{{ $transaction->courierMotorcycle->phone }}</p>
-                                <p class="text-xs text-base-content/60">{{ $transaction->courierMotorcycle->vehicle_number }}</p>
+                                <p class="text-xs text-base-content/60">
+                                    {{ $transaction->courierMotorcycle->vehicle_number }}</p>
                             </div>
                         </div>
                     </div>
@@ -63,11 +67,26 @@
                     @php
                         // Define timeline steps based on helper status
                         $timelineSteps = [
-                            ['key' => 'confirmed', 'text' => StatusTransactionCustomerHelper::getStatusText('confirmed')],
-                            ['key' => 'picked_up', 'text' => StatusTransactionCustomerHelper::getStatusText('picked_up')],
-                            ['key' => 'in_washing', 'text' => StatusTransactionCustomerHelper::getStatusText('in_washing')],
-                            ['key' => 'out_for_delivery', 'text' => StatusTransactionCustomerHelper::getStatusText('out_for_delivery')],
-                            ['key' => 'delivered', 'text' => StatusTransactionCustomerHelper::getStatusText('delivered')]
+                            [
+                                'key' => 'confirmed',
+                                'text' => StatusTransactionCustomerHelper::getStatusText('confirmed'),
+                            ],
+                            [
+                                'key' => 'picked_up',
+                                'text' => StatusTransactionCustomerHelper::getStatusText('picked_up'),
+                            ],
+                            [
+                                'key' => 'in_washing',
+                                'text' => StatusTransactionCustomerHelper::getStatusText('in_washing'),
+                            ],
+                            [
+                                'key' => 'out_for_delivery',
+                                'text' => StatusTransactionCustomerHelper::getStatusText('out_for_delivery'),
+                            ],
+                            [
+                                'key' => 'delivered',
+                                'text' => StatusTransactionCustomerHelper::getStatusText('delivered'),
+                            ],
                         ];
                     @endphp
                     <div class="bg-base-200 rounded-lg p-3">
@@ -78,21 +97,59 @@
                                     $isStepActive = false;
                                     $isNextStepActive = false;
 
-                                    switch($step['key']) {
+                                    switch ($step['key']) {
                                         case 'confirmed':
-                                            $isStepActive = in_array($transaction->workflow_status, ['confirmed', 'picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered']);
-                                            $isNextStepActive = in_array($transaction->workflow_status, ['picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered']);
+                                            $isStepActive = in_array($transaction->workflow_status, [
+                                                'confirmed',
+                                                'picked_up',
+                                                'at_loading_post',
+                                                'in_washing',
+                                                'washing_completed',
+                                                'out_for_delivery',
+                                                'delivered',
+                                            ]);
+                                            $isNextStepActive = in_array($transaction->workflow_status, [
+                                                'picked_up',
+                                                'at_loading_post',
+                                                'in_washing',
+                                                'washing_completed',
+                                                'out_for_delivery',
+                                                'delivered',
+                                            ]);
                                             break;
                                         case 'picked_up':
-                                            $isStepActive = in_array($transaction->workflow_status, ['picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered']);
-                                            $isNextStepActive = in_array($transaction->workflow_status, ['in_washing', 'washing_completed', 'out_for_delivery', 'delivered']);
+                                            $isStepActive = in_array($transaction->workflow_status, [
+                                                'picked_up',
+                                                'at_loading_post',
+                                                'in_washing',
+                                                'washing_completed',
+                                                'out_for_delivery',
+                                                'delivered',
+                                            ]);
+                                            $isNextStepActive = in_array($transaction->workflow_status, [
+                                                'in_washing',
+                                                'washing_completed',
+                                                'out_for_delivery',
+                                                'delivered',
+                                            ]);
                                             break;
                                         case 'in_washing':
-                                            $isStepActive = in_array($transaction->workflow_status, ['in_washing', 'washing_completed', 'out_for_delivery', 'delivered']);
-                                            $isNextStepActive = in_array($transaction->workflow_status, ['out_for_delivery', 'delivered']);
+                                            $isStepActive = in_array($transaction->workflow_status, [
+                                                'in_washing',
+                                                'washing_completed',
+                                                'out_for_delivery',
+                                                'delivered',
+                                            ]);
+                                            $isNextStepActive = in_array($transaction->workflow_status, [
+                                                'out_for_delivery',
+                                                'delivered',
+                                            ]);
                                             break;
                                         case 'out_for_delivery':
-                                            $isStepActive = in_array($transaction->workflow_status, ['out_for_delivery', 'delivered']);
+                                            $isStepActive = in_array($transaction->workflow_status, [
+                                                'out_for_delivery',
+                                                'delivered',
+                                            ]);
                                             $isNextStepActive = $transaction->workflow_status === 'delivered';
                                             break;
                                         case 'delivered':
@@ -117,7 +174,8 @@
                                             @if ($isStepActive)
                                                 <x-icon name="solar.check-circle-bold" class="w-5 h-5 text-success" />
                                             @else
-                                                <x-icon name="solar.close-circle-bold-duotone" class="w-5 h-5 text-secondary" />
+                                                <x-icon name="solar.close-circle-bold-duotone"
+                                                    class="w-5 h-5 text-secondary" />
                                             @endif
                                         </div>
                                     @else
@@ -126,7 +184,8 @@
                                             @if ($isStepActive)
                                                 <x-icon name="solar.check-circle-bold" class="w-5 h-5 text-success" />
                                             @else
-                                                <x-icon name="solar.close-circle-bold-duotone" class="w-5 h-5 text-secondary" />
+                                                <x-icon name="solar.close-circle-bold-duotone"
+                                                    class="w-5 h-5 text-secondary" />
                                             @endif
                                         </div>
                                         <div class="timeline-end timeline-box text-xs">{{ $step['text'] }}</div>
@@ -210,34 +269,23 @@
                 <div class="mt-3">
                     @if ($transaction->workflow_status === 'pending_confirmation')
                         {{-- Status: Pending - Show Cancel button --}}
-                        <x-button wire:click="openCancelModal"
-                            label="Batalkan Pesanan"
-                            icon="solar.close-circle-bold-duotone"
-                            class="btn-error btn-sm btn-block" />
+                        <x-button wire:click="openCancelModal" label="Batalkan Pesanan"
+                            icon="solar.close-circle-bold-duotone" class="btn-error btn-sm btn-block" />
                     @elseif (in_array($transaction->workflow_status, ['confirmed', 'picked_up', 'at_loading_post']))
                         {{-- Status: Diproses - Show WA to Kurir --}}
                         @if ($transaction->courierMotorcycle)
-                            <x-button link="{{ $this->getWhatsAppKurirUrl() }}"
-                                external
-                                label="Hubungi Kurir"
-                                icon="solar.chat-round-bold-duotone"
-                                class="btn-success btn-sm btn-block" />
+                            <x-button link="{{ $this->getWhatsAppKurirUrl() }}" external label="Hubungi Kurir"
+                                icon="solar.chat-round-bold-duotone" class="btn-success btn-sm btn-block" />
                         @endif
                     @elseif (in_array($transaction->workflow_status, ['in_washing', 'washing_completed']))
                         {{-- Status: Dicuci - Show WA to Admin --}}
-                        <x-button link="{{ $this->getWhatsAppAdminUrl() }}"
-                            external
-                            label="Hubungi Admin"
-                            icon="solar.chat-round-bold-duotone"
-                            class="btn-success btn-sm btn-block" />
+                        <x-button link="{{ $this->getWhatsAppAdminUrl() }}" external label="Hubungi Admin"
+                            icon="solar.chat-round-bold-duotone" class="btn-success btn-sm btn-block" />
                     @elseif ($transaction->workflow_status === 'out_for_delivery')
                         {{-- Status: Diantar - Show WA to Kurir --}}
                         @if ($transaction->courierMotorcycle)
-                            <x-button link="{{ $this->getWhatsAppKurirUrl() }}"
-                                external
-                                label="Hubungi Kurir"
-                                icon="solar.chat-round-bold-duotone"
-                                class="btn-success btn-sm btn-block" />
+                            <x-button link="{{ $this->getWhatsAppKurirUrl() }}" external label="Hubungi Kurir"
+                                icon="solar.chat-round-bold-duotone" class="btn-success btn-sm btn-block" />
                         @endif
                     @endif
                     {{-- Status: Delivered & Cancelled - No button --}}
@@ -248,7 +296,8 @@
 
     {{-- Modal Konfirmasi Batalkan Pesanan --}}
     <x-modal wire:model="showCancelModal" title="Batalkan Pesanan"
-        subtitle="Apakah kamu yakin ingin membatalkan pesanan ini?" class="modal-bottom sm:modal-middle" persistent separator>
+        subtitle="Apakah kamu yakin ingin membatalkan pesanan ini?" class="modal-bottom sm:modal-middle" persistent
+        separator>
         <div class="py-4">
             <p class="text-base-content/70">Pesanan yang dibatalkan tidak dapat dikembalikan.</p>
         </div>
