@@ -7,9 +7,9 @@
 // DATA TRANSAKSI TIDAK DI-CACHE - selalu fetch dari server via internet
 // Jika offline, transaksi tidak akan muncul sampai online kembali
 
-const CACHE_NAME = 'main-laundry-pelanggan-v1.0.0';
-const STATIC_CACHE = 'main-laundry-pelanggan-static-v1.0.0';
-const DYNAMIC_CACHE = 'main-laundry-pelanggan-dynamic-v1.0.0';
+const CACHE_NAME = 'main-laundry-pelanggan-v1.0.1';
+const STATIC_CACHE = 'main-laundry-pelanggan-static-v1.0.1';
+const DYNAMIC_CACHE = 'main-laundry-pelanggan-dynamic-v1.0.1';
 
 // Assets yang akan di-cache saat install (static assets)
 // JANGAN cache halaman HTML! Hanya cache assets statis
@@ -180,9 +180,9 @@ self.addEventListener('push', (event) => {
         const data = event.data.json();
         console.log('[SW] Push data:', data);
 
-        const title = data.title || 'Pesanan Baru';
+        const title = data.title || 'Notifikasi Pesanan';
         const options = {
-            body: data.body || 'Ada pesanan baru masuk',
+            body: data.body || 'Ada update pesanan Anda',
             icon: data.icon || '/image/manifest-icons/main-512x512-notif.png',
             badge: data.badge || '/image/manifest-icons/main-512x512-notif.png',
             vibrate: data.vibrate || [200, 100, 200, 100, 200],
@@ -200,7 +200,7 @@ self.addEventListener('push', (event) => {
             ],
             data: {
                 transaction_id: data.transaction_id,
-                url: data.url || '/kurir/pesanan',
+                url: data.url || '/pelanggan/pesanan',
                 ...data
             }
         };
@@ -218,7 +218,7 @@ self.addEventListener('push', (event) => {
             badge: '/image/manifest-icons/main-512x512-notif.png',
             vibrate: [200, 100, 200],
             data: {
-                url: '/kurir/pesanan'
+                url: '/pelanggan/pesanan'
             }
         };
 

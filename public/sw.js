@@ -6,9 +6,9 @@
 
 console.warn('[SW] Using fallback sw.js - please use sw-kurir.js or sw-pelanggan.js instead');
 
-const CACHE_NAME = 'main-laundry-fallback-v1.0.0';
-const STATIC_CACHE = 'main-laundry-fallback-static-v1.0.0';
-const DYNAMIC_CACHE = 'main-laundry-fallback-dynamic-v1.0.0';
+const CACHE_NAME = 'main-laundry-fallback-v1.0.1';
+const STATIC_CACHE = 'main-laundry-fallback-static-v1.0.1';
+const DYNAMIC_CACHE = 'main-laundry-fallback-dynamic-v1.0.1';
 
 // Minimal assets
 const STATIC_ASSETS = [

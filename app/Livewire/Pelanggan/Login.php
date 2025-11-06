@@ -19,7 +19,6 @@ class Login extends Component
 
     public string $phone = '';
     public string $password = '';
-    public bool $remember = false;
 
     public function rules(): array
     {
@@ -72,9 +71,10 @@ class Login extends Component
         }
 
         // Attempt login menggunakan guard 'customer' dengan phone
+        // Always remember user untuk PWA experience (auto-login)
         if (Auth::guard('customer')->attempt(
             ['phone' => $this->phone, 'password' => $this->password],
-            $this->remember
+            true // Always remember untuk PWA
         )) {
             $customer = Auth::guard('customer')->user();
 

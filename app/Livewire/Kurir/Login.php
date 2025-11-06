@@ -19,7 +19,6 @@ class Login extends Component
 
     public string $email = '';
     public string $password = '';
-    public bool $remember = false;
 
     public function rules(): array
     {
@@ -52,9 +51,10 @@ class Login extends Component
         }
 
         // Attempt login menggunakan guard 'courier'
+        // Always remember user untuk PWA experience (auto-login)
         if (Auth::guard('courier')->attempt(
             ['email' => $this->email, 'password' => $this->password],
-            $this->remember
+            true // Always remember untuk PWA
         )) {
             $courier = Auth::guard('courier')->user();
 

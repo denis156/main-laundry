@@ -13,9 +13,6 @@
             {{-- Password Field --}}
             <x-password label="Password" wire:model="password" hint="Minimal 6 karakter" clearable />
 
-            {{-- Remember Me --}}
-            <x-checkbox label="Ingat saya" wire:model="remember" />
-
             {{-- Login Button --}}
             <x-slot:actions>
                 <x-button label="Masuk" type="submit" icon="solar.login-linear" class="btn-primary btn-block"
