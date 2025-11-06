@@ -3,6 +3,7 @@
     wire:model="showModal"
     title="Pembaruan Tersedia"
     subtitle="Aplikasi perlu diperbarui"
+    class="modal-bottom sm:modal-middle"
     persistent
     separator
     class="backdrop-blur"
