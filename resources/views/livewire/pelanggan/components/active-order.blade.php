@@ -1,7 +1,7 @@
 {{-- Active Transactions --}}
 <div class="space-y-3">
     @forelse ($this->activeTransactions as $transaction)
-        <div class="card bg-base-300 shadow">
+        <div class="card bg-base-100 shadow">
             <div class="card-body p-4">
                 {{-- Header: Invoice & Status --}}
                 <div class="flex items-start justify-between mb-3">
@@ -107,4 +107,23 @@
             </div>
         </div>
     @endforelse
+
+    {{-- Pagination Buttons --}}
+    @if ($this->totalActiveTransactions > 0)
+        <div class="flex justify-center gap-2 mt-4">
+            @if ($this->canLoadLess && $this->hasMore)
+                <x-button wire:click="loadLess" label="Lebih Sedikit"
+                    icon="solar.minus-circle-bold-duotone" class="btn-secondary" />
+                <x-button wire:click="loadMore" label="Lebih Banyak"
+                    icon="solar.add-circle-bold-duotone" class="btn-accent" />
+            @elseif ($this->canLoadLess && !$this->hasMore)
+                <x-button wire:click="loadLess" label="Tampilkan Lebih Sedikit"
+                    icon="solar.minus-circle-bold-duotone" class="btn-secondary btn-block" />
+            @else
+                <x-button wire:click="loadMore" label="Tampilkan Lebih Banyak"
+                    icon="solar.add-circle-bold-duotone" class="btn-accent btn-block"
+                    :disabled="!$this->hasMore" />
+            @endif
+        </div>
+    @endif
 </div>
