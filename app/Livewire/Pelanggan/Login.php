@@ -85,18 +85,24 @@ class Login extends Component
 
             session()->regenerate();
 
-            // Cek apakah data pelanggan lengkap (minimal ada alamat)
+            // Cek apakah data pelanggan lengkap (district, village, dan detail address)
             $isProfileIncomplete = empty($customer->district_code) ||
                                    empty($customer->village_code) ||
                                    empty($customer->detail_address);
 
             if ($isProfileIncomplete) {
-                $this->warning(
-                    title: 'Profil Belum Lengkap!',
-                    description: 'Silakan lengkapi data profil Anda terlebih dahulu.',
+                // Set session flash untuk menampilkan modal lengkapi profil
+                session()->flash('show_lengkapi_profil_modal', [
+                    'customer_name' => $customer->name,
+                    'redirect_from' => 'login'
+                ]);
+
+                $this->success(
+                    title: 'Login Berhasil!',
+                    description: 'Selamat datang ' . $customer->name,
                     position: 'toast-top toast-end',
-                    timeout: 5000,
-                    redirectTo: route('pelanggan.profil')
+                    timeout: 3000,
+                    redirectTo: route('pelanggan.beranda')
                 );
             } else {
                 $this->success(

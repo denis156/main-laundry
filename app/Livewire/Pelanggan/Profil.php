@@ -30,7 +30,7 @@ class Profil extends Component
     public string $village_code = '';
     public string $village_name = '';
     public string $detail_address = '';
-    public string $address = '';
+    public string $computed_address = '';
     public $avatar;
 
     // Wilayah list
@@ -55,8 +55,7 @@ class Profil extends Component
             $this->village_code = $customer->village_code ?? '';
             $this->village_name = $customer->village_name ?? '';
             $this->detail_address = $customer->detail_address ?? '';
-            $this->address = $customer->address ?? '';
-        }
+          }
 
         // Load districts (kecamatan) di Kota Kendari
         $this->districts = WilayahHelper::getKendariDistricts();
@@ -65,6 +64,10 @@ class Profil extends Component
         if (!empty($this->district_code)) {
             $this->villages = WilayahHelper::getVillagesByDistrict($this->district_code);
         }
+
+        // Initialize computed address
+        $this->updateComputedAddress();
+
 
         // Tampilkan toast dari session jika ada
         if (session()->has('warning')) {
@@ -92,7 +95,46 @@ class Profil extends Component
         return Auth::guard('customer')->user();
     }
 
-    
+    /**
+     * Update computed address property
+     */
+    private function updateComputedAddress(): void
+    {
+        $customer = $this->customer;
+
+        if (!$customer) {
+            $this->computed_address = 'Tidak ada data customer';
+            return;
+        }
+
+        // Only generate address if we have complete data (district_code, village_code, detail_address)
+        if (!empty(trim($this->district_code)) && !empty(trim($this->village_code)) && !empty(trim($this->detail_address))) {
+            // Generate address using WilayahHelper
+            if (!empty(trim($this->district_name)) && !empty(trim($this->village_name))) {
+                $this->computed_address = WilayahHelper::formatFullAddress(
+                    $this->detail_address,
+                    $this->village_name,
+                    $this->district_name
+                );
+            } else {
+                $this->computed_address = $this->detail_address;
+            }
+        } else {
+            // If data is incomplete, show user-friendly message
+            $this->computed_address = 'Alamat akan muncul setelah Anda melengkapi data di atas.';
+        }
+    }
+
+    /**
+     * Get full address (computed)
+     */
+    #[Computed]
+    public function address()
+    {
+        return $this->computed_address;
+    }
+
+
     #[Computed]
     public function hasChanges(): bool
     {
@@ -110,8 +152,7 @@ class Profil extends Component
             || trim($this->district_name) !== trim($customer->district_name ?? '')
             || trim($this->village_code) !== trim($customer->village_code ?? '')
             || trim($this->village_name) !== trim($customer->village_name ?? '')
-            || trim($this->detail_address) !== trim($customer->detail_address ?? '')
-            || trim($this->address) !== trim($customer->address ?? '');
+            || trim($this->detail_address) !== trim($customer->detail_address ?? '');
 
         // Cek apakah ada input password
         $passwordFilled = !empty(trim($this->current_password))
@@ -153,6 +194,9 @@ class Profil extends Component
             $this->villages = [];
             $this->district_name = '';
         }
+
+        // Update computed address
+        $this->updateComputedAddress();
     }
 
     /**
@@ -163,7 +207,20 @@ class Profil extends Component
         // Populate village name dari villages array
         $village = collect($this->villages)->firstWhere('code', $this->village_code);
         $this->village_name = $village['name'] ?? '';
+
+        // Update computed address
+        $this->updateComputedAddress();
     }
+
+    /**
+     * Auto-generate alamat lengkap ketika detail_address berubah
+     */
+    public function updatedDetailAddress(): void
+    {
+        // Update computed address
+        $this->updateComputedAddress();
+    }
+
 
     /**
      * Format phone number untuk database
@@ -188,12 +245,11 @@ class Profil extends Component
             'name' => 'required|string|min:3|max:255',
             'email' => 'required|email|max:255|unique:customers,email,' . $this->customer->id,
             'phone' => ['required', 'string', 'regex:/^8[0-9]{8,11}$/', 'min:9', 'max:13'],
-            'district_code' => 'nullable|string|max:10',
+            'district_code' => 'nullable|string',
             'district_name' => 'nullable|string|max:255',
-            'village_code' => 'nullable|string|max:10',
+            'village_code' => 'nullable|string',
             'village_name' => 'nullable|string|max:255',
             'detail_address' => 'nullable|string|max:500',
-            'address' => 'nullable|string|max:500',
         ];
     }
 
@@ -210,9 +266,7 @@ class Profil extends Component
             'phone.regex' => 'Format nomor telepon tidak valid. Contoh: 81234567890',
             'phone.min' => 'Nomor telepon minimal 9 karakter.',
             'phone.max' => 'Nomor telepon maksimal 13 karakter.',
-            'district_code.max' => 'Kode kecamatan maksimal 10 karakter.',
             'district_name.max' => 'Nama kecamatan maksimal 255 karakter.',
-            'village_code.max' => 'Kode desa/kelurahan maksimal 10 karakter.',
             'village_name.max' => 'Nama desa/kelurahan maksimal 255 karakter.',
             'detail_address.max' => 'Detail alamat maksimal 500 karakter.',
             'address.max' => 'Alamat maksimal 500 karakter.',
@@ -237,7 +291,6 @@ class Profil extends Component
             $this->village_code = $customer->village_code ?? '';
             $this->village_name = $customer->village_name ?? '';
             $this->detail_address = $customer->detail_address ?? '';
-            $this->address = $customer->address ?? '';
 
             // Load villages yang sesuai dengan district dari database
             if (!empty($this->district_code)) {
@@ -245,6 +298,9 @@ class Profil extends Component
             } else {
                 $this->villages = [];
             }
+
+            // Update computed address
+            $this->updateComputedAddress();
         }
 
         // Reset password fields
@@ -274,7 +330,7 @@ class Profil extends Component
             'village_code' => $this->village_code ?: null,
             'village_name' => $this->village_name ?: null,
             'detail_address' => $this->detail_address ?: null,
-            'address' => $this->address ?: null,
+            'address' => $this->computed_address ?: null,
         ]);
 
         // Refresh customer data setelah update

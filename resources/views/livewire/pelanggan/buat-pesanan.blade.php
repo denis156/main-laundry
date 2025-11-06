@@ -28,7 +28,7 @@
                             <input type="radio" name="payment_timing" value="on_pickup" wire:model.live="payment_timing"
                                 class="radio radio-accent hidden peer" />
                             <div
-                                class="card border border-secondary/54 bg-base-100 hover:border-accent peer-checked:border-accent peer-checked:text-accent-content peer-checked:bg-accent/48 transition-all">
+                                class="card border border-secondary/54 bg-base-100 hover:border-accent peer-checked:border-accent peer-checked:text-accent-content peer-checked:bg-accent/60 transition-all">
                                 <div class="card-body p-4">
                                     <div class="flex items-start gap-3">
                                         <div class="bg-warning/20 p-2 rounded">
@@ -53,7 +53,7 @@
                             <input type="radio" name="payment_timing" value="on_delivery" wire:model.live="payment_timing"
                                 class="radio radio-accent hidden peer" />
                             <div
-                                class="card border border-secondary/54 bg-base-100 hover:border-accent peer-checked:border-accent peer-checked:text-accent-content peer-checked:bg-accent/48 transition-all">
+                                class="card border border-secondary/54 bg-base-100 hover:border-accent peer-checked:border-accent peer-checked:text-accent-content peer-checked:bg-accent/60 transition-all">
                                 <div class="card-body p-4">
                                     <div class="flex items-start gap-3">
                                         <div class="bg-info/20 p-2 rounded">
@@ -83,11 +83,12 @@
                     @enderror
                 </div>
 
-                {{-- Detail Alamat --}}
-                <x-textarea label="Detail Alamat" icon="solar.map-point-bold-duotone" rows="3"
-                    placeholder="Contoh: Jl. Mawar No. 123, RT 001/RW 002"
-                    hint="Nama jalan, nomor rumah, RT/RW, patokan, dll"
-                    wire:model="detail_address" />
+                {{-- Alamat Lengkap --}}
+                <x-textarea label="Alamat Lengkap" icon="solar.map-point-bold-duotone" rows="3"
+                    wire:model="displayAddress"
+                    readonly
+                    hint="Alamat dari profil. Ubah di halaman Profil jika perlu"
+                    class="textarea textarea-bordered textarea-disabled" />
 
                 {{-- Catatan Tambahan --}}
                 <x-textarea label="Catatan Tambahan (Opsional)" icon="solar.document-text-bold-duotone" rows="3"
@@ -100,11 +101,14 @@
                     <div class="grid grid-cols-2 w-full gap-4">
                         <x-button label="Batal" link="{{ route('pelanggan.beranda') }}"
                             icon="solar.close-circle-bold-duotone" class="btn-secondary" />
-                        <x-button label="Buat Pesanan" icon="solar.check-circle-bold-duotone" class="btn-primary"
+                        <x-button label="Pesan" icon="solar.check-circle-bold-duotone" class="btn-primary"
                             type="submit" spinner="submit" />
                     </div>
                 </x-slot:actions>
             </x-form>
         </x-card>
     </div>
+
+      {{-- Modal Lengkapi Profil --}}
+    <livewire:pelanggan.components.lengkapi-profil-modal />
 </section>

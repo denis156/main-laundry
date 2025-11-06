@@ -15,7 +15,7 @@ use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use App\Helper\WilayahHelper;
 
 #[Title('Buat Pesanan')]
 #[Layout('components.layouts.pelanggan')]
@@ -26,8 +26,8 @@ class BuatPesanan extends Component
     // Form properties
     public ?int $service_id = null;
     public string $payment_timing = 'on_pickup';
-    public string $detail_address = '';
     public string $notes = '';
+    public string $displayAddress = '';
     public ?string $form_loaded_at = null;
 
     /**
@@ -37,6 +37,9 @@ class BuatPesanan extends Component
     public function mount(): void
     {
         $this->form_loaded_at = now()->toDateTimeString();
+
+        // Set display address from customer profile
+        $this->displayAddress = $this->fullAddress;
 
         // Check jika ada service yang sudah dipilih dari session (redirect dari halaman lain)
         if (session()->has('selected_service_id')) {
@@ -80,6 +83,45 @@ class BuatPesanan extends Component
     }
 
     /**
+     * Get customer data
+     */
+    #[Computed]
+    public function customer()
+    {
+        return auth('customer')->user();
+    }
+
+    /**
+     * Get full address from customer profile
+     */
+    #[Computed]
+    public function fullAddress()
+    {
+        $customer = $this->customer;
+
+        if (!$customer) {
+            return 'Tidak ada data customer';
+        }
+
+        // Only generate address if we have complete data (district_code, village_code, detail_address)
+        if (!empty($customer->district_code) && !empty($customer->village_code) && !empty($customer->detail_address)) {
+            // Generate address using WilayahHelper
+            if (!empty($customer->detail_address) && !empty($customer->district_name) && !empty($customer->village_name)) {
+                return WilayahHelper::formatFullAddress(
+                    $customer->detail_address,
+                    $customer->village_name,
+                    $customer->district_name
+                );
+            }
+
+            return $customer->detail_address;
+        }
+
+        // If data is incomplete, return placeholder
+        return 'Alamat belum lengkap. Silakan lengkapi profil terlebih dahulu.';
+    }
+
+    /**
      * Validation rules
      */
     protected function rules(): array
@@ -87,7 +129,6 @@ class BuatPesanan extends Component
         return [
             'service_id' => 'required|exists:services,id',
             'payment_timing' => 'required|in:on_pickup,on_delivery',
-            'detail_address' => 'required|string|min:10|max:500',
             'notes' => 'nullable|string|max:1000',
         ];
     }
@@ -102,9 +143,6 @@ class BuatPesanan extends Component
             'service_id.exists' => 'Layanan yang dipilih tidak valid',
             'payment_timing.required' => 'Silakan pilih metode pembayaran',
             'payment_timing.in' => 'Metode pembayaran tidak valid',
-            'detail_address.required' => 'Detail alamat harus diisi',
-            'detail_address.min' => 'Detail alamat minimal 10 karakter',
-            'detail_address.max' => 'Detail alamat maksimal 500 karakter',
             'notes.max' => 'Catatan maksimal 1000 karakter',
         ];
     }
@@ -114,6 +152,18 @@ class BuatPesanan extends Component
      */
     public function submit(): void
     {
+        // Cek apakah data pelanggan lengkap (district, village, dan detail address)
+        $customer = auth('customer')->user();
+        $isProfileIncomplete = empty($customer->district_code) ||
+                               empty($customer->village_code) ||
+                               empty($customer->detail_address);
+
+        if ($isProfileIncomplete) {
+            // Dispatch event untuk menampilkan modal lengkapi profil
+            $this->dispatch('showLengkapiProfilModal', $customer->name, 'buat-pesanan');
+            return;
+        }
+
         // Validasi form
         $validated = $this->validate();
 
@@ -166,19 +216,8 @@ class BuatPesanan extends Component
             $customerIp = request()->ip();
             $customerUserAgent = request()->userAgent();
 
-            // Gabungkan detail_address dengan alamat customer yang sudah ada
-            $fullAddress = trim(implode(', ', array_filter([
-                $customer->address,
-                $validated['detail_address'],
-            ])));
-
-            // Update detail_address customer jika berbeda
-            if ($customer->detail_address !== $validated['detail_address']) {
-                $customer->update([
-                    'detail_address' => $validated['detail_address'],
-                    'address' => $fullAddress,
-                ]);
-            }
+            // Gunakan alamat lengkap dari customer yang sudah ada
+            $fullAddress = $this->fullAddress;
 
             // Buat transaksi baru
             Transaction::create([
@@ -206,7 +245,7 @@ class BuatPesanan extends Component
             DB::commit();
 
             // Reset form
-            $this->reset(['service_id', 'detail_address', 'notes']);
+            $this->reset(['service_id', 'notes']);
             $this->payment_timing = 'on_pickup'; // Reset ke default
 
             // Tampilkan success message
@@ -220,13 +259,6 @@ class BuatPesanan extends Component
 
         } catch (\Exception $e) {
             DB::rollBack();
-
-            // Log error untuk debugging
-            Log::error('Error creating transaction: ' . $e->getMessage(), [
-                'customer_id' => auth('customer')->id(),
-                'service_id' => $validated['service_id'] ?? null,
-                'trace' => $e->getTraceAsString(),
-            ]);
 
             $this->error(
                 title: 'Gagal Membuat Pesanan!',

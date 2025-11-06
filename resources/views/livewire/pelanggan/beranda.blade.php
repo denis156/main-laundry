@@ -37,7 +37,7 @@
         </x-card>
 
         {{-- Service Cards Component --}}
-        <x-card class="bg-base-300 shadow" title="Layanan Kami" subtitle="Pilih layanan sesuai kebutuhan kamu"
+        <x-card class="bg-base-300 shadow" title="Pesan Sekarang" subtitle="Pilih layanan dan pesan laundry sekarang"
             separator>
             <livewire:pelanggan.components.service-card />
         </x-card>
@@ -47,4 +47,5 @@
         {{-- Active Order Component --}}
         <livewire:pelanggan.components.active-order />
     </div>
-</section>
+
+  </section>

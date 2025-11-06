@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 #[Layout('components.layouts.pelanggan')]
 class Beranda extends Component
 {
+    
     /**
      * Get authenticated customer
      */

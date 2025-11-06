@@ -89,20 +89,24 @@ class GoogleAuth extends Component
             // Regenerate session untuk keamanan
             request()->session()->regenerate();
 
-            // Cek apakah data pelanggan lengkap (minimal ada alamat)
+            // Cek apakah data pelanggan lengkap (district, village, dan detail address)
             $isProfileIncomplete = empty($customer->district_code) ||
                                    empty($customer->village_code) ||
                                    empty($customer->detail_address);
 
+            // Redirect ke intended atau beranda dengan flash message
+            $redirectResponse = redirect()->intended(route('pelanggan.beranda'))
+                ->with('success', 'Selamat datang kembali, ' . $customer->name . '!');
+
             if ($isProfileIncomplete) {
-                // Redirect ke profil dengan flash message
-                return redirect()->route('pelanggan.profil')
-                    ->with('warning', 'Silakan lengkapi data profil Anda terlebih dahulu, ' . $customer->name . '!');
+                // Simpan data modal ke session untuk ditampilkan di halaman beranda
+                session()->flash('show_lengkapi_profil_modal', [
+                    'customer_name' => $customer->name,
+                    'redirect_from' => 'google-auth'
+                ]);
             }
 
-            // Redirect ke intended atau beranda dengan flash message
-            return redirect()->intended(route('pelanggan.beranda'))
-                ->with('success', 'Selamat datang kembali, ' . $customer->name . '!');
+            return $redirectResponse;
         } catch (Exception $e) {
             Log::error('Google OAuth Error: ' . $e->getMessage(), [
                 'exception' => get_class($e),

@@ -35,7 +35,9 @@
 
                 <div class="divider">Alamat</div>
 
-                <p class="text-sm text-base-content/70 mb-2">Wilayah: Kota Kendari, Sulawesi Tenggara</p>
+                @if(!empty($district_code) && !empty($village_code))
+                    <p class="text-sm text-base-content/70 mb-2">Wilayah: Kota Kendari, Sulawesi Tenggara</p>
+                @endif
 
                 <x-select label="Kecamatan" wire:model.live="district_code"
                     :options="$districts" option-value="code" option-label="name"
@@ -45,10 +47,11 @@
                     :options="$villages" option-value="code" option-label="name"
                     icon="solar.home-bold-duotone" hint="Pilih desa/kelurahan tempat tinggal"
                     placeholder="Pilih desa/kelurahan" :disabled="empty($district_code)" />
-                <x-textarea label="Alamat Lengkap" wire:model.blur="address"
-                    icon="solar.building-bold-duotone" hint="Alamat lengkap tempat tinggal" rows="2" />
                 <x-textarea label="Detail Alamat" wire:model.blur="detail_address"
                     icon="solar.document-text-bold-duotone" hint="Detail tambahan alamat (RT/RW, patokan, dll)" rows="2" />
+                <x-textarea label="Alamat Lengkap" wire:model="computed_address" readonly
+                    icon="solar.building-bold-duotone" hint="Alamat otomatis ter-generate"
+                    class="textarea textarea-bordered textarea-disabled" rows="2" />
 
                 <div class="divider">Keamanan</div>
 
