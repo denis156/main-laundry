@@ -1,6 +1,19 @@
 {{-- Splash Screen Carousel untuk Pelanggan PWA --}}
 <div class="fixed inset-0 z-50 flex flex-col bg-base-100 overflow-hidden min-h-dvh"
     x-data="{
+        // Cek apakah aplikasi berjalan dalam mode standalone (PWA installed)
+        init() {
+            const isProduction = '{{ app()->environment('production') }}' === '1';
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                                window.navigator.standalone ||
+                                document.referrer.includes('android-app://');
+
+            // Hanya enforce standalone check di production
+            // Di local/development, splash screen bisa diakses dari browser biasa
+            if (isProduction && !isStandalone) {
+                window.location.href = '/pelanggan/masuk';
+            }
+        },
         currentSlide: 0,
         totalSlides: 4,
         startX: 0,
@@ -120,7 +133,7 @@
 
                 {{-- Description --}}
                 <p class="text-base-content/70 text-lg leading-relaxed px-2">
-                    Cek status cucian kamu dimana aja.<br>
+                    Cek status cucian kamu dimana dan kapan aja.<br>
                     Dari dijemput sampai diantar balik, semua ada notifikasinya.<br>
                     <span class="font-semibold text-success">Gak perlu khawatir, semua jelas!</span>
                 </p>
