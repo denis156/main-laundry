@@ -73,7 +73,7 @@
         <div data-aos="fade-up">
             <div class="text-center mt-16 transition-all duration-500">
                 <div
-                    class="card bg-gradient-to-br from-primary/20 via-accent/20 to-secondary/20 border-2 border-primary/20">
+                    class="card bg-linear-to-br from-primary/20 via-accent/20 to-secondary/20 border-2 border-primary/20">
                     <div class="card-body text-center py-12">
                         <div class="max-w-2xl mx-auto">
                             <div class="mb-6">

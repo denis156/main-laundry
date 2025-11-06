@@ -43,7 +43,7 @@
         </x-card>
 
         <x-card class="bg-base-300 shadow" title="Pesanan Aktif"
-            subtitle="Lacak status pesanan laundry kamu yang sedang diproses" separator>
+            subtitle="Lihat pesanan laundry kamu yang sedang diproses" separator>
             {{-- Active Order Component --}}
             <livewire:pelanggan.components.active-order />
         </x-card>

@@ -54,7 +54,7 @@
                             </div>
 
                             {{-- Spacer to push button to bottom --}}
-                            <div class="flex-grow"></div>
+                            <div class="grow"></div>
 
                             {{-- CTA Button --}}
                             <div class="card-actions justify-end mt-4">
@@ -116,7 +116,7 @@
         <div data-aos="fade-up">
             <div class="text-center mt-16 transition-all duration-500">
                 <div
-                    class="card bg-gradient-to-br from-accent/20 via-primary/20 to-secondary/20 border-2 border-accent/20">
+                    class="card bg-linear-to-br from-accent/20 via-primary/20 to-secondary/20 border-2 border-accent/20">
                     <div class="card-body text-center py-12">
                         <div class="max-w-2xl mx-auto">
                             <div class="mb-6">
