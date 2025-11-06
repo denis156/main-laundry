@@ -196,7 +196,7 @@
 
     {{-- Modal Konfirmasi Batalkan Pesanan --}}
     <x-modal wire:model="showCancelModal" title="Batalkan Pesanan"
-        subtitle="Apakah kamu yakin ingin membatalkan pesanan ini?" persistent separator>
+        subtitle="Apakah kamu yakin ingin membatalkan pesanan ini?" class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pesanan yang dibatalkan tidak dapat dikembalikan.</p>
         </div>

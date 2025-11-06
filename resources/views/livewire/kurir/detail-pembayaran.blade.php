@@ -187,7 +187,7 @@
     </div>
 
     {{-- Modal Konfirmasi Upload Bukti Pembayaran --}}
-    <x-modal wire:model="showUploadModal" title="Upload Bukti Pembayaran" subtitle="Konfirmasi untuk mengupload bukti pembayaran?" persistent separator>
+    <x-modal wire:model="showUploadModal" title="Upload Bukti Pembayaran" subtitle="Konfirmasi untuk mengupload bukti pembayaran?" class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pastikan file yang diupload adalah bukti pembayaran yang valid dan jelas terbaca.</p>
             <div class="mt-3 p-3 bg-warning/10 rounded-lg border border-warning/20">

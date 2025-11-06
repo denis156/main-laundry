@@ -197,7 +197,7 @@
     </div>
 
     {{-- Modal Konfirmasi Batalkan Pesanan --}}
-    <x-modal wire:model="showCancelModal" title="Batalkan Pesanan" subtitle="Apakah Anda yakin ingin membatalkan pesanan ini?" persistent separator>
+    <x-modal wire:model="showCancelModal" title="Batalkan Pesanan" subtitle="Apakah Anda yakin ingin membatalkan pesanan ini?" class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pesanan yang dibatalkan tidak dapat dikembalikan.</p>
         </div>
@@ -208,7 +208,7 @@
     </x-modal>
 
     {{-- Modal Konfirmasi Ambil Pesanan --}}
-    <x-modal wire:model="showConfirmModal" title="Ambil Pesanan" subtitle="Konfirmasi untuk mengambil pesanan ini?" persistent separator>
+    <x-modal wire:model="showConfirmModal" title="Ambil Pesanan" subtitle="Konfirmasi untuk mengambil pesanan ini?" class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Anda akan bertanggung jawab untuk menjemput dan mengantar pesanan ini.</p>
         </div>
@@ -219,7 +219,7 @@
     </x-modal>
 
     {{-- Modal Konfirmasi Dijemput --}}
-    <x-modal wire:model="showPickedUpModal" title="Tandai Dijemput" subtitle="Konfirmasi pesanan sudah dijemput?" persistent separator>
+    <x-modal wire:model="showPickedUpModal" title="Tandai Dijemput" subtitle="Konfirmasi pesanan sudah dijemput?" class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pastikan berat cucian sudah diisi dengan benar sebelum melanjutkan.</p>
         </div>
@@ -230,7 +230,7 @@
     </x-modal>
 
     {{-- Modal Konfirmasi Sudah di Pos --}}
-    <x-modal wire:model="showAtLoadingPostModal" title="Tandai Sudah di Pos" subtitle="Konfirmasi pesanan sudah tiba di pos?" persistent separator>
+    <x-modal wire:model="showAtLoadingPostModal" title="Tandai Sudah di Pos" subtitle="Konfirmasi pesanan sudah tiba di pos?" class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pesanan akan ditandai sudah berada di pos loading.</p>
         </div>
@@ -241,7 +241,7 @@
     </x-modal>
 
     {{-- Modal Konfirmasi Mengantar --}}
-    <x-modal wire:model="showOutForDeliveryModal" title="Tandai Mengantar" subtitle="Konfirmasi akan mengantar pesanan ini?" persistent separator>
+    <x-modal wire:model="showOutForDeliveryModal" title="Tandai Mengantar" subtitle="Konfirmasi akan mengantar pesanan ini?" class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pesanan akan ditandai sedang dalam pengiriman.</p>
         </div>
@@ -252,7 +252,7 @@
     </x-modal>
 
     {{-- Modal Konfirmasi Terkirim --}}
-    <x-modal wire:model="showDeliveredModal" title="Tandai Terkirim" subtitle="Konfirmasi pesanan sudah terkirim?" persistent separator>
+    <x-modal wire:model="showDeliveredModal" title="Tandai Terkirim" subtitle="Konfirmasi pesanan sudah terkirim?" class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pastikan pesanan sudah diterima oleh customer dan pembayaran sudah dilakukan jika ada.</p>
         </div>
