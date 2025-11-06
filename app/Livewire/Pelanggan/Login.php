@@ -20,6 +20,23 @@ class Login extends Component
     public string $phone = '';
     public string $password = '';
 
+    /**
+     * Mount: Check splash screen status
+     * Redirect ke splash screen jika belum pernah lihat
+     */
+    public function mount(): void
+    {
+        // Check via JavaScript apakah splash screen sudah completed
+        $this->js(<<<'JS'
+            const splashCompleted = localStorage.getItem('splash_screen_completed');
+
+            // Jika belum pernah lihat splash screen, redirect ke splash screen page
+            if (!splashCompleted || splashCompleted !== 'true') {
+                window.location.href = '/pelanggan/splash-screen-pelanggan';
+            }
+        JS);
+    }
+
     public function rules(): array
     {
         return [

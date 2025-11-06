@@ -27,4 +27,7 @@
             <p>Belum punya akun? Hubungi admin untuk pendaftaran.</p>
         </div>
     </x-card>
+
+    {{-- FAB Install App --}}
+    <livewire:components.fab-install-app />
 </div>

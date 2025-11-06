@@ -22,6 +22,7 @@ use App\Livewire\Pelanggan\Beranda as BerandaPelanggan;
 use App\Livewire\Pelanggan\Pesanan as PesananPelanggan;
 use App\Livewire\Pelanggan\BuatPesanan as BuatPesananPelanggan;
 use App\Livewire\Pelanggan\DetailPesanan as DetailPesananPelanggan;
+use App\Livewire\Pelanggan\Components\SplashScreen;
 
 // Landing Page
 Route::get('/', function () {
@@ -69,6 +70,9 @@ Route::prefix('pelanggan')->name('pelanggan.')->group(function () {
 
     // Guest Routes (Belum Login)
     Route::middleware('guest:customer')->group(function () {
+        // Splash Screen (first-time users)
+        Route::get('/splash-screen-pelanggan', SplashScreen::class)->name('splash-screen');
+
         Route::get('/masuk', PelangganLogin::class)->name('login');
 
         // Google OAuth Routes

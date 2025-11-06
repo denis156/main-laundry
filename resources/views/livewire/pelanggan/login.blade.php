@@ -46,4 +46,7 @@
             <p>Belum punya akun? Buat pesanan pertama kali di halaman depan untuk bisa login.</p>
         </div>
     </x-card>
+
+    {{-- FAB Install App --}}
+    <livewire:components.fab-install-app />
 </div>

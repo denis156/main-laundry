@@ -47,8 +47,6 @@
 
     {{--  TOAST area --}}
     <x-toast />
-    {{-- FAB Install App --}}
-    <livewire:components.fab-install-app />
 
     {{-- Livewire Script --}}
     @livewireScripts
