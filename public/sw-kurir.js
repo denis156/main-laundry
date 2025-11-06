@@ -7,9 +7,9 @@
 // DATA TRANSAKSI TIDAK DI-CACHE - selalu fetch dari server via internet
 // Jika offline, transaksi tidak akan muncul sampai online kembali
 
-const CACHE_NAME = 'main-laundry-kurir-v1.0.1';
-const STATIC_CACHE = 'main-laundry-kurir-static-v1.0.1';
-const DYNAMIC_CACHE = 'main-laundry-kurir-dynamic-v1.0.1';
+const CACHE_NAME = 'main-laundry-kurir-v1.0.0';
+const STATIC_CACHE = 'main-laundry-kurir-static-v1.0.0';
+const DYNAMIC_CACHE = 'main-laundry-kurir-dynamic-v1.0.0';
 
 // Assets yang akan di-cache saat install (static assets)
 // JANGAN cache halaman HTML! Hanya cache assets statis
