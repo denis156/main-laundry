@@ -1,29 +1,26 @@
-<section id="pesan" class="bg-primary/14 scroll-mt-16 min-h-dvh flex items-center relative overflow-hidden">
-    {{-- Background Decorations --}}
-    <x-landing-page.bg-decoration topRight="wanita-nyuci.svg" bottomLeft="botol-pewangi.svg" topLeft="smartphone.svg"
-        bottomRight="kaos-putih-bersinar.svg" />
+<section id="pesan" class="min-h-dvh p-8 scroll-mt-12 md:scroll-mt-14 lg:scroll-mt-16 relative overflow-hidden">
+    <!-- Background Decoration -->
+    <x-landing-page.bg-decoration />
 
-    <div class="container mx-auto px-4 py-16 lg:py-24 relative z-10">
-        {{-- Header Section --}}
-        <div class="text-center mb-12" data-aos="fade-up">
-            <div class="inline-flex items-center gap-2 bg-accent/10 backdrop-blur-sm px-4 py-2 rounded-full mb-4">
-                <x-icon name="mdi.cart-check" class="w-5 h-5 text-accent" />
-                <span class="text-sm font-semibold text-accent">Form Pemesanan</span>
+    <!-- Content Container with Padding -->
+    <div class="p-8 relative z-10">
+        <div class="container mx-auto pb-20">
+            <!-- Section Header -->
+            <div class="text-center mt-12 mb-14">
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-accent">
+                    Pesan Sekarang
+                </h2>
+                <p class="text-md md:text-lg lg:text-xl text-base-content/80 max-w-2xl mx-auto">
+                    Isi form di bawah dan tim kami akan segera menghubungi Anda via WhatsApp untuk konfirmasi
+                </p>
             </div>
-            <h2 class="text-4xl lg:text-5xl font-black mb-4">
-                Pesan <span class="text-accent">Sekarang</span>
-            </h2>
-            <p class="text-base-content/70 max-w-2xl mx-auto text-lg">
-                Isi form di bawah dan tim kami akan segera menghubungi Anda via WhatsApp untuk konfirmasi
-            </p>
-        </div>
 
-        {{-- Order Form --}}
-        <div class="max-w-4xl mx-auto">
-            <div class="card bg-base-100 shadow-2xl">
-                <div class="card-body p-6 lg:p-8">
-                    {{-- Mary UI Form with Toast --}}
-                    <x-form wire:submit="save" no-separator>
+            <!-- Order Form -->
+            <div class="max-w-4xl mx-auto">
+                <div class="card bg-base-300 shadow-xl">
+                    <div class="card-body p-6 lg:p-8">
+                        <!-- Mary UI Form with Toast -->
+                        <x-form wire:submit="save" no-separator>
                         {{-- Data Customer Section --}}
                         <div class="mb-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -168,7 +165,8 @@
                                 class="btn-accent btn-sm md:btn-md lg:btn-lg" spinner="save"
                                 icon="o-paper-airplane" />
                         </x-slot:actions>
-                    </x-form>
+                        </x-form>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,25 +1,16 @@
-@props([
-    'topRight' => 'dus-detergent.svg',
-    'bottomLeft' => 'botol-pewangi.svg',
-    'topLeft' => 'tutup-mesin-cuci.svg',
-    'bottomRight' => 'mesin-cuci.svg',
-])
-
-<div class="absolute inset-0 pointer-events-none overflow-visible z-0">
-    {{-- Top Right --}}
-    <img src="{{ asset('grafis/' . $topRight) }}" alt=""
-        class="absolute top-24 md:top-32 lg:top-40 right-8 md:right-12 lg:right-20 w-24 md:w-32 lg:w-44 opacity-10 animate-float-slow" />
-
-    {{-- Bottom Left --}}
-    <img src="{{ asset('grafis/' . $bottomLeft) }}" alt=""
-        class="absolute bottom-20 left-10 w-16 md:w-24 lg:w-36 opacity-10 animate-float-medium" />
-
-    {{-- Top Left --}}
-    <img src="{{ asset('grafis/' . $topLeft) }}" alt=""
-        class="absolute top-40 md:top-48 lg:top-56 left-8 md:left-12 lg:left-20 w-20 md:w-24 lg:w-36 opacity-10 animate-float-fast" />
-
-    {{-- Bottom Right --}}
-    <img src="{{ asset('grafis/' . $bottomRight) }}" alt=""
-        class="absolute bottom-32 right-20 w-24 md:w-32 lg:w-44 opacity-10 animate-float-slow"
-        style="animation-delay: 2s;" />
+<!-- Waves Container - Full Width Outside Padding -->
+<div class="absolute inset-x-0 bottom-0 w-full">
+    <svg class="layanan-waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+        viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+        <defs>
+            <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+        </defs>
+        <g class="parallax">
+            <use xlink:href="#gentle-wave" x="48" y="0" />
+            <use xlink:href="#gentle-wave" x="48" y="3" />
+            <use xlink:href="#gentle-wave" x="48" y="5" />
+            <use xlink:href="#gentle-wave" x="48" y="7" />
+        </g>
+    </svg>
 </div>
+<!-- Waves end -->

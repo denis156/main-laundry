@@ -15,51 +15,102 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
-    {{-- AOS CSS CDN --}}
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 
-<body class="antialiased bg-base-100 font-sans overflow-y-auto no-scrollbar">
+<body class="antialiased font-sans">
+    <!-- Drawer Wrapper (UI Component Container) -->
+    <div class="drawer drawer-end">
+        <!-- Hidden Checkbox for Drawer Toggle -->
+        <input id="main-drawer" type="checkbox" class="drawer-toggle" />
 
-    {{-- Navbar --}}
-    <livewire:landing-page.component.nav />
+        <!-- Drawer Content (Main Page) -->
+        <div class="drawer-content flex flex-col">
+            <!-- Navbar -->
+            <header class="sticky top-0 z-50">
+                <nav class="navbar bg-base-100 shadow-sm px-8" aria-label="Main navigation">
+                    <!-- Logo -->
+                    <div class="navbar-start">
+                        <a href="#beranda" aria-label="Main Laundry Home">
+                            <img src="{{ asset('image/logo.png') }}" alt="{{ config('app.name') }}" class="h-14 w-auto">
+                        </a>
+                    </div>
 
-    {{-- Content --}}
-    <main class="bg-base-100">
-        {{-- Hero Section --}}
-        <livewire:landing-page.beranda />
+                    <!-- Desktop Menu -->
+                    <div class="navbar-center hidden lg:flex">
+                        <ul class="menu menu-horizontal px-1">
+                            <li><a href="#beranda">Beranda</a></li>
+                            <li><a href="#layanan">Layanan</a></li>
+                            <li><a href="#faq">FAQ</a></li>
+                            <li><a href="#pesan">Pesan</a></li>
+                        </ul>
+                    </div>
 
-        {{-- Untuk Mu --}}
-        <livewire:landing-page.untuk-mu />
+                    <!-- Desktop Auth Buttons + Mobile Drawer Button -->
+                    <div class="navbar-end gap-2">
+                        <!-- Desktop Auth Buttons (hidden di mobile) -->
+                        <a href="/login" class="hidden lg:inline-flex btn btn-ghost btn-sm">Sign In</a>
+                        <a href="/register" class="hidden lg:inline-flex btn btn-primary btn-sm">Sign Up</a>
 
-        {{-- Layanan --}}
-        <livewire:landing-page.layanan />
+                        <!-- Mobile Drawer Button (hidden di desktop) -->
+                        <button type="button" aria-label="open sidebar" class="btn btn-square btn-ghost lg:hidden">
+                            <label for="main-drawer" class="cursor-pointer">
+                                <x-icon name="solar.hamburger-menu-linear" class="h-5 w-5" />
+                            </label>
+                        </button>
+                    </div>
+                </nav>
+            </header>
 
-        {{-- Kontak --}}
-        <livewire:landing-page.kontak />
+            <!-- Content -->
+            <!-- Beranda/Hero Section -->
+            <x-landing-page.beranda />
 
-        {{-- Pesan --}}
-        <livewire:landing-page.pesan />
-    </main>
+            <!-- Layanan Section -->
+            <x-landing-page.layanan />
 
-    {{-- Footer --}}
-    <livewire:landing-page.component.footer />
+            <!-- FAQ Section -->
+            <x-landing-page.faq />
 
-    {{--  TOAST area --}}
-    <x-toast />
+            <!-- Pesan Section -->
+            <livewire:landing-page.pesan />
+            <!-- End Content -->
+
+            <!-- Footer -->
+            <x-landing-page.footer />
+        </div>
+
+        <!-- Drawer Side (Mobile Sidebar) -->
+        <div class="drawer-side z-50">
+            <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+            <nav class="menu bg-base-100 min-h-dvh w-80 p-4 flex flex-col" aria-label="Mobile navigation">
+                <!-- Sidebar Logo/Header -->
+                <div class="mb-4">
+                    <a href="#beranda" class="block px-4">
+                        <img src="{{ asset('image/logo.png') }}" alt="{{ config('app.name') }}" class="h-14 w-auto">
+                    </a>
+                </div>
+
+                <!-- Sidebar Menu -->
+                <ul class="space-y-2">
+                    <li><a href="#beranda" class="btn btn-ghost w-full justify-start">Beranda</a></li>
+                    <li><a href="#layanan" class="btn btn-ghost w-full justify-start">Layanan</a></li>
+                    <li><a href="#faq" class="btn btn-ghost w-full justify-start">FAQ</a></li>
+                    <li><a href="#pesan" class="btn btn-ghost w-full justify-start">Pesan</a></li>
+                </ul>
+
+                <!-- Sidebar Auth Buttons -->
+                <div class="mt-auto pt-4 space-y-2">
+                    <a href="/login" class="btn btn-ghost w-full">Sign In</a>
+                    <a href="/register" class="btn btn-primary w-full">Sign Up</a>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    @livewireScripts
+
 </body>
-
-{{-- AOS JS CDN --}}
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
-{{-- AOS INIT --}}
-<script>
-    AOS.init({
-        once: true, // Animasi hanya sekali
-    });
-    AOS.refreshHard();
-</script>
 
 </html>
