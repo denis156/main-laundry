@@ -15,6 +15,8 @@ use Filament\Actions\RestoreAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Filters\SelectFilter;
+use App\Helper\StatusTransactionHelper;
 
 class TransactionsTable
 {
@@ -41,10 +43,28 @@ class TransactionsTable
                 TextColumn::make('workflow_status')
                     ->label('Status')
                     ->badge()
+                    ->formatStateUsing(fn(string $state): string => StatusTransactionHelper::getStatusText($state))
+                    ->color(fn(string $state): string => match ($state) {
+                        'pending_confirmation' => 'gray',
+                        'confirmed' => 'info',
+                        'picked_up' => 'warning',
+                        'at_loading_post' => 'warning',
+                        'in_washing' => 'primary',
+                        'washing_completed' => 'success',
+                        'out_for_delivery' => 'warning',
+                        'delivered' => 'success',
+                        'cancelled' => 'danger',
+                        default => 'gray',
+                    })
                     ->searchable(),
                 TextColumn::make('payment_status')
                     ->label('Pembayaran')
                     ->badge()
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'paid' => 'Sudah Bayar',
+                        'unpaid' => 'Belum Bayar',
+                        default => $state,
+                    })
                     ->color(fn(string $state): string => match ($state) {
                         'paid' => 'success',
                         'unpaid' => 'warning',
@@ -69,6 +89,19 @@ class TransactionsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('workflow_status')
+                    ->label('Status Workflow')
+                    ->options(StatusTransactionHelper::getStatusOptions())
+                    ->native(false)
+                    ->multiple(),
+                SelectFilter::make('payment_status')
+                    ->label('Status Pembayaran')
+                    ->options([
+                        'unpaid' => 'Belum Dibayar',
+                        'paid' => 'Sudah Dibayar',
+                    ])
+                    ->native(false)
+                    ->multiple(),
                 TrashedFilter::make()
                     ->label('Status Data')
                     ->native(false),

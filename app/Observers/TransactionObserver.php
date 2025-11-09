@@ -203,7 +203,7 @@ class TransactionObserver
         }
 
         // Broadcast event dengan action 'updated'
-        event(new TransactionEvents($transaction->load(['customer', 'service']), 'updated'));
+        event(new TransactionEvents($transaction->load(['customer', 'courier', 'location']), 'updated'));
     }
 
     /**
@@ -213,6 +213,6 @@ class TransactionObserver
     public function deleted(Transaction $transaction): void
     {
         // Broadcast event dengan action 'deleted'
-        event(new TransactionEvents($transaction->load(['customer', 'service']), 'deleted'));
+        event(new TransactionEvents($transaction->load(['customer', 'courier', 'location']), 'deleted'));
     }
 }

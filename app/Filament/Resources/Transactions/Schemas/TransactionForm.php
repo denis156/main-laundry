@@ -14,6 +14,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Schemas\Components\Utilities\Get;
+use App\Helper\StatusTransactionHelper;
 
 class TransactionForm
 {
@@ -125,8 +126,8 @@ class TransactionForm
                                     ->required()
                                     ->native(false)
                                     ->placeholder('Pilih layanan')
-                                    ->live(onBlur: true)
-                                    ->afterStateUpdated(function ($set, $state) {
+                                    ->live()
+                                    ->afterStateUpdated(function ($set, $state, Get $get) {
                                         // Auto-fill service_name and pricing_unit when service selected
                                         if ($state) {
                                             $service = \App\Models\Service::find($state);
@@ -134,10 +135,25 @@ class TransactionForm
                                             $set('pricing_unit', $service?->data['pricing']['unit'] ?? 'per_kg');
                                             $set('price_per_kg', $service?->data['pricing']['price_per_kg'] ?? null);
                                             $set('price_per_item', $service?->data['pricing']['price_per_item'] ?? null);
-                                            // Reset fields
-                                            $set('clothing_items', []);
-                                            $set('quantity', null);
-                                            $set('subtotal', 0);
+
+                                            // Reset fields hanya jika bukan saat load (tidak ada existing data)
+                                            if (!$get('../../id')) {
+                                                $set('clothing_items', []);
+                                                $set('quantity', null);
+                                                $set('subtotal', 0);
+                                            }
+                                        }
+                                    })
+                                    ->afterStateHydrated(function ($set, $state, $get) {
+                                        // Auto-fill pricing_unit saat load existing data
+                                        if ($state && !$get('pricing_unit')) {
+                                            $service = \App\Models\Service::find($state);
+                                            if ($service) {
+                                                $set('service_name', $service?->name);
+                                                $set('pricing_unit', $service->data['pricing']['unit'] ?? 'per_kg');
+                                                $set('price_per_kg', $service->data['pricing']['price_per_kg'] ?? null);
+                                                $set('price_per_item', $service->data['pricing']['price_per_item'] ?? null);
+                                            }
                                         }
                                     })
                                     ->columnSpanFull(),
@@ -149,15 +165,18 @@ class TransactionForm
 
                                 TextInput::make('pricing_unit')
                                     ->hidden()
-                                    ->dehydrated(),
+                                    ->dehydrated()
+                                    ->live(),
 
                                 TextInput::make('price_per_kg')
                                     ->hidden()
-                                    ->dehydrated(),
+                                    ->dehydrated()
+                                    ->live(),
 
                                 TextInput::make('price_per_item')
                                     ->hidden()
-                                    ->dehydrated(),
+                                    ->dehydrated()
+                                    ->live(),
 
                                 // Nested Repeater untuk Per KG (detail jenis pakaian)
                                 Repeater::make('clothing_items')
@@ -183,11 +202,20 @@ class TransactionForm
                                                     ->required()
                                                     ->native(false)
                                                     ->placeholder('Pilih jenis')
-                                                    ->live(onBlur: true)
+                                                    ->live()
                                                     ->afterStateUpdated(function ($set, $state) {
                                                         if ($state) {
                                                             $clothingType = \App\Models\ClothingType::find($state);
                                                             $set('clothing_type_name', $clothingType?->name);
+                                                        }
+                                                    })
+                                                    ->afterStateHydrated(function ($set, $state, $get) {
+                                                        // Auto-fill clothing_type_name saat load existing data
+                                                        if ($state && !$get('clothing_type_name')) {
+                                                            $clothingType = \App\Models\ClothingType::find($state);
+                                                            if ($clothingType) {
+                                                                $set('clothing_type_name', $clothingType->name);
+                                                            }
                                                         }
                                                     }),
 
@@ -324,16 +352,7 @@ class TransactionForm
 
                                 Select::make('workflow_status')
                                     ->label('Status Workflow')
-                                    ->options([
-                                        'pending_confirmation' => 'Menunggu Konfirmasi',
-                                        'confirmed' => 'Dikonfirmasi',
-                                        'picked_up' => 'Sudah Dijemput',
-                                        'processing' => 'Sedang Diproses',
-                                        'ready' => 'Siap Diantar',
-                                        'delivering' => 'Sedang Diantar',
-                                        'completed' => 'Selesai',
-                                        'cancelled' => 'Dibatalkan',
-                                    ])
+                                    ->options(StatusTransactionHelper::getStatusOptions())
                                     ->native(false)
                                     ->required()
                                     ->default('pending_confirmation')
@@ -364,8 +383,8 @@ class TransactionForm
                                 ToggleButtons::make('payment_status')
                                     ->label('Status Pembayaran')
                                     ->options([
-                                        'unpaid' => 'Belum Dibayar',
-                                        'paid' => 'Sudah Dibayar',
+                                        'unpaid' => 'Belum Bayar',
+                                        'paid' => 'Sudah Bayar',
                                     ])
                                     ->colors([
                                         'unpaid' => 'warning',
