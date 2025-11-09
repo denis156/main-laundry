@@ -22,14 +22,14 @@ class CourierCarScheduleResource extends Resource
 {
     protected static ?string $model = CourierCarSchedule::class;
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
     protected static ?string $slug = 'jadwal-mobil';
     protected static ?string $modelLabel = 'Jadwal Mobil';
     protected static ?string $pluralModelLabel = 'Jadwal Mobil';
     protected static int $globalSearchResultsLimit = 5;
     protected static ?string $recordTitleAttribute = 'trip_date';
-    protected static ?string $navigationLabel = 'Jadwal Mobil Kurir';
-    protected static string|UnitEnum|null $navigationGroup = 'Lokasi & Operasional';
+    protected static ?string $navigationLabel = 'Jadwal Mobil';
+    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Operasional';
     protected static string|BackedEnum|null $navigationIcon = 'solar-course-up-linear';
     protected static string|BackedEnum|null $activeNavigationIcon = 'solar-course-up-bold';
 

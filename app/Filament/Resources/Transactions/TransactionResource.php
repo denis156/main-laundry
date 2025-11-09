@@ -29,7 +29,7 @@ class TransactionResource extends Resource
     protected static int $globalSearchResultsLimit = 10;
     protected static ?string $recordTitleAttribute = 'invoice_number';
     protected static ?string $navigationLabel = 'Transaksi';
-    protected static string|UnitEnum|null $navigationGroup = 'Pelanggan & Transaksi';
+    protected static string|UnitEnum|null $navigationGroup = 'Transaksi & Pembayaran';
     protected static string|BackedEnum|null $navigationIcon = 'solar-bill-list-linear';
     protected static string|BackedEnum|null $activeNavigationIcon = 'solar-bill-list-bold';
 

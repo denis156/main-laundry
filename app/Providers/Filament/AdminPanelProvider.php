@@ -40,11 +40,10 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
                 'Monitoring',
-                'Lokasi & Operasional',
-                'Pelanggan & Layanan',
-                'Keuangan',
-                'Inventori & Aset',
-                'Pengguna',
+                'Manajemen Operasional',
+                'Layanan & Produk',
+                'Transaksi & Pembayaran',
+                'Pengaturan',
             ])
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([

@@ -22,14 +22,14 @@ class ClothingTypeResource extends Resource
 {
     protected static ?string $model = ClothingType::class;
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 2;
     protected static ?string $slug = 'jenis-pakaian';
     protected static ?string $modelLabel = 'Jenis Pakaian';
     protected static ?string $pluralModelLabel = 'Jenis Pakaian';
     protected static int $globalSearchResultsLimit = 5;
     protected static ?string $recordTitleAttribute = 'name';
     protected static ?string $navigationLabel = 'Jenis Pakaian';
-    protected static string|UnitEnum|null $navigationGroup = 'Pelanggan & Transaksi';
+    protected static string|UnitEnum|null $navigationGroup = 'Layanan & Produk';
     protected static string|BackedEnum|null $navigationIcon = 'solar-t-shirt-linear';
     protected static string|BackedEnum|null $activeNavigationIcon = 'solar-t-shirt-bold';
 

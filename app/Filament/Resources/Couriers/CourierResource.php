@@ -22,14 +22,14 @@ class CourierResource extends Resource
 {
     protected static ?string $model = Courier::class;
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 2;
     protected static ?string $slug = 'kurir';
     protected static ?string $modelLabel = 'Kurir';
     protected static ?string $pluralModelLabel = 'Kurir';
     protected static int $globalSearchResultsLimit = 5;
     protected static ?string $recordTitleAttribute = 'email';
-    protected static ?string $navigationLabel = 'Manajemen Kurir';
-    protected static string|UnitEnum|null $navigationGroup = 'Lokasi & Operasional';
+    protected static ?string $navigationLabel = 'Kurir';
+    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Operasional';
     protected static string|BackedEnum|null $navigationIcon = 'solar-delivery-linear';
     protected static string|BackedEnum|null $activeNavigationIcon = 'solar-delivery-bold';
 

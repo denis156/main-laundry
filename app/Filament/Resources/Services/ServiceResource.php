@@ -22,14 +22,14 @@ class ServiceResource extends Resource
 {
     protected static ?string $model = Service::class;
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 1;
     protected static ?string $slug = 'layanan';
     protected static ?string $modelLabel = 'Layanan';
     protected static ?string $pluralModelLabel = 'Layanan';
     protected static int $globalSearchResultsLimit = 5;
     protected static ?string $recordTitleAttribute = 'name';
-    protected static ?string $navigationLabel = 'Manajemen Layanan';
-    protected static string|UnitEnum|null $navigationGroup = 'Pelanggan & Transaksi';
+    protected static ?string $navigationLabel = 'Layanan';
+    protected static string|UnitEnum|null $navigationGroup = 'Layanan & Produk';
     protected static string|BackedEnum|null $navigationIcon = 'solar-washing-machine-minimalistic-linear';
     protected static string|BackedEnum|null $activeNavigationIcon = 'solar-washing-machine-minimalistic-bold';
 

@@ -29,7 +29,7 @@ class LocationResource extends Resource
     protected static int $globalSearchResultsLimit = 5;
     protected static ?string $recordTitleAttribute = 'name';
     protected static ?string $navigationLabel = 'Lokasi';
-    protected static string|UnitEnum|null $navigationGroup = 'Lokasi & Operasional';
+    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Operasional';
     protected static string|BackedEnum|null $navigationIcon = 'solar-buildings-2-linear';
     protected static string|BackedEnum|null $activeNavigationIcon = 'solar-buildings-2-bold';
 

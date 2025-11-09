@@ -28,8 +28,8 @@ class CustomerResource extends Resource
     protected static ?string $pluralModelLabel = 'Pelanggan';
     protected static int $globalSearchResultsLimit = 5;
     protected static ?string $recordTitleAttribute = 'email';
-    protected static ?string $navigationLabel = 'Manajemen Pelanggan';
-    protected static string|UnitEnum|null $navigationGroup = 'Pelanggan & Transaksi';
+    protected static ?string $navigationLabel = 'Pelanggan';
+    protected static string|UnitEnum|null $navigationGroup = 'Transaksi & Pembayaran';
     protected static string|BackedEnum|null $navigationIcon = 'solar-users-group-rounded-linear';
     protected static string|BackedEnum|null $activeNavigationIcon = 'solar-users-group-rounded-bold';
 
