@@ -16,7 +16,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Customer extends Authenticatable implements FilamentUser
 {
-    use HasFactory, SoftDeletes, HasPushSubscriptions, Notifiable;
+    use HasFactory, SoftDeletes, Notifiable, HasPushSubscriptions;
 
     protected $fillable = [
         'email',
