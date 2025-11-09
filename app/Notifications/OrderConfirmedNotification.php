@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Notifications;
 
+use App\Helper\Database\CourierHelper;
+use App\Helper\Database\TransactionHelper;
 use App\Models\Transaction;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushChannel;
@@ -23,7 +25,7 @@ class OrderConfirmedNotification extends Notification
     /**
      * Get the notification's delivery channels.
      */
-    public function via($notifiable): array
+    public function via(): array
     {
         return [WebPushChannel::class];
     }
@@ -31,10 +33,16 @@ class OrderConfirmedNotification extends Notification
     /**
      * Get the web push representation of the notification.
      */
-    public function toWebPush($notifiable, $notification): WebPushMessage
+    public function toWebPush(): WebPushMessage
     {
-        $courierName = $this->transaction->courierMotorcycle?->name ?? 'Kurir';
-        $serviceName = $this->transaction->service?->name ?? 'Layanan';
+        $courierName = $this->transaction->courier
+            ? CourierHelper::getName($this->transaction->courier)
+            : 'Kurir';
+
+        // Get service name dari items di JSONB
+        $items = TransactionHelper::getItems($this->transaction);
+        $serviceName = !empty($items) ? ($items[0]['service_name'] ?? 'Layanan') : 'Layanan';
+
         $invoiceNumber = $this->transaction->invoice_number;
 
         return (new WebPushMessage)
@@ -48,7 +56,7 @@ class OrderConfirmedNotification extends Notification
                 'invoice_number' => $invoiceNumber,
                 'courier_name' => $courierName,
                 'service_name' => $serviceName,
-                'url' => route('pelanggan.detail-pesanan', ['id' => $this->transaction->id]),
+                'url' => route('pelanggan.pesanan', ['id' => $this->transaction->id]),
             ])
             ->options([
                 'TTL' => 3600, // 1 jam
