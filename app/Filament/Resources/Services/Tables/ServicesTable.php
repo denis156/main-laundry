@@ -37,12 +37,12 @@ class ServicesTable
                         ->searchable()
                         ->weight('semibold')
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('data.pricing.price_per_kg')
-                        ->label('Harga/Kg')
+                    TextColumn::make('pricing')
+                        ->label('Harga')
                         ->sortable()
                         ->alignCenter()
                         ->fontFamily('mono')
-                        ->getStateUsing(fn($record) => ServiceHelper::getFormattedPrice($record))
+                        ->getStateUsing(fn($record) => ServiceHelper::getFormattedPriceWithUnit($record))
                         ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('data.duration_hours')
                         ->label('Durasi')
