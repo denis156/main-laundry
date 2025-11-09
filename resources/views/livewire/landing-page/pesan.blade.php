@@ -68,30 +68,28 @@
 
                                 {{-- Waktu Pembayaran --}}
                                 <div class="md:col-span-2">
-                                    <label class="label">
-                                        <span class="label-text font-semibold">Kapan Anda Ingin Bayar?</span>
-                                    </label>
+                                    <h3 class="text-xs font-bold mb-3">Metode Pembayaran</h3>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         {{-- Option: Bayar Saat Jemput --}}
                                         <label class="cursor-pointer">
-                                            <input type="radio" wire:model="payment_timing" value="on_pickup"
-                                                class="radio radio-accent hidden peer" />
+                                            <input type="radio" name="payment_timing" value="on_pickup"
+                                                wire:model.live="payment_timing" class="radio radio-accent hidden peer" />
                                             <div
-                                                class="card border-2 border-base-300 hover:border-accent peer-checked:border-accent peer-checked:bg-accent/5 transition-all">
+                                                class="card border border-secondary/54 bg-base-100 hover:border-accent peer-checked:border-accent peer-checked:text-accent-content peer-checked:bg-accent/60 transition-all">
                                                 <div class="card-body p-4">
                                                     <div class="flex items-start gap-3">
-                                                        <div class="bg-warning/20 p-2 rounded-lg">
-                                                            <x-icon name="mdi.cash-check"
-                                                                class="w-6 h-6 text-warning" />
+                                                        <div class="bg-warning/20 p-2 rounded">
+                                                            <x-icon name="mdi.cash-check" class="w-6 h-6 text-warning" />
                                                         </div>
                                                         <div class="flex-1">
                                                             <h4 class="font-bold">Bayar Saat Jemput</h4>
-                                                            <p class="text-sm text-base-content/70">Bayar setelah cucian
-                                                                ditimbang</p>
+                                                            <p class="text-sm">Bayar setelah cucian ditimbang</p>
                                                         </div>
-                                                        <div class="peer-checked:block hidden">
-                                                            <x-icon name="o-check-circle" class="w-5 h-5 text-accent" />
-                                                        </div>
+                                                        @if ($payment_timing === 'on_pickup')
+                                                            <div>
+                                                                <x-icon name="o-check-circle" class="w-5 h-5 text-accent-content" />
+                                                            </div>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
@@ -99,32 +97,36 @@
 
                                         {{-- Option: Bayar Saat Antar --}}
                                         <label class="cursor-pointer">
-                                            <input type="radio" wire:model="payment_timing" value="on_delivery"
-                                                class="radio radio-accent hidden peer" />
+                                            <input type="radio" name="payment_timing" value="on_delivery"
+                                                wire:model.live="payment_timing" class="radio radio-accent hidden peer" />
                                             <div
-                                                class="card border-2 border-base-300 hover:border-accent peer-checked:border-accent peer-checked:bg-accent/5 transition-all">
+                                                class="card border border-secondary/54 bg-base-100 hover:border-accent peer-checked:border-accent peer-checked:text-accent-content peer-checked:bg-accent/60 transition-all">
                                                 <div class="card-body p-4">
                                                     <div class="flex items-start gap-3">
-                                                        <div class="bg-info/20 p-2 rounded-lg">
-                                                            <x-icon name="mdi.cash-multiple"
-                                                                class="w-6 h-6 text-info" />
+                                                        <div class="bg-info/20 p-2 rounded">
+                                                            <x-icon name="mdi.cash-multiple" class="w-6 h-6 text-info" />
                                                         </div>
                                                         <div class="flex-1">
                                                             <h4 class="font-bold">Bayar Saat Antar</h4>
-                                                            <p class="text-sm text-base-content/70">Bayar saat cucian
-                                                                diantar kembali</p>
+                                                            <p class="text-sm">Bayar saat cucian diantar kembali</p>
                                                         </div>
-                                                        <div class="peer-checked:block hidden">
-                                                            <x-icon name="o-check-circle"
-                                                                class="w-5 h-5 text-accent" />
-                                                        </div>
+                                                        @if ($payment_timing === 'on_delivery')
+                                                            <div>
+                                                                <x-icon name="o-check-circle" class="w-5 h-5 text-accent-content" />
+                                                            </div>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
                                         </label>
                                     </div>
+
+                                    {{-- Hint --}}
+                                    <p class="text-xs text-base-content/58 mt-3">Pilih metode pembayaran sesuai kebutuhanmu</p>
+
+                                    {{-- Error message --}}
                                     @error('payment_timing')
-                                        <div class="text-error text-sm mt-2">{{ $message }}</div>
+                                        <p class="text-xs text-error mt-1">{{ $message }}</p>
                                     @enderror
                                 </div>
                             </div>

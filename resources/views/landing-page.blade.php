@@ -50,8 +50,8 @@
                     <!-- Desktop Auth Buttons + Mobile Drawer Button -->
                     <div class="navbar-end gap-2">
                         <!-- Desktop Auth Buttons (hidden di mobile) -->
-                        <a href="/login" class="hidden lg:inline-flex btn btn-ghost btn-sm">Sign In</a>
-                        <a href="/register" class="hidden lg:inline-flex btn btn-primary btn-sm">Sign Up</a>
+                        <a href="{{ route('pelanggan.login') }}" class="hidden lg:inline-flex btn btn-ghost btn-sm">Masuk</a>
+                        <a href="#pesan" class="hidden lg:inline-flex btn btn-primary btn-sm">Pesan</a>
 
                         <!-- Mobile Drawer Button (hidden di desktop) -->
                         <button type="button" aria-label="open sidebar" class="btn btn-square btn-ghost lg:hidden">
@@ -102,8 +102,8 @@
 
                 <!-- Sidebar Auth Buttons -->
                 <div class="mt-auto pt-4 space-y-2">
-                    <a href="/login" class="btn btn-ghost w-full">Sign In</a>
-                    <a href="/register" class="btn btn-primary w-full">Sign Up</a>
+                    <a href="{{ route('pelanggan.login') }}" class="btn btn-ghost w-full">Masuk</a>
+                    <a href="#pesan" class="btn btn-primary w-full">Pesan</a>
                 </div>
             </nav>
         </div>

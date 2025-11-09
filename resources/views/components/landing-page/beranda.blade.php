@@ -1,43 +1,30 @@
-<section id="beranda" class="min-h-dvh p-8 scroll-mt-12 md:scroll-mt-14 lg:scroll-mt-16 bg-linear-to-tr from-primary via-accent/84 to-accent relative overflow-hidden">
+<section id="beranda" class="min-h-dvh p-8 scroll-mt-12 md:scroll-mt-14 lg:scroll-mt-16 bg-primary relative overflow-hidden">
     <div class="container mx-auto h-full flex items-center">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
             <!-- Content -->
             <div class="text-primary-content text-center lg:text-left">
                 <!-- Heading -->
-                <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-3 leading-tight">
+                <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold my-3 leading-tight">
                     {{ config('app.name') }}
                 </h1>
 
                 <!-- Slogan -->
-                <p class="text-xl md:text-2xl lg:text-3xl font-extralight mb-4">
-                    Tetap Main, Tetap Bersih
+                <p class="text-xl md:text-2xl lg:text-3xl font-extralight my-4">
+                    Semua Suka, Semua Bersih!
                 </p>
 
                 <!-- Price Highlight -->
-                <div class="mb-5 flex justify-center lg:justify-start">
+                <div class="my-12 flex justify-center lg:justify-start">
                     <div class="inline-flex items-baseline gap-2 bg-accent px-5 py-2.5 rounded-xl shadow-lg">
                         <span class="text-sm md:text-md lg:text-xl font-bold">Rp 3.000</span>
                         <span class="text-xs md:text-sm lg:text-lg font-semibold">/kg</span>
                         <span class="mx-2">—</span>
-                        <span class="text-xs md:text-sm lg:text-lg font-semibold">Gratis Antar Jemput</span>
+                        <span class="text-sm md:text-md lg:text-xl font-semibold text-error">Gratis Antar Jemput</span>
                     </div>
                 </div>
 
-                <!-- Description -->
-                <div class="mb-6 space-y-2">
-                    <p class="text-lg md:text-xl text-primary-content/95">
-                        Nggak perlu keluar rumah, nggak perlu repot mikirin baju kotor.
-                    </p>
-                    <p class="text-md md:text-lg font-semibold">
-                        Main aja, Kerja aja, Bebaskan Ekspresimu.
-                    </p>
-                    <p class="text-sm md:text-base text-primary-content/90">
-                        Pakaian kotormu, biar kami yang antar jemput, cuci bersih sampai beres.
-                    </p>
-                </div>
-
                 <!-- Action Buttons -->
-                <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="grid grid-cols-2 gap-3 my-6">
                     <x-button label="Buat Pesanan" class="btn-accent btn-block btn-sm md:btn-md lg:btn-xl" icon="solar.add-square-bold" link="#pesan" no-wire-navigate/>
                     <x-button label="Masuk Aplikasi" class="btn-secondary btn-soft btn-block btn-sm md:btn-md lg:btn-xl" icon="solar.exit-bold-duotone" link="{{ route('pelanggan.login') }}" />
                 </div>
@@ -46,7 +33,7 @@
             <!-- Mockup Phone -->
             <div class="flex justify-center lg:justify-end relative">
                 <!-- Decorative Circle Background -->
-                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[212px] h-[212px] md:w-[280px] md:h-[280px] lg:w-[398px] lg:h-[398px] bg-linear-to-tr from-primary/78 to-primary rounded-full z-0"></div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[212px] h-[212px] md:w-[280px] md:h-[280px] lg:w-[398px] lg:h-[398px] bg-linear-to-tr from-accent/78 to-accent rounded-full z-0"></div>
 
                 <div class="relative mx-auto border-neutral bg-neutral border-8 md:border-10 lg:border-14 rounded-[1.75rem] md:rounded-4xl lg:rounded-[2.5rem] h-80 md:h-[420px] lg:h-[600px] w-40 md:w-[210px] lg:w-[300px] shadow-xl z-10">
                     <!-- Notch -->
