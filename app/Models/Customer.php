@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Exception;
 use Filament\Panel;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
+use App\Helper\Database\CustomerHelper;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -38,6 +36,18 @@ class Customer extends Authenticatable implements FilamentUser
             'data' => 'array',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Boot method untuk auto-fill addresses data yang kosong
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($customer) {
+            CustomerHelper::autoFillCustomerAddresses($customer);
+        });
     }
 
     /**
