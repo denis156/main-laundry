@@ -20,6 +20,7 @@ class TransactionObserver
     /**
      * Handle the Transaction "creating" event.
      * Auto-generate tracking token and capture anti-bot data in JSONB.
+     * Auto-calculate total_price dari items.
      */
     public function creating(Transaction $transaction): void
     {
@@ -37,6 +38,16 @@ class TransactionObserver
                 'user_agent' => request()->userAgent(),
                 'form_loaded_at' => $data['anti_bot']['form_loaded_at'] ?? null,
             ];
+        }
+
+        // Auto-calculate total_price dari items
+        $items = $data['items'] ?? [];
+        if (!empty($items)) {
+            $totalPrice = 0;
+            foreach ($items as $item) {
+                $totalPrice += (float) ($item['subtotal'] ?? 0);
+            }
+            $data['pricing']['total_price'] = $totalPrice;
         }
 
         $transaction->data = $data;
@@ -73,7 +84,8 @@ class TransactionObserver
     public function created(Transaction $transaction): void
     {
         // Broadcast event dengan action 'created'
-        event(new TransactionEvents($transaction->load(['customer', 'service']), 'created'));
+        // Load only existing relations: customer, courier, location
+        event(new TransactionEvents($transaction->load(['customer', 'courier', 'location']), 'created'));
 
         // Send web push notification ke semua kurir aktif yang punya subscription
         // Hanya untuk pesanan baru dengan status pending_confirmation
