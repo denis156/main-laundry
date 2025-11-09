@@ -10,9 +10,9 @@ use App\Helper\StatusTransactionHelper;
 
 class WorkflowStatusChart extends ChartWidget
 {
-    protected ?string $heading = 'Distribusi Status Workflow';
-
     protected static ?int $sort = 4;
+
+    protected ?string $heading = 'Distribusi Status Workflow';
 
     protected int | string | array $columnSpan = [
         'md' => 2,

@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
-use App\Models\Equipment;
-use App\Models\Material;
+use App\Helper\Database\ResourceHelper;
+use App\Helper\Database\TransactionHelper;
+use App\Models\Resource;
 use App\Models\Transaction;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class OperationalStatsOverview extends StatsOverviewWidget
 {
+    protected static ?int $sort = 2;
+
     protected ?string $heading = 'Statistik Operasional & Inventori';
 
     protected ?string $description = 'Monitoring pembayaran, peralatan, dan stok material.';
@@ -19,19 +22,19 @@ class OperationalStatsOverview extends StatsOverviewWidget
     protected function getStats(): array
     {
         return [
-            // 4. Pembayaran Pending (Unpaid)
+            // 1. Pembayaran Pending (Unpaid)
             Stat::make('Pembayaran Pending', $this->getUnpaidTransactionsCount() . ' Transaksi')
                 ->description('Total: Rp ' . number_format($this->getUnpaidTransactionsAmount(), 0, ',', '.'))
                 ->descriptionIcon('solar-card-bold-duotone')
                 ->color('danger'),
 
-            // 5. Equipment Butuh Maintenance
+            // 2. Equipment Butuh Maintenance
             Stat::make('Equipment Maintenance', $this->getEquipmentMaintenanceCount() . ' Unit')
                 ->description($this->getEquipmentMaintenanceDescription())
                 ->descriptionIcon($this->getEquipmentMaintenanceCount() > 0 ? 'solar-danger-bold-duotone' : 'solar-shield-check-bold-duotone')
                 ->color($this->getEquipmentMaintenanceCount() > 0 ? 'warning' : 'success'),
 
-            // 6. Material Stok Menipis
+            // 3. Material Stok Menipis
             Stat::make('Material Stok Menipis', $this->getLowStockMaterialsCount() . ' Item')
                 ->description($this->getLowStockMaterialsDescription())
                 ->descriptionIcon($this->getLowStockMaterialsCount() > 0 ? 'solar-box-minimalistic-bold-duotone' : 'solar-shield-check-bold-duotone')
@@ -54,9 +57,16 @@ class OperationalStatsOverview extends StatsOverviewWidget
      */
     private function getUnpaidTransactionsAmount(): float
     {
-        return (float) Transaction::where('payment_status', 'unpaid')
+        $transactions = Transaction::where('payment_status', 'unpaid')
             ->whereNotIn('workflow_status', ['cancelled'])
-            ->sum('total_price');
+            ->get();
+
+        $total = 0;
+        foreach ($transactions as $transaction) {
+            $total += TransactionHelper::getTotalPrice($transaction);
+        }
+
+        return $total;
     }
 
     /**
@@ -64,7 +74,13 @@ class OperationalStatsOverview extends StatsOverviewWidget
      */
     private function getEquipmentMaintenanceCount(): int
     {
-        return Equipment::whereIn('status', ['rusak', 'maintenance'])
+        return Resource::where('type', 'equipment')
+            ->where('is_active', true)
+            ->get()
+            ->filter(function ($resource) {
+                $status = ResourceHelper::getStatus($resource);
+                return in_array($status, ['rusak', 'maintenance']);
+            })
             ->count();
     }
 
@@ -73,8 +89,12 @@ class OperationalStatsOverview extends StatsOverviewWidget
      */
     private function getEquipmentMaintenanceDescription(): string
     {
-        $rusak = Equipment::where('status', 'rusak')->count();
-        $maintenance = Equipment::where('status', 'maintenance')->count();
+        $equipments = Resource::where('type', 'equipment')
+            ->where('is_active', true)
+            ->get();
+
+        $rusak = $equipments->filter(fn ($resource) => ResourceHelper::getStatus($resource) === 'rusak')->count();
+        $maintenance = $equipments->filter(fn ($resource) => ResourceHelper::getStatus($resource) === 'maintenance')->count();
 
         $parts = [];
         if ($rusak > 0) {
@@ -92,9 +112,10 @@ class OperationalStatsOverview extends StatsOverviewWidget
      */
     private function getLowStockMaterialsCount(): int
     {
-        return Material::whereColumn('current_stock', '<=', 'minimum_stock')
-            ->orWhereNull('minimum_stock')
-            ->where('current_stock', '<=', 0)
+        return Resource::where('type', 'material')
+            ->where('is_active', true)
+            ->get()
+            ->filter(fn ($resource) => ResourceHelper::isLowStock($resource))
             ->count();
     }
 

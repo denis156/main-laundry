@@ -98,9 +98,11 @@ class RevenueTrendChart extends ChartWidget
             // Format label tanggal
             $labels[] = $date->format('d M');
 
-            // Hitung total pendapatan per hari
-            $dailyRevenue = Payment::whereDate('payment_date', $date)
-                ->sum('amount');
+            // Hitung total pendapatan per hari berdasarkan payment_date di JSONB
+            $dailyRevenue = Payment::all()->filter(function (Payment $payment) use ($date) {
+                $paymentDate = \App\Helper\Database\PaymentHelper::getPaymentDate($payment);
+                return $paymentDate && $paymentDate->isSameDay($date);
+            })->sum('amount');
 
             $amounts[] = (float) $dailyRevenue;
         }

@@ -9,9 +9,9 @@ use Filament\Widgets\ChartWidget;
 
 class PaymentStatusChart extends ChartWidget
 {
-    protected ?string $heading = 'Status Pembayaran';
-
     protected static ?int $sort = 5;
+
+    protected ?string $heading = 'Status Pembayaran';
 
     protected int | string | array $columnSpan = [
         'md' => 2,
@@ -110,16 +110,19 @@ class PaymentStatusChart extends ChartWidget
      */
     public function getDescription(): ?string
     {
-        $unpaidCount = Transaction::where('payment_status', 'unpaid')
+        $unpaidTransactions = Transaction::where('payment_status', 'unpaid')
             ->whereNotIn('workflow_status', ['cancelled'])
-            ->count();
+            ->get();
 
-        $unpaidAmount = (float) Transaction::where('payment_status', 'unpaid')
-            ->whereNotIn('workflow_status', ['cancelled'])
-            ->sum('total_price');
+        $unpaidCount = $unpaidTransactions->count();
 
         if ($unpaidCount === 0) {
             return 'Semua transaksi sudah lunas';
+        }
+
+        $unpaidAmount = 0;
+        foreach ($unpaidTransactions as $transaction) {
+            $unpaidAmount += \App\Helper\Database\TransactionHelper::getTotalPrice($transaction);
         }
 
         return sprintf(

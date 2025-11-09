@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
+use App\Helper\Database\PaymentHelper;
+use App\Helper\Database\TransactionHelper;
 use App\Models\Payment;
 use App\Models\Transaction;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Carbon;
 
 class TransactionStatsOverview extends StatsOverviewWidget
 {
+    protected static ?int $sort = 1;
+
     protected ?string $heading = 'Statistik Transaksi & Keuangan';
 
     protected ?string $description = 'Ringkasan transaksi harian dan performa keuangan.';
@@ -45,7 +50,7 @@ class TransactionStatsOverview extends StatsOverviewWidget
      */
     private function getTodayTransactionsCount(): int
     {
-        return Transaction::whereDate('order_date', today())->count();
+        return Transaction::whereDate('created_at', today())->count();
     }
 
     /**
@@ -54,7 +59,7 @@ class TransactionStatsOverview extends StatsOverviewWidget
     private function getTodayTransactionsTrend(): string
     {
         $today = $this->getTodayTransactionsCount();
-        $yesterday = Transaction::whereDate('order_date', today()->subDay())->count();
+        $yesterday = Transaction::whereDate('created_at', today()->subDay())->count();
 
         if ($yesterday == 0) {
             return $today > 0 ? '+100%' : 'Tidak ada data kemarin';
@@ -72,7 +77,7 @@ class TransactionStatsOverview extends StatsOverviewWidget
     private function getTodayTransactionsTrendIcon(): string
     {
         $today = $this->getTodayTransactionsCount();
-        $yesterday = Transaction::whereDate('order_date', today()->subDay())->count();
+        $yesterday = Transaction::whereDate('created_at', today()->subDay())->count();
 
         return $today >= $yesterday ? 'solar-graph-up-bold-duotone' : 'solar-graph-down-bold-duotone';
     }
@@ -85,7 +90,7 @@ class TransactionStatsOverview extends StatsOverviewWidget
         $data = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = today()->subDays($i);
-            $data[] = Transaction::whereDate('order_date', $date)->count();
+            $data[] = Transaction::whereDate('created_at', $date)->count();
         }
         return $data;
     }
@@ -95,8 +100,12 @@ class TransactionStatsOverview extends StatsOverviewWidget
      */
     private function getTodayRevenue(): float
     {
-        return (float) Payment::whereDate('payment_date', today())
-            ->sum('amount');
+        $payments = Payment::all()->filter(function (Payment $payment) {
+            $paymentDate = PaymentHelper::getPaymentDate($payment);
+            return $paymentDate && $paymentDate->isSameDay(today());
+        });
+
+        return (float) $payments->sum('amount');
     }
 
     /**
@@ -107,7 +116,12 @@ class TransactionStatsOverview extends StatsOverviewWidget
         $data = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = today()->subDays($i);
-            $data[] = (float) Payment::whereDate('payment_date', $date)->sum('amount');
+            $dailyRevenue = Payment::all()->filter(function (Payment $payment) use ($date) {
+                $paymentDate = PaymentHelper::getPaymentDate($payment);
+                return $paymentDate && $paymentDate->isSameDay($date);
+            })->sum('amount');
+
+            $data[] = (float) $dailyRevenue;
         }
         return $data;
     }
