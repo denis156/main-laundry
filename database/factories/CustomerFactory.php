@@ -113,18 +113,69 @@ class CustomerFactory extends Factory
             $selectedDistrict['district_name']
         );
 
+        // Decide login method (phone or email)
+        $usePhone = fake()->boolean(70); // 70% menggunakan phone untuk login
+
         return [
-            'name' => fake()->name(),
-            'phone' => fake()->unique()->numerify('8##########'), // Format: 81234567890 (tanpa 0 di depan)
-            'email' => fake()->optional()->safeEmail(),
+            'email' => $usePhone ? null : fake()->unique()->safeEmail(),
+            'phone' => $usePhone ? fake()->unique()->numerify('8##########') : null,
             'password' => 'pelanggan_main', // Default password untuk customer
-            'district_code' => $selectedDistrict['district_code'],
-            'district_name' => $selectedDistrict['district_name'],
-            'village_code' => $selectedVillage['code'],
-            'village_name' => $selectedVillage['name'],
-            'detail_address' => $detailAddress,
-            'address' => $fullAddress,
-            'member' => fake()->boolean(40), // 40% kemungkinan member
+            'data' => [
+                'name' => fake()->name(),
+                'addresses' => [
+                    [
+                        'type' => 'home',
+                        'district_code' => $selectedDistrict['district_code'],
+                        'district_name' => $selectedDistrict['district_name'],
+                        'village_code' => $selectedVillage['code'],
+                        'village_name' => $selectedVillage['name'],
+                        'detail_address' => $detailAddress,
+                        'address' => $fullAddress,
+                        'is_default' => true,
+                    ],
+                ],
+                'preferences' => [
+                    'notification_enabled' => fake()->boolean(80),
+                    'language' => 'id',
+                ],
+                'google_oauth' => null,
+                'member' => fake()->boolean(40), // 40% kemungkinan member
+                'avatar_url' => fake()->optional()->imageUrl(200, 200, 'people'),
+            ],
         ];
+    }
+
+    /**
+     * Indicate that the customer is a member
+     */
+    public function member(): static
+    {
+        return $this->state(function (array $attributes) {
+            $data = $attributes['data'] ?? [];
+            $data['member'] = true;
+            return ['data' => $data];
+        });
+    }
+
+    /**
+     * Indicate that the customer uses email for login
+     */
+    public function withEmail(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'email' => fake()->unique()->safeEmail(),
+            'phone' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the customer uses phone for login
+     */
+    public function withPhone(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'email' => null,
+            'phone' => fake()->unique()->numerify('8##########'),
+        ]);
     }
 }
