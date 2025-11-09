@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Locations\Pages;
 
-use App\Filament\Resources\Locations\LocationResource;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
+use Filament\Actions\ForceDeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\Locations\LocationResource;
 
 class EditLocation extends EditRecord
 {
@@ -15,9 +18,30 @@ class EditLocation extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
-            ForceDeleteAction::make(),
-            RestoreAction::make(),
+            Action::make('back')
+                ->label('Kembali')
+                ->icon('solar-reply-2-linear')
+                ->tooltip('Kembali ke daftar lokasi')
+                ->color('gray')
+                ->url($this->getResource()::getUrl('index'))
+                ->extraAttributes([
+                    'class' => 'order-first',
+                ]),
+            DeleteAction::make()
+                ->color('warning')
+                ->icon('solar-trash-bin-minimalistic-linear')
+                ->modalIcon('solar-trash-bin-minimalistic-linear')
+                ->tooltip('Hapus lokasi ini'),
+            ForceDeleteAction::make()
+                ->color('danger')
+                ->icon('solar-trash-bin-2-linear')
+                ->modalIcon('solar-trash-bin-2-linear')
+                ->tooltip('Hapus selamanya lokasi ini'),
+            RestoreAction::make()
+                ->color('gray')
+                ->icon('solar-refresh-linear')
+                ->modalIcon('solar-refresh-linear')
+                ->tooltip('Pulihkan lokasi ini'),
         ];
     }
 }

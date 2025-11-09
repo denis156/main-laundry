@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Helper\Database\LocationHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,6 +29,18 @@ class Location extends Model
             'data' => 'array',
             'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Boot method untuk auto-fill data yang kosong
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($location) {
+            LocationHelper::autoFillLocationData($location);
+        });
     }
 
     /**
