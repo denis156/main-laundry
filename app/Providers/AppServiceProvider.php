@@ -2,12 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\Payment;
 use App\Models\Transaction;
 use App\Helper\InvoiceHelper;
 use App\Helper\WilayahHelper;
 use Illuminate\Support\Facades\URL;
 use App\Helper\TransactionAreaFilter;
 use App\Helper\OrderRateLimiterHelper;
+use App\Observers\PaymentObserver;
 use App\Observers\TransactionObserver;
 use Illuminate\Support\ServiceProvider;
 
@@ -57,5 +59,6 @@ class AppServiceProvider extends ServiceProvider
 
         // Register model observers
         Transaction::observe(TransactionObserver::class);
+        Payment::observe(PaymentObserver::class);
     }
 }
