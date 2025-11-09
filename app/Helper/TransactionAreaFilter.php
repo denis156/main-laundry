@@ -4,61 +4,79 @@ declare(strict_types=1);
 
 namespace App\Helper;
 
-use App\Models\Pos;
+use App\Helper\Database\CustomerHelper;
+use App\Helper\Database\LocationHelper;
+use App\Models\Location;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Transaction Area Filter Helper
  *
- * Helper untuk memfilter transaksi berdasarkan area layanan POS.
- * POS memiliki area layanan yang berisi daftar kelurahan (villages).
- * Transaksi akan difilter berdasarkan village_name dari customer.
+ * Helper untuk memfilter transaksi berdasarkan area layanan Location (POS/Resort).
+ * Location memiliki coverage_area yang berisi daftar kecamatan & kelurahan.
+ * Transaksi akan difilter berdasarkan address data dari customer (di JSONB).
  *
  * @package App\Helper
  */
 class TransactionAreaFilter
 {
     /**
-     * Apply filter berdasarkan area POS ke query transaksi
+     * Apply filter berdasarkan area Location ke query transaksi
      *
      * Method ini akan memfilter transaksi sehingga hanya menampilkan transaksi
-     * yang customer-nya berada di kelurahan yang ter-cover oleh POS.
+     * yang customer-nya berada di area yang ter-cover oleh Location.
      *
      * Logika filter:
-     * - Jika POS tidak punya area atau area kosong: tidak ada filter (tampilkan semua)
-     * - Jika POS punya area: hanya tampilkan transaksi dengan customer di kelurahan tersebut
-     * - Include juga customer yang village_name-nya NULL (backward compatibility)
+     * - Jika Location tidak punya coverage_area atau kosong: tidak ada filter (tampilkan semua)
+     * - Jika Location punya coverage_area: hanya tampilkan transaksi dengan customer di area tersebut
+     * - Include juga customer yang belum ada address data (backward compatibility)
      *
      * @param Builder $query Query builder untuk Transaction
-     * @param Pos|null $pos POS yang akan digunakan untuk filter area
+     * @param Location|null $location Location (POS/Resort) yang akan digunakan untuk filter area
      * @return Builder Query yang sudah difilter
      *
      * @example
      * ```php
      * $query = Transaction::query();
-     * TransactionAreaFilter::applyFilter($query, $assignedPos);
+     * TransactionAreaFilter::applyFilter($query, $assignedLocation);
      * $transactions = $query->get();
      * ```
      */
-    public static function applyFilter(Builder $query, ?Pos $pos): Builder
+    public static function applyFilter(Builder $query, ?Location $location): Builder
     {
-        // Jika tidak ada POS atau POS tidak punya area, return query tanpa filter
-        if (!$pos || empty($pos->area)) {
+        // Jika tidak ada Location, return query tanpa filter
+        if (!$location) {
             return $query;
         }
 
-        // Filter transaksi berdasarkan area layanan POS
-        $query->whereHas('customer', function ($customerQuery) use ($pos) {
-            $customerQuery->where(function ($subQuery) use ($pos) {
-                // Loop setiap kelurahan di area POS
-                foreach ($pos->area as $kelurahan) {
-                    // Customer village_name harus match dengan salah satu kelurahan
-                    $subQuery->orWhere('village_name', $kelurahan);
+        $coverageArea = LocationHelper::getCoverageArea($location);
+
+        // Jika tidak punya coverage area, return query tanpa filter
+        if (empty($coverageArea)) {
+            return $query;
+        }
+
+        // Filter transaksi berdasarkan area layanan Location
+        $query->whereHas('customer', function ($customerQuery) use ($coverageArea) {
+            $customerQuery->where(function ($subQuery) use ($coverageArea) {
+                // Loop setiap district di coverage area
+                foreach ($coverageArea as $district) {
+                    $districtCode = $district['district_code'] ?? null;
+                    $villages = $district['villages'] ?? [];
+
+                    if ($districtCode && !empty($villages)) {
+                        // Filter by district & villages in JSONB data
+                        $subQuery->orWhere(function ($addressQuery) use ($districtCode, $villages) {
+                            $addressQuery->whereJsonContains('data->addresses', [
+                                ['district_code' => $districtCode]
+                            ]);
+                            // TODO: Add village filtering when needed
+                        });
+                    }
                 }
 
-                // ATAU customer belum punya village_name (backward compatibility)
-                // Untuk customer lama yang belum ada data kelurahan
-                $subQuery->orWhereNull('village_name');
+                // ATAU customer belum punya address data (backward compatibility)
+                $subQuery->orWhereNull('data->addresses');
             });
         });
 
@@ -66,38 +84,53 @@ class TransactionAreaFilter
     }
 
     /**
-     * Apply filter berdasarkan area POS ke query transaksi (strict mode)
+     * Apply filter berdasarkan area Location ke query transaksi (strict mode)
      *
-     * Sama seperti applyFilter(), tapi TIDAK include customer dengan village_name NULL.
-     * Mode ini lebih strict dan hanya menampilkan transaksi dengan village_name yang jelas.
+     * Sama seperti applyFilter(), tapi TIDAK include customer tanpa address data.
+     * Mode ini lebih strict dan hanya menampilkan transaksi dengan address yang jelas.
      *
      * @param Builder $query Query builder untuk Transaction
-     * @param Pos|null $pos POS yang akan digunakan untuk filter area
+     * @param Location|null $location Location yang akan digunakan untuk filter area
      * @return Builder Query yang sudah difilter
      *
      * @example
      * ```php
      * $query = Transaction::query();
-     * TransactionAreaFilter::applyFilterStrict($query, $assignedPos);
+     * TransactionAreaFilter::applyFilterStrict($query, $assignedLocation);
      * $transactions = $query->get();
      * ```
      */
-    public static function applyFilterStrict(Builder $query, ?Pos $pos): Builder
+    public static function applyFilterStrict(Builder $query, ?Location $location): Builder
     {
-        // Jika tidak ada POS atau POS tidak punya area, return query tanpa filter
-        if (!$pos || empty($pos->area)) {
+        // Jika tidak ada Location, return query tanpa filter
+        if (!$location) {
             return $query;
         }
 
-        // Filter transaksi berdasarkan area layanan POS (strict mode)
-        $query->whereHas('customer', function ($customerQuery) use ($pos) {
-            $customerQuery->where(function ($subQuery) use ($pos) {
-                // Loop setiap kelurahan di area POS
-                foreach ($pos->area as $kelurahan) {
-                    // Customer village_name harus match dengan salah satu kelurahan
-                    $subQuery->orWhere('village_name', $kelurahan);
+        $coverageArea = LocationHelper::getCoverageArea($location);
+
+        // Jika tidak punya coverage area, return query tanpa filter
+        if (empty($coverageArea)) {
+            return $query;
+        }
+
+        // Filter transaksi berdasarkan area layanan Location (strict mode)
+        $query->whereHas('customer', function ($customerQuery) use ($coverageArea) {
+            $customerQuery->where(function ($subQuery) use ($coverageArea) {
+                // Loop setiap district di coverage area
+                foreach ($coverageArea as $district) {
+                    $districtCode = $district['district_code'] ?? null;
+                    $villages = $district['villages'] ?? [];
+
+                    if ($districtCode && !empty($villages)) {
+                        $subQuery->orWhere(function ($addressQuery) use ($districtCode, $villages) {
+                            $addressQuery->whereJsonContains('data->addresses', [
+                                ['district_code' => $districtCode]
+                            ]);
+                        });
+                    }
                 }
-                // Strict mode: TIDAK include customer dengan village_name NULL
+                // Strict mode: TIDAK include customer tanpa address data
             });
         });
 
@@ -105,97 +138,110 @@ class TransactionAreaFilter
     }
 
     /**
-     * Check apakah customer berada di area layanan POS
+     * Check apakah customer berada di area layanan Location
      *
      * Helper method untuk mengecek apakah seorang customer masuk dalam
-     * area layanan POS tertentu berdasarkan village_name.
+     * area layanan Location tertentu berdasarkan address data di JSONB.
      *
-     * @param string|null $villageNameCustomer Nama kelurahan customer
-     * @param Pos|null $pos POS yang akan dicek
-     * @param bool $includeNull Apakah include customer dengan village_name NULL? (default: true)
-     * @return bool True jika customer di area POS, false jika tidak
+     * @param \App\Models\Customer $customer Customer yang akan dicek
+     * @param Location|null $location Location yang akan dicek
+     * @param bool $includeNull Apakah include customer tanpa address data? (default: true)
+     * @return bool True jika customer di area Location, false jika tidak
      *
      * @example
      * ```php
      * $customer = Customer::find(1);
-     * $inArea = TransactionAreaFilter::isCustomerInPosArea(
-     *     $customer->village_name,
-     *     $assignedPos
-     * );
+     * $inArea = TransactionAreaFilter::isCustomerInLocationArea($customer, $assignedLocation);
      * ```
      */
-    public static function isCustomerInPosArea(?string $villageNameCustomer, ?Pos $pos, bool $includeNull = true): bool
+    public static function isCustomerInLocationArea(\App\Models\Customer $customer, ?Location $location, bool $includeNull = true): bool
     {
-        // Jika tidak ada POS atau POS tidak punya area, return true (tidak ada filter)
-        if (!$pos || empty($pos->area)) {
+        // Jika tidak ada Location, return true (tidak ada filter)
+        if (!$location) {
             return true;
         }
 
-        // Jika customer tidak punya village_name
-        if (is_null($villageNameCustomer)) {
-            return $includeNull; // Return sesuai parameter includeNull
+        $coverageArea = LocationHelper::getCoverageArea($location);
+
+        // Jika tidak punya coverage area, return true (tidak ada filter)
+        if (empty($coverageArea)) {
+            return true;
         }
 
-        // Check apakah village_name customer ada di area POS
-        return in_array($villageNameCustomer, $pos->area, true);
+        $customerAddresses = CustomerHelper::getAddresses($customer);
+
+        // Jika customer tidak punya address data
+        if (empty($customerAddresses)) {
+            return $includeNull;
+        }
+
+        // Check apakah ada address customer yang match dengan coverage area
+        foreach ($customerAddresses as $address) {
+            $districtCode = $address['district_code'] ?? null;
+
+            foreach ($coverageArea as $district) {
+                if ($district['district_code'] === $districtCode) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
-     * Get daftar kelurahan yang ter-cover oleh POS
+     * Get daftar coverage area dari Location
      *
-     * Helper method untuk mendapatkan daftar kelurahan yang dilayani POS.
+     * Helper method untuk mendapatkan coverage area yang dilayani Location.
      * Berguna untuk display atau validation.
      *
-     * @param Pos|null $pos POS yang akan dicek
-     * @return array Array berisi nama-nama kelurahan
+     * @param Location|null $location Location yang akan dicek
+     * @return array Array berisi coverage area
      *
      * @example
      * ```php
-     * $villages = TransactionAreaFilter::getPosVillages($assignedPos);
-     * // Output: ['Kelurahan A', 'Kelurahan B']
+     * $areas = TransactionAreaFilter::getLocationCoverageArea($assignedLocation);
+     * // Output: [['district_code' => '74.71.01', 'district_name' => 'Kec A', 'villages' => [...]]]
      * ```
      */
-    public static function getPosVillages(?Pos $pos): array
+    public static function getLocationCoverageArea(?Location $location): array
     {
-        if (!$pos || empty($pos->area)) {
+        if (!$location) {
             return [];
         }
 
-        return $pos->area;
+        return LocationHelper::getCoverageArea($location);
     }
 
     /**
-     * Get count transaksi per kelurahan untuk POS tertentu
+     * Get count transaksi per district untuk Location tertentu
      *
      * Helper method untuk mendapatkan statistik jumlah transaksi
-     * per kelurahan di area layanan POS.
+     * per kecamatan di area layanan Location.
      *
-     * @param Pos|null $pos POS yang akan dicek
+     * @param Location|null $location Location yang akan dicek
      * @param string|null $workflowStatus Filter berdasarkan workflow_status (opsional)
-     * @return array Array dengan key = village_name, value = count
+     * @return array Array dengan key = district_name, value = count
      *
      * @example
      * ```php
-     * $stats = TransactionAreaFilter::getTransactionCountByVillage($assignedPos);
-     * // Output: ['Kelurahan A' => 5, 'Kelurahan B' => 3, 'null' => 2]
+     * $stats = TransactionAreaFilter::getTransactionCountByDistrict($assignedLocation);
+     * // Output: ['Kec A' => 5, 'Kec B' => 3, 'no_address' => 2]
      * ```
      */
-    public static function getTransactionCountByVillage(?Pos $pos, ?string $workflowStatus = null): array
+    public static function getTransactionCountByDistrict(?Location $location, ?string $workflowStatus = null): array
     {
-        if (!$pos || empty($pos->area)) {
+        if (!$location) {
             return [];
         }
 
-        $query = \App\Models\Transaction::query()
-            ->whereHas('customer', function ($customerQuery) use ($pos) {
-                $customerQuery->where(function ($subQuery) use ($pos) {
-                    foreach ($pos->area as $kelurahan) {
-                        $subQuery->orWhere('village_name', $kelurahan);
-                    }
-                    $subQuery->orWhereNull('village_name');
-                });
-            })
-            ->with('customer:id,village_name');
+        $coverageArea = LocationHelper::getCoverageArea($location);
+
+        if (empty($coverageArea)) {
+            return [];
+        }
+
+        $query = \App\Models\Transaction::query()->with('customer');
 
         // Filter berdasarkan workflow_status jika ada
         if ($workflowStatus) {
@@ -204,11 +250,24 @@ class TransactionAreaFilter
 
         $transactions = $query->get();
 
-        // Group by village_name dan count
+        // Group by district dan count
         $stats = [];
         foreach ($transactions as $transaction) {
-            $villageName = $transaction->customer?->village_name ?? 'null';
-            $stats[$villageName] = ($stats[$villageName] ?? 0) + 1;
+            $customer = $transaction->customer;
+            if (!$customer) {
+                continue;
+            }
+
+            $addresses = CustomerHelper::getAddresses($customer);
+
+            if (empty($addresses)) {
+                $stats['no_address'] = ($stats['no_address'] ?? 0) + 1;
+                continue;
+            }
+
+            $defaultAddress = CustomerHelper::getDefaultAddress($customer);
+            $districtName = $defaultAddress['district_name'] ?? 'unknown';
+            $stats[$districtName] = ($stats[$districtName] ?? 0) + 1;
         }
 
         return $stats;

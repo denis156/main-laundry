@@ -15,16 +15,18 @@ class Service extends Model
 
     protected $fillable = [
         'name',
-        'price_per_kg',
-        'duration_days',
+        'is_featured',
+        'sort_order',
+        'data',
         'is_active',
     ];
 
     protected function casts(): array
     {
         return [
-            'price_per_kg' => 'decimal:2',
-            'duration_days' => 'integer',
+            'data' => 'array',
+            'is_featured' => 'boolean',
+            'sort_order' => 'integer',
             'is_active' => 'boolean',
         ];
     }

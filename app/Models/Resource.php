@@ -4,28 +4,26 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class CourierCarSchedule extends Model
+class Resource extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'courier_cars_schedules';
-
     protected $fillable = [
-        'trip_date',
-        'trip_type',
-        'status',
+        'type',
+        'name',
         'data',
+        'is_active',
     ];
 
     protected function casts(): array
     {
         return [
-            'trip_date' => 'date',
             'data' => 'array',
+            'is_active' => 'boolean',
         ];
     }
 }

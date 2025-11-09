@@ -16,18 +16,16 @@ class Payment extends Model
 
     protected $fillable = [
         'transaction_id',
-        'courier_motorcycle_id',
+        'courier_id',
         'amount',
-        'payment_proof_url',
-        'payment_date',
-        'notes',
+        'data',
     ];
 
     protected function casts(): array
     {
         return [
             'amount' => 'decimal:2',
-            'payment_date' => 'datetime',
+            'data' => 'array',
         ];
     }
 
@@ -40,32 +38,10 @@ class Payment extends Model
     }
 
     /**
-     * Relasi many-to-one dengan CourierMotorcycle
+     * Relasi many-to-one dengan Courier
      */
-    public function courierMotorcycle(): BelongsTo
+    public function courier(): BelongsTo
     {
-        return $this->belongsTo(CourierMotorcycle::class);
-    }
-
-    /**
-     * Accessor: Format payment_date ke format Indonesia
-     * Contoh output: "25 Jan 2025, 14:30"
-     */
-    protected function formattedPaymentDate(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => $this->payment_date?->format('d M Y, H:i') ?? '-'
-        );
-    }
-
-    /**
-     * Accessor: Format amount ke format Rupiah
-     * Contoh output: "Rp 50.000"
-     */
-    protected function formattedAmount(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => 'Rp ' . number_format((float) ($this->amount ?? 0), 0, ',', '.')
-        );
+        return $this->belongsTo(Courier::class);
     }
 }

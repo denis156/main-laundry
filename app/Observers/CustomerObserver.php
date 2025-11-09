@@ -1,62 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Observers;
 
-use App\Models\Customer;
+use App\Helper\Database\CustomerHelper;
 use App\Helper\WilayahHelper;
+use App\Models\Customer;
 
+/**
+ * Customer Observer
+ *
+ * Observer ini tidak lagi digunakan karena data customer sekarang disimpan di JSONB.
+ * Address handling dilakukan di CustomerHelper, bukan di Observer.
+ *
+ * File ini di-keep untuk backward compatibility, tapi tidak melakukan apa-apa.
+ */
 class CustomerObserver
 {
     public function creating(Customer $customer): void
     {
-        $this->syncWilayahNames($customer);
-        $this->generateFullAddress($customer);
+        // Data sekarang di JSONB, tidak perlu auto-sync
+        // TODO: Remove this observer after migration selesai
     }
 
     public function updating(Customer $customer): void
     {
-        $this->syncWilayahNames($customer);
-        $this->generateFullAddress($customer);
-    }
-
-    private function syncWilayahNames(Customer $customer): void
-    {
-        if (!empty($customer->district_code) && empty($customer->district_name)) {
-            $districts = WilayahHelper::getKendariDistricts();
-            $district = collect($districts)->firstWhere('code', $customer->district_code);
-            if ($district) {
-                $customer->district_name = $district['name'];
-            }
-        }
-
-        if (!empty($customer->village_code) && empty($customer->village_name) && !empty($customer->district_code)) {
-            $villages = WilayahHelper::getVillagesByDistrict($customer->district_code);
-            $village = collect($villages)->firstWhere('code', $customer->village_code);
-            if ($village) {
-                $customer->village_name = $village['name'];
-            }
-        }
-    }
-
-    private function generateFullAddress(Customer $customer): void
-    {
-        $addressParts = [];
-
-        if (!empty($customer->detail_address)) {
-            $addressParts[] = $customer->detail_address;
-        }
-
-        if (!empty($customer->village_name)) {
-            $addressParts[] = $customer->village_name;
-        }
-
-        if (!empty($customer->district_name)) {
-            $addressParts[] = $customer->district_name;
-        }
-
-        $addressParts[] = 'Kota Kendari';
-        $addressParts[] = 'Sulawesi Tenggara';
-
-        $customer->address = implode(', ', array_filter($addressParts));
+        // Data sekarang di JSONB, tidak perlu auto-sync
+        // TODO: Remove this observer after migration selesai
     }
 }

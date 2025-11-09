@@ -2,24 +2,16 @@
 
 namespace App\Providers;
 
-use App\Models\Pos;
-use App\Models\Resort;
+use App\Helper\InvoiceHelper;
+use App\Helper\OrderRateLimiterHelper;
+use App\Helper\TransactionAreaFilter;
+use App\Helper\WilayahHelper;
 use App\Models\Customer;
 use App\Models\Transaction;
-use App\Observers\PosObserver;
-use App\Observers\ResortObserver;
 use App\Observers\CustomerObserver;
-use App\Models\EquipmentMaintenance;
-use App\Models\MaterialStockHistory;
 use App\Observers\TransactionObserver;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
-use App\Observers\EquipmentMaintenanceObserver;
-use App\Observers\MaterialStockHistoryObserver;
-use App\Helper\InvoiceHelper;
-use App\Helper\OrderRateLimiterHelper;
-use App\Helper\WilayahHelper;
-use App\Helper\TransactionAreaFilter;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -65,11 +57,8 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        Pos::observe(PosObserver::class);
-        Resort::observe(ResortObserver::class);
+        // Register model observers
         Customer::observe(CustomerObserver::class);
         Transaction::observe(TransactionObserver::class);
-        MaterialStockHistory::observe(MaterialStockHistoryObserver::class);
-        EquipmentMaintenance::observe(EquipmentMaintenanceObserver::class);
     }
 }

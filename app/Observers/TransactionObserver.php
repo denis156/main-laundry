@@ -4,52 +4,64 @@ declare(strict_types=1);
 
 namespace App\Observers;
 
-use Exception;
+use App\Events\TransactionEvents;
+use App\Helper\Database\TransactionHelper;
+use App\Models\Courier;
 use App\Models\Payment;
 use App\Models\Transaction;
-use Illuminate\Support\Str;
-use App\Events\TransactionEvents;
-use App\Models\CourierMotorcycle;
-use Illuminate\Support\Facades\Log;
 use App\Notifications\NewTransactionNotification;
 use App\Notifications\OrderConfirmedNotification;
+use Exception;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class TransactionObserver
 {
     /**
      * Handle the Transaction "creating" event.
-     * Auto-generate tracking token and capture security data.
+     * Auto-generate tracking token and capture anti-bot data in JSONB.
      */
     public function creating(Transaction $transaction): void
     {
+        $data = $transaction->data ?? [];
+
         // Auto-generate tracking token jika belum ada
-        if (empty($transaction->tracking_token)) {
-            $transaction->tracking_token = Str::uuid()->toString();
+        if (empty($data['tracking']['tracking_token'])) {
+            $data['tracking']['tracking_token'] = Str::uuid()->toString();
         }
 
-        // Auto-capture customer IP jika belum ada
-        if (empty($transaction->customer_ip)) {
-            $transaction->customer_ip = request()->ip();
+        // Auto-capture anti-bot data
+        if (empty($data['anti_bot'])) {
+            $data['anti_bot'] = [
+                'customer_ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'form_loaded_at' => $data['anti_bot']['form_loaded_at'] ?? null,
+            ];
         }
 
-        // Auto-capture user agent jika belum ada
-        if (empty($transaction->customer_user_agent)) {
-            $transaction->customer_user_agent = request()->userAgent();
-        }
-
-        // Note: form_loaded_at akan di-set dari form order di landing page
-        // untuk mendeteksi bot submission yang terlalu cepat
+        $transaction->data = $data;
     }
 
     /**
      * Handle the Transaction "updating" event.
-     * Auto-calculate total_price sebelum save.
+     * Auto-calculate total_price di JSONB sebelum save.
      */
     public function updating(Transaction $transaction): void
     {
-        // Auto-calculate total_price ketika weight di-update
-        if ($transaction->isDirty('weight') && $transaction->weight > 0 && $transaction->price_per_kg > 0) {
-            $transaction->total_price = $transaction->weight * $transaction->price_per_kg;
+        // Total price calculation sekarang di TransactionHelper
+        // Observer hanya ensure consistency
+        $data = $transaction->data ?? [];
+
+        // Auto-calculate total jika ada items
+        $items = $data['items'] ?? [];
+        if (!empty($items)) {
+            $totalPrice = 0;
+            foreach ($items as $item) {
+                $totalPrice += ($item['subtotal'] ?? 0);
+            }
+
+            $data['pricing']['total_price'] = $totalPrice;
+            $transaction->data = $data;
         }
     }
 
@@ -76,9 +88,12 @@ class TransactionObserver
     private function sendWebPushToActiveCouriers(Transaction $transaction): void
     {
         // Get semua kurir yang aktif dan punya push subscriptions
-        $couriers = CourierMotorcycle::where('is_active', true)
+        $couriers = Courier::whereNotNull('data')
             ->whereHas('pushSubscriptions')
-            ->get();
+            ->get()
+            ->filter(function ($courier) {
+                return ($courier->data['is_active'] ?? true) === true;
+            });
 
         // Send notification ke setiap kurir
         foreach ($couriers as $courier) {
@@ -124,52 +139,53 @@ class TransactionObserver
 
         // Auto-create Payment ketika workflow_status berubah ke status tertentu
         if ($transaction->wasChanged('workflow_status')) {
-            // Bayar Saat Jemput: Payment dibuat saat status 'picked_up' + weight sudah diinput
-            // Payment_status tetap unpaid sampai kurir upload bukti pembayaran
+            $paymentTiming = TransactionHelper::getPaymentTiming($transaction);
+            $totalPrice = TransactionHelper::getTotalPrice($transaction);
+            $courierId = $transaction->courier_id;
+
+            // Bayar Saat Jemput: Payment dibuat saat status 'picked_up'
             if (
-                $transaction->payment_timing === 'on_pickup' &&
+                $paymentTiming === 'on_pickup' &&
                 $transaction->workflow_status === 'picked_up' &&
-                !empty($transaction->courier_motorcycle_id) &&
-                $transaction->weight > 0 &&
-                $transaction->total_price > 0
+                !empty($courierId) &&
+                $totalPrice > 0
             ) {
-                // Cek apakah payment sudah ada
                 $existingPayment = Payment::where('transaction_id', $transaction->id)->first();
 
                 if (!$existingPayment) {
                     Payment::create([
                         'transaction_id' => $transaction->id,
-                        'courier_motorcycle_id' => $transaction->courier_motorcycle_id,
-                        'amount' => $transaction->total_price,
-                        'payment_date' => now(),
-                        'notes' => 'Pembayaran saat jemput - Auto-generated',
+                        'courier_id' => $courierId,
+                        'amount' => $totalPrice,
+                        'data' => [
+                            'payment_date' => now()->toIso8601String(),
+                            'method' => 'cash',
+                            'notes' => 'Pembayaran saat jemput - Auto-generated',
+                        ],
                     ]);
-
-                    // Payment_status tetap unpaid, akan di-update saat upload bukti pembayaran
                 }
             }
 
-            // Bayar Saat Antar: Payment dibuat saat status 'out_for_delivery' (mengantar)
-            // Payment_status tetap unpaid sampai kurir upload bukti pembayaran
+            // Bayar Saat Antar: Payment dibuat saat status 'out_for_delivery'
             if (
-                $transaction->payment_timing === 'on_delivery' &&
+                $paymentTiming === 'on_delivery' &&
                 $transaction->workflow_status === 'out_for_delivery' &&
-                !empty($transaction->courier_motorcycle_id) &&
-                $transaction->total_price > 0
+                !empty($courierId) &&
+                $totalPrice > 0
             ) {
-                // Cek apakah payment sudah ada
                 $existingPayment = Payment::where('transaction_id', $transaction->id)->first();
 
                 if (!$existingPayment) {
                     Payment::create([
                         'transaction_id' => $transaction->id,
-                        'courier_motorcycle_id' => $transaction->courier_motorcycle_id,
-                        'amount' => $transaction->total_price,
-                        'payment_date' => now(),
-                        'notes' => 'Pembayaran saat antar - Auto-generated',
+                        'courier_id' => $courierId,
+                        'amount' => $totalPrice,
+                        'data' => [
+                            'payment_date' => now()->toIso8601String(),
+                            'method' => 'cash',
+                            'notes' => 'Pembayaran saat antar - Auto-generated',
+                        ],
                     ]);
-
-                    // Payment_status tetap unpaid, akan di-update saat upload bukti pembayaran
                 }
             }
         }
