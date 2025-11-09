@@ -94,7 +94,7 @@ class CourierHelper
         return self::generateDefaultAvatar($courier);
     }
 
-    private static function generateDefaultAvatar(Courier $courier): string
+    public static function generateDefaultAvatar(Courier $courier): string
     {
         $name = urlencode(self::getName($courier));
         return "https://ui-avatars.com/api/?name={$name}&background=000000&color=ffffff&size=128";
