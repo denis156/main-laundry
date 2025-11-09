@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Helper\database\CustomerHelper;
+use App\Helper\database\ServiceHelper;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Courier;
 use App\Models\Location;
+use App\Models\ClothingType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,12 +26,6 @@ class TransactionFactory extends Factory
     public function definition(): array
     {
         $orderDate = fake()->dateTimeBetween('-3 months', 'now');
-        $durationDays = fake()->randomElement([1, 2, 3, 5]);
-        $estimatedFinishDate = (clone $orderDate)->modify("+{$durationDays} days");
-
-        $weight = fake()->randomFloat(2, 1, 20);
-        $pricePerKg = fake()->randomFloat(2, 5000, 15000);
-        $totalPrice = $weight * $pricePerKg;
 
         $workflowStatus = fake()->randomElement([
             'pending_confirmation',
@@ -52,18 +48,12 @@ class TransactionFactory extends Factory
         $customer = Customer::factory()->make();
         $customerAddress = CustomerHelper::getDefaultAddress($customer);
 
-        // Generate timeline berdasarkan workflow status
-        $timeline = $this->generateTimeline($workflowStatus, $orderDate, $estimatedFinishDate);
+        // Generate service items (bisa per_kg atau per_item)
+        $items = $this->generateServiceItems();
+        $totalPrice = array_sum(array_column($items, 'subtotal'));
 
-        // Generate service items
-        $serviceName = fake()->randomElement([
-            'Cuci Kering',
-            'Cuci Setrika',
-            'Setrika Saja',
-            'Cuci Express',
-            'Cuci Premium',
-            'Dry Clean',
-        ]);
+        // Generate timeline berdasarkan workflow status
+        $timeline = $this->generateTimeline($workflowStatus, $orderDate);
 
         return [
             'invoice_number' => 'INV/' . $orderDate->format('Ymd') . '/' . str_pad((string) fake()->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
@@ -73,15 +63,7 @@ class TransactionFactory extends Factory
             'workflow_status' => $workflowStatus,
             'payment_status' => $isPaid ? 'paid' : 'unpaid',
             'data' => [
-                'items' => [
-                    [
-                        'service_id' => null, // Will be filled by seeder if needed
-                        'service_name' => $serviceName,
-                        'weight' => $weight,
-                        'price_per_kg' => $pricePerKg,
-                        'subtotal' => $totalPrice,
-                    ],
-                ],
+                'items' => $items,
                 'pricing' => [
                     'total_price' => $totalPrice,
                     'payment_timing' => $paymentTiming,
@@ -92,7 +74,7 @@ class TransactionFactory extends Factory
                     'village_code' => '74.71.01.1001',
                     'village_name' => 'Mandonga',
                     'detail_address' => 'Jl. Example No. 123',
-                    'address' => 'Jl. Example No. 123, Mandonga, Mandonga, Kota Kendari',
+                    'full_address' => 'Jl. Example No. 123, Mandonga, Mandonga, Kota Kendari',
                 ],
                 'notes' => fake()->optional()->sentence(),
                 'metadata' => [
@@ -114,9 +96,85 @@ class TransactionFactory extends Factory
     }
 
     /**
+     * Generate service items (1-3 items) with clothing types support
+     */
+    private function generateServiceItems(): array
+    {
+        $items = [];
+        $itemCount = fake()->numberBetween(1, 3);
+
+        for ($i = 0; $i < $itemCount; $i++) {
+            // Pilih service secara random
+            $pricingUnit = fake()->randomElement(['per_kg', 'per_item']);
+
+            if ($pricingUnit === 'per_kg') {
+                $items[] = $this->generatePerKgItem();
+            } else {
+                $items[] = $this->generatePerItemItem();
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * Generate item untuk service per_kg (dengan clothing types)
+     */
+    private function generatePerKgItem(): array
+    {
+        $pricePerKg = fake()->randomFloat(2, 5000, 15000);
+        $totalWeight = fake()->randomFloat(2, 1, 20);
+
+        // Generate clothing items (2-5 jenis pakaian)
+        $clothingItems = [];
+        $clothingCount = fake()->numberBetween(2, 5);
+
+        for ($i = 0; $i < $clothingCount; $i++) {
+            $clothingItems[] = [
+                'clothing_type_id' => null, // Will be filled by seeder
+                'clothing_type_name' => fake()->randomElement(['Kemeja', 'Celana Panjang', 'Kaos', 'Rok', 'Dress']),
+                'quantity' => fake()->numberBetween(1, 10),
+            ];
+        }
+
+        return [
+            'service_id' => null, // Will be filled by seeder
+            'service_name' => fake()->randomElement(['Cuci Kering', 'Cuci Setrika', 'Setrika Saja', 'Cuci Express', 'Cuci Premium', 'Dry Clean']),
+            'pricing_unit' => 'per_kg',
+            'price_per_kg' => $pricePerKg,
+            'price_per_item' => null,
+            'clothing_items' => $clothingItems,
+            'total_weight' => $totalWeight,
+            'quantity' => null,
+            'subtotal' => $pricePerKg * $totalWeight,
+        ];
+    }
+
+    /**
+     * Generate item untuk service per_item (tanpa clothing types)
+     */
+    private function generatePerItemItem(): array
+    {
+        $pricePerItem = fake()->randomFloat(2, 30000, 60000);
+        $quantity = fake()->numberBetween(1, 5);
+
+        return [
+            'service_id' => null, // Will be filled by seeder
+            'service_name' => fake()->randomElement(['Cuci Karpet Besar', 'Cuci Selimut Tebal']),
+            'pricing_unit' => 'per_item',
+            'price_per_kg' => null,
+            'price_per_item' => $pricePerItem,
+            'clothing_items' => [],
+            'total_weight' => null,
+            'quantity' => $quantity,
+            'subtotal' => $pricePerItem * $quantity,
+        ];
+    }
+
+    /**
      * Generate timeline based on workflow status
      */
-    private function generateTimeline(string $workflowStatus, $orderDate, $estimatedFinishDate): array
+    private function generateTimeline(string $workflowStatus, $orderDate): array
     {
         $timeline = [];
         $currentDate = clone $orderDate;

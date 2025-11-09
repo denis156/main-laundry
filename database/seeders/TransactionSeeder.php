@@ -12,31 +12,31 @@ use App\Models\Service;
 use App\Models\Transaction;
 use App\Models\Courier;
 use App\Models\Location;
+use App\Models\ClothingType;
 use Illuminate\Database\Seeder;
 
 class TransactionSeeder extends Seeder
 {
     /**
-     * Seed data transactions dengan payments
+     * Seed data transactions dengan payments (support clothing types)
      */
     public function run(): void
     {
         $customers = Customer::all();
         $services = Service::all();
+        $servicesPerKg = $services->filter(fn($s) => $s->data['pricing']['unit'] === 'per_kg');
+        $servicesPerItem = $services->filter(fn($s) => $s->data['pricing']['unit'] === 'per_item');
         $couriers = Courier::all();
         $locations = Location::where('type', 'pos')->get();
+        $clothingTypes = ClothingType::where('is_active', true)->get();
 
         // Buat 100 transaksi
         for ($i = 0; $i < 100; $i++) {
             $customer = $customers->random();
-            $service = $services->random();
             $courier = $couriers->random();
             $selectedLocation = $locations->random();
 
             $orderDate = fake()->dateTimeBetween('-3 months', 'now');
-            $weight = fake()->randomFloat(2, 1, 20);
-            $pricePerKg = ServiceHelper::getPricePerKg($service);
-            $totalPrice = $weight * $pricePerKg;
 
             $workflowStatus = fake()->randomElement([
                 'pending_confirmation',
@@ -60,6 +60,24 @@ class TransactionSeeder extends Seeder
             // Generate timeline
             $timeline = $this->generateTimeline($workflowStatus, $orderDate);
 
+            // Generate items (1-3 items per transaksi)
+            $items = [];
+            $itemCount = fake()->numberBetween(1, 3);
+
+            for ($j = 0; $j < $itemCount; $j++) {
+                $pricingUnit = fake()->randomElement(['per_kg', 'per_item']);
+
+                if ($pricingUnit === 'per_kg' && $servicesPerKg->isNotEmpty()) {
+                    $service = $servicesPerKg->random();
+                    $items[] = $this->generatePerKgItem($service, $clothingTypes);
+                } elseif ($servicesPerItem->isNotEmpty()) {
+                    $service = $servicesPerItem->random();
+                    $items[] = $this->generatePerItemItem($service);
+                }
+            }
+
+            $totalPrice = array_sum(array_column($items, 'subtotal'));
+
             // Buat transaction dengan struktur JSONB
             $transaction = Transaction::create([
                 'invoice_number' => 'INV/' . $orderDate->format('Ymd') . '/' . str_pad((string) fake()->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
@@ -69,15 +87,7 @@ class TransactionSeeder extends Seeder
                 'workflow_status' => $workflowStatus,
                 'payment_status' => $isPaid ? 'paid' : 'unpaid',
                 'data' => [
-                    'items' => [
-                        [
-                            'service_id' => $service->id,
-                            'service_name' => $service->name,
-                            'weight' => $weight,
-                            'price_per_kg' => $pricePerKg,
-                            'subtotal' => $totalPrice,
-                        ],
-                    ],
+                    'items' => $items,
                     'pricing' => [
                         'total_price' => $totalPrice,
                         'payment_timing' => $paymentTiming,
@@ -109,13 +119,68 @@ class TransactionSeeder extends Seeder
                     'amount' => $totalPrice,
                     'data' => [
                         'payment_date' => fake()->dateTimeBetween($orderDate, 'now')->format('Y-m-d H:i:s'),
-                        'proof_url' => fake()->imageUrl(640, 480, 'payment', true),
-                        'method' => fake()->randomElement(['cash', 'transfer', 'qris', 'e-wallet']),
+                        'method' => fake()->randomElement(['cash', 'transfer', 'qris']),
+                        'proof_url' => 'payment-proofs/' . fake()->uuid() . '.jpg',
                         'notes' => fake()->optional()->sentence(),
                     ],
                 ]);
             }
         }
+    }
+
+    /**
+     * Generate item untuk service per_kg (dengan clothing types)
+     */
+    private function generatePerKgItem(Service $service, $clothingTypes): array
+    {
+        $pricePerKg = ServiceHelper::getPricePerKg($service);
+        $totalWeight = fake()->randomFloat(2, 1, 20);
+
+        // Generate clothing items (2-5 jenis pakaian)
+        $clothingItems = [];
+        $clothingCount = fake()->numberBetween(2, 5);
+
+        for ($i = 0; $i < $clothingCount; $i++) {
+            $clothingType = $clothingTypes->random();
+            $clothingItems[] = [
+                'clothing_type_id' => $clothingType->id,
+                'clothing_type_name' => $clothingType->name,
+                'quantity' => fake()->numberBetween(1, 10),
+            ];
+        }
+
+        return [
+            'service_id' => $service->id,
+            'service_name' => $service->name,
+            'pricing_unit' => 'per_kg',
+            'price_per_kg' => $pricePerKg,
+            'price_per_item' => null,
+            'clothing_items' => $clothingItems,
+            'total_weight' => $totalWeight,
+            'quantity' => null,
+            'subtotal' => $pricePerKg * $totalWeight,
+        ];
+    }
+
+    /**
+     * Generate item untuk service per_item (tanpa clothing types)
+     */
+    private function generatePerItemItem(Service $service): array
+    {
+        $pricePerItem = $service->data['pricing']['price_per_item'] ?? 50000;
+        $quantity = fake()->numberBetween(1, 5);
+
+        return [
+            'service_id' => $service->id,
+            'service_name' => $service->name,
+            'pricing_unit' => 'per_item',
+            'price_per_kg' => null,
+            'price_per_item' => $pricePerItem,
+            'clothing_items' => [],
+            'total_weight' => null,
+            'quantity' => $quantity,
+            'subtotal' => $pricePerItem * $quantity,
+        ];
     }
 
     /**

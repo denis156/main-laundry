@@ -24,14 +24,11 @@ class CourierFactory extends Factory
             'password' => 'password', // default password
             'assigned_location_id' => Location::factory(),
             'data' => [
+                'avatar_url' => null,
                 'name' => fake()->name(),
                 'phone' => fake()->numerify('8##########'),
                 'vehicle_number' => strtoupper(fake()->bothify('? #### ???')),
-                'avatar_url' => fake()->optional()->imageUrl(200, 200, 'people'),
                 'is_active' => fake()->boolean(85),
-                'preferences' => [
-                    'notification_enabled' => fake()->boolean(80),
-                ],
             ],
         ];
     }

@@ -122,25 +122,20 @@ class CustomerFactory extends Factory
             'password' => 'pelanggan_main', // Default password untuk customer
             'data' => [
                 'name' => fake()->name(),
+                'avatar_url' => null,
                 'addresses' => [
                     [
-                        'type' => 'home',
+                        'type' => 'Rumah',
                         'district_code' => $selectedDistrict['district_code'],
                         'district_name' => $selectedDistrict['district_name'],
                         'village_code' => $selectedVillage['code'],
                         'village_name' => $selectedVillage['name'],
                         'detail_address' => $detailAddress,
-                        'address' => $fullAddress,
+                        'full_address' => $fullAddress,
                         'is_default' => true,
                     ],
                 ],
-                'preferences' => [
-                    'notification_enabled' => fake()->boolean(80),
-                    'language' => 'id',
-                ],
-                'google_oauth' => null,
                 'member' => fake()->boolean(40), // 40% kemungkinan member
-                'avatar_url' => fake()->optional()->imageUrl(200, 200, 'people'),
             ],
         ];
     }

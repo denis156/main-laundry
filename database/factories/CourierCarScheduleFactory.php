@@ -30,18 +30,6 @@ class CourierCarScheduleFactory extends Factory
             ? fake()->randomElements($posLocations, min(fake()->numberBetween(2, 5), count($posLocations)))
             : [];
 
-        // Generate route based on selected locations
-        $route = [];
-        foreach ($selectedLocationIds as $index => $locationId) {
-            $route[] = [
-                'order' => $index + 1,
-                'location_id' => $locationId,
-                'estimated_arrival' => null,
-                'actual_arrival' => null,
-                'status' => 'pending',
-            ];
-        }
-
         return [
             'trip_date' => $tripDate,
             'trip_type' => $tripType,
@@ -49,7 +37,6 @@ class CourierCarScheduleFactory extends Factory
             'data' => [
                 'departure_time' => $departureTime,
                 'location_ids' => $selectedLocationIds,
-                'route' => $route,
                 'driver_info' => [
                     'name' => fake()->name(),
                     'phone' => fake()->numerify('8##########'),
@@ -85,22 +72,8 @@ class CourierCarScheduleFactory extends Factory
      */
     public function completed(): static
     {
-        return $this->state(function (array $attributes) {
-            $data = $attributes['data'] ?? [];
-            $route = $data['route'] ?? [];
-
-            // Mark all route locations as completed
-            foreach ($route as &$stop) {
-                $stop['status'] = 'completed';
-                $stop['actual_arrival'] = fake()->dateTimeBetween('-1 month', 'now')->format('Y-m-d H:i:s');
-            }
-
-            $data['route'] = $route;
-
-            return [
-                'status' => 'completed',
-                'data' => $data,
-            ];
-        });
+        return $this->state(fn (array $attributes) => [
+            'status' => 'completed',
+        ]);
     }
 }

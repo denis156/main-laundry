@@ -32,59 +32,35 @@ class ResourceFactory extends Factory
      */
     private function equipmentDefinition(): array
     {
-        $equipmentTypes = [
-            'Mesin Cuci',
-            'Setrika',
-            'Pengering',
-            'Dryer',
+        $equipmentNames = [
+            'Mesin Cuci Industrial',
+            'Mesin Cuci Front Load',
+            'Mesin Pengering Pakaian',
+            'Setrika Uap',
             'Vacuum Cleaner',
+            'Mesin Dryer',
+            'Mesin Press',
+            'Water Heater',
         ];
 
-        $brands = [
-            'Samsung',
-            'LG',
-            'Electrolux',
-            'Sharp',
-            'Panasonic',
-            'Polytron',
-            'Denpoo',
-        ];
-
+        $brands = ['Samsung', 'LG', 'Electrolux', 'Sharp', 'Panasonic', 'Polytron'];
         $status = fake()->randomElement(['baik', 'rusak', 'maintenance']);
-        $hasMaintenanceHistory = fake()->boolean(60);
-
-        $equipmentName = fake()->randomElement($equipmentTypes) . ' ' . fake()->randomElement(['Pro', 'Plus', 'Deluxe', 'Standard', 'Premium']);
 
         return [
             'type' => 'equipment',
-            'name' => $equipmentName,
+            'name' => fake()->randomElement($equipmentNames),
             'data' => [
-                'equipment_type' => fake()->randomElement($equipmentTypes),
                 'brand' => fake()->randomElement($brands),
                 'serial_number' => fake()->boolean(70) ? fake()->regexify('[A-Z]{2}[0-9]{6}') : null,
                 'purchase_price' => fake()->randomFloat(2, 2000000, 15000000),
                 'purchase_date' => fake()->dateTimeBetween('-3 years', '-6 months')->format('Y-m-d'),
                 'status' => $status,
-                'last_maintenance_date' => $hasMaintenanceHistory ? fake()->dateTimeBetween('-6 months', 'now')->format('Y-m-d') : null,
-                'last_maintenance_cost' => $hasMaintenanceHistory ? fake()->randomFloat(2, 100000, 1500000) : null,
-                'maintenance_history' => $hasMaintenanceHistory ? [
-                    [
-                        'date' => fake()->dateTimeBetween('-6 months', 'now')->format('Y-m-d'),
-                        'cost' => fake()->randomFloat(2, 100000, 1500000),
-                        'description' => fake()->randomElement([
-                            'Penggantian spare part',
-                            'Pembersihan menyeluruh',
-                            'Perbaikan mesin',
-                            'Servis rutin',
-                        ]),
-                        'performed_by' => fake()->randomElement(['Teknisi A', 'Teknisi B', 'Service Center Resmi']),
-                    ],
-                ] : [],
-                'certifications' => fake()->boolean(40) ? ['SNI', 'ISO 9001'] : [],
-                'storage' => [
-                    'location' => fake()->randomElement(['Gudang A', 'Gudang B', 'Ruang Produksi']),
-                    'section' => fake()->randomElement(['A1', 'A2', 'B1', 'B2']),
+                'maintenance' => [
+                    'last_date' => fake()->boolean(60) ? fake()->dateTimeBetween('-6 months', 'now')->format('Y-m-d') : null,
+                    'last_cost' => fake()->boolean(60) ? fake()->randomFloat(2, 100000, 1500000) : null,
+                    'next_date' => fake()->boolean(40) ? fake()->dateTimeBetween('now', '+6 months')->format('Y-m-d') : null,
                 ],
+                'notes' => fake()->optional()->sentence(),
             ],
             'is_active' => $status === 'baik',
         ];
@@ -96,14 +72,16 @@ class ResourceFactory extends Factory
     private function materialDefinition(): array
     {
         $materials = [
-            ['name' => 'Detergen Bubuk', 'type' => 'detergen', 'unit' => 'kg'],
-            ['name' => 'Detergen Cair', 'type' => 'detergen', 'unit' => 'liter'],
-            ['name' => 'Pewangi Pakaian', 'type' => 'pewangi', 'unit' => 'liter'],
-            ['name' => 'Softener', 'type' => 'softener', 'unit' => 'liter'],
-            ['name' => 'Pemutih Pakaian', 'type' => 'pemutih', 'unit' => 'liter'],
-            ['name' => 'Plastik Kemasan Kecil', 'type' => 'plastik', 'unit' => 'pcs'],
-            ['name' => 'Plastik Kemasan Besar', 'type' => 'plastik', 'unit' => 'pcs'],
-            ['name' => 'Hanger', 'type' => 'aksesoris', 'unit' => 'pcs'],
+            ['name' => 'Detergen Bubuk', 'unit' => 'kg'],
+            ['name' => 'Detergen Cair', 'unit' => 'liter'],
+            ['name' => 'Pewangi Pakaian', 'unit' => 'liter'],
+            ['name' => 'Softener', 'unit' => 'liter'],
+            ['name' => 'Pemutih Pakaian', 'unit' => 'liter'],
+            ['name' => 'Plastik Kemasan Kecil', 'unit' => 'pcs'],
+            ['name' => 'Plastik Kemasan Besar', 'unit' => 'pcs'],
+            ['name' => 'Hanger', 'unit' => 'pcs'],
+            ['name' => 'Kantong Plastik', 'unit' => 'pack'],
+            ['name' => 'Label Stiker', 'unit' => 'box'],
         ];
 
         $material = fake()->randomElement($materials);
@@ -111,39 +89,24 @@ class ResourceFactory extends Factory
         $currentStock = fake()->randomFloat(2, 10, $initialStock);
         $minimumStock = $currentStock * 0.2;
 
-        $needsExpiry = in_array($material['type'], ['detergen', 'pewangi', 'softener', 'pemutih']);
-
-        $materialName = $material['name'] . ' ' . fake()->randomElement(['A', 'B', 'Premium', 'Standard']);
+        $needsExpiry = in_array($material['unit'], ['liter', 'kg']);
 
         return [
             'type' => 'material',
-            'name' => $materialName,
+            'name' => $material['name'],
             'data' => [
-                'material_type' => $material['type'],
                 'unit' => $material['unit'],
                 'stocks' => [
-                    'initial_stock' => $initialStock,
-                    'current_stock' => $currentStock,
-                    'minimum_stock' => $minimumStock,
+                    'initial' => $initialStock,
+                    'current' => $currentStock,
+                    'minimum' => $minimumStock,
                 ],
                 'pricing' => [
                     'price_per_unit' => fake()->randomFloat(2, 5000, 100000),
-                    'currency' => 'IDR',
-                ],
-                'supplier' => [
-                    'name' => fake()->company(),
-                    'contact' => fake()->numerify('8##########'),
-                    'email' => fake()->safeEmail(),
+                    'supplier' => fake()->company(),
                 ],
                 'expired_date' => $needsExpiry ? fake()->dateTimeBetween('now', '+2 years')->format('Y-m-d') : null,
-                'usage_rate' => [
-                    'per_kg_laundry' => fake()->randomFloat(2, 0.05, 0.5),
-                    'unit' => $material['unit'],
-                ],
-                'storage' => [
-                    'location' => fake()->randomElement(['Gudang Material', 'Ruang Penyimpanan A', 'Ruang Penyimpanan B']),
-                    'section' => fake()->randomElement(['A1', 'A2', 'B1', 'B2']),
-                ],
+                'notes' => fake()->optional()->sentence(),
             ],
             'is_active' => true,
         ];

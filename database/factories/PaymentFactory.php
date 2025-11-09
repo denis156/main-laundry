@@ -22,7 +22,7 @@ class PaymentFactory extends Factory
     {
         $paymentDate = fake()->dateTimeBetween('-3 months', 'now');
         $amount = fake()->randomFloat(2, 10000, 500000);
-        $paymentMethod = fake()->randomElement(['cash', 'transfer', 'qris', 'e-wallet']);
+        $paymentMethod = fake()->randomElement(['cash', 'transfer', 'qris']);
 
         return [
             'transaction_id' => Transaction::factory(),
@@ -30,8 +30,8 @@ class PaymentFactory extends Factory
             'amount' => $amount,
             'data' => [
                 'payment_date' => $paymentDate->format('Y-m-d H:i:s'),
-                'proof_url' => fake()->imageUrl(640, 480, 'payment', true),
                 'method' => $paymentMethod,
+                'proof_url' => fake()->imageUrl(400, 400, 'business'),
                 'notes' => fake()->optional()->sentence(),
             ],
         ];
@@ -45,7 +45,19 @@ class PaymentFactory extends Factory
         return $this->state(function (array $attributes) {
             $data = $attributes['data'] ?? [];
             $data['method'] = 'cash';
-            $data['proof_url'] = null;
+            // proof_url tetap required bahkan untuk cash
+            return ['data' => $data];
+        });
+    }
+
+    /**
+     * Indicate that the payment is qris
+     */
+    public function qris(): static
+    {
+        return $this->state(function (array $attributes) {
+            $data = $attributes['data'] ?? [];
+            $data['method'] = 'qris';
             return ['data' => $data];
         });
     }

@@ -26,12 +26,13 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+            'avatar_url' => null,
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'super_admin' => false,
-            'phone' => fake()->phoneNumber(),
+            'phone' => fake()->optional(0.7)->numerify('8##########'), // Format Indonesia tanpa '0' atau '+62'
             'remember_token' => Str::random(10),
         ];
     }
