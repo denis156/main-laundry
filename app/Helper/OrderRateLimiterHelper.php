@@ -47,8 +47,13 @@ class OrderRateLimiterHelper
     {
         $hourAgo = Carbon::now()->subHour();
 
-        $orderCount = Transaction::where('customer_ip', $ip)
-            ->where('created_at', '>=', $hourAgo)
+        // Filter transaksi berdasarkan customer_ip di JSONB data->anti_bot
+        $orderCount = Transaction::where('created_at', '>=', $hourAgo)
+            ->get()
+            ->filter(function ($transaction) use ($ip) {
+                $customerIp = $transaction->data['anti_bot']['customer_ip'] ?? null;
+                return $customerIp === $ip;
+            })
             ->count();
 
         return $orderCount < self::MAX_ORDERS_PER_IP_PER_HOUR;
@@ -106,8 +111,13 @@ class OrderRateLimiterHelper
     {
         $hourAgo = Carbon::now()->subHour();
 
-        $orderCount = Transaction::where('customer_ip', $ip)
-            ->where('created_at', '>=', $hourAgo)
+        // Filter transaksi berdasarkan customer_ip di JSONB data->anti_bot
+        $orderCount = Transaction::where('created_at', '>=', $hourAgo)
+            ->get()
+            ->filter(function ($transaction) use ($ip) {
+                $customerIp = $transaction->data['anti_bot']['customer_ip'] ?? null;
+                return $customerIp === $ip;
+            })
             ->count();
 
         return max(0, self::MAX_ORDERS_PER_IP_PER_HOUR - $orderCount);
