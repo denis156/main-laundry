@@ -14,7 +14,7 @@ class ListLocations extends ListRecords
     protected function getHeaderWidgets(): array
     {
         return [
-            // StatsOverviewLocation::class, // Bisa ditambahkan nanti
+            // TODO: StatsOverviewLocation::class,
         ];
     }
 }
