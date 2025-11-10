@@ -246,7 +246,7 @@
                         @if ($this->posContactName || $this->posContactPhone)
                             <div class="divider my-2"></div>
                             <div>
-                                <p class="text-xs font-semibold text-base-content/60 mb-2">Penanggung Jawab Pos</p>
+                                <p class="text-xs font-semibold text-base-content/60 mb-2">Penanggung Jawab {{ $this->locationTypeLabel }}</p>
                                 <div class="space-y-2 mb-3">
                                     @if ($this->posContactName)
                                         <div class="flex items-center gap-2">
@@ -287,7 +287,7 @@
                 @else
                     <div class="text-center py-8">
                         <x-icon name="solar.inbox-bold-duotone" class="w-12 h-12 text-base-content/20 mx-auto mb-2" />
-                        <p class="text-sm text-base-content/60">Anda belum ditugaskan ke pos manapun</p>
+                        <p class="text-sm text-base-content/60">Anda belum ditugaskan ke {{ $this->locationTypeLabelLower }} manapun</p>
                         <p class="text-xs text-base-content/50 mt-1">Hubungi admin untuk informasi lebih lanjut</p>
                     </div>
                 @endif
