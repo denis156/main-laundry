@@ -27,8 +27,6 @@ class ServiceFactory extends Factory
                 'price_per_item' => null,
                 'duration_hours' => 48, // 2 hari
                 'features' => ['Pencucian bersih', 'Pengeringan maksimal'],
-                'icon' => 'washing-machine',
-                'color' => '#3B82F6',
             ],
             [
                 'name' => 'Cuci Setrika',
@@ -38,8 +36,6 @@ class ServiceFactory extends Factory
                 'price_per_item' => null,
                 'duration_hours' => 72, // 3 hari
                 'features' => ['Pencucian bersih', 'Pengeringan', 'Setrika rapi', 'Lipat & Packing'],
-                'icon' => 'iron',
-                'color' => '#10B981',
             ],
             [
                 'name' => 'Setrika Saja',
@@ -49,8 +45,6 @@ class ServiceFactory extends Factory
                 'price_per_item' => null,
                 'duration_hours' => 24, // 1 hari
                 'features' => ['Setrika rapi', 'Lipat & Packing'],
-                'icon' => 'shirt',
-                'color' => '#F59E0B',
             ],
             [
                 'name' => 'Cuci Express',
@@ -60,8 +54,6 @@ class ServiceFactory extends Factory
                 'price_per_item' => null,
                 'duration_hours' => 24, // 1 hari
                 'features' => ['Pencucian cepat', 'Pengeringan', 'Setrika', 'Selesai 24 jam'],
-                'icon' => 'zap',
-                'color' => '#EF4444',
             ],
             [
                 'name' => 'Cuci Premium',
@@ -71,8 +63,6 @@ class ServiceFactory extends Factory
                 'price_per_item' => null,
                 'duration_hours' => 72, // 3 hari
                 'features' => ['Detergen premium', 'Pewangi khusus', 'Setrika premium', 'Packing eksklusif'],
-                'icon' => 'star',
-                'color' => '#8B5CF6',
             ],
             [
                 'name' => 'Dry Clean',
@@ -82,8 +72,6 @@ class ServiceFactory extends Factory
                 'price_per_item' => null,
                 'duration_hours' => 120, // 5 hari
                 'features' => ['Pembersihan kering', 'Untuk bahan sensitif', 'Treatment khusus', 'Setrika profesional'],
-                'icon' => 'droplet',
-                'color' => '#06B6D4',
             ],
             [
                 'name' => 'Cuci Karpet Besar',
@@ -93,8 +81,6 @@ class ServiceFactory extends Factory
                 'price_per_item' => 50000,
                 'duration_hours' => 72, // 3 hari
                 'features' => ['Cuci khusus karpet', 'Pengeringan sempurna', 'Vakum debu'],
-                'icon' => 'droplet',
-                'color' => '#EC4899',
             ],
             [
                 'name' => 'Cuci Selimut Tebal',
@@ -104,8 +90,6 @@ class ServiceFactory extends Factory
                 'price_per_item' => 35000,
                 'duration_hours' => 48, // 2 hari
                 'features' => ['Cuci dengan mesin kapasitas besar', 'Pengeringan maksimal'],
-                'icon' => 'droplet',
-                'color' => '#14B8A6',
             ],
         ];
 
@@ -145,32 +129,8 @@ class ServiceFactory extends Factory
                     'Softener',
                     'Pewangi',
                 ],
-                'icon' => $selectedService['icon'],
-                'color' => $selectedService['color'],
-                'badge_settings' => $isFeatured ? [
-                    'text' => 'Recommended',
-                    'color' => '#F59E0B',
-                ] : null,
             ],
             'is_active' => fake()->boolean(95), // 95% aktif
         ];
-    }
-
-    /**
-     * Indicate that the service is featured
-     */
-    public function featured(): static
-    {
-        return $this->state(function (array $attributes) {
-            $data = $attributes['data'] ?? [];
-            $data['badge_settings'] = [
-                'text' => 'Recommended',
-                'color' => '#F59E0B',
-            ];
-            return [
-                'is_featured' => true,
-                'data' => $data,
-            ];
-        });
     }
 }
