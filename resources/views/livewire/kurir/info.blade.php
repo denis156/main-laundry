@@ -17,9 +17,9 @@
                         <x-icon name="solar.question-circle-bold-duotone" class="w-4 h-4" />
                         FAQ
                     </a>
-                    <a href="#pos" class="btn btn-secondary btn-sm">
+                    <a href="#location" class="btn btn-secondary btn-sm">
                         <x-icon name="solar.map-point-bold-duotone" class="w-4 h-4" />
-                        Pos
+                        {{ $this->locationTypeLabel }}
                     </a>
                 </div>
             </div>
@@ -223,12 +223,12 @@
             </div>
         </div>
 
-        {{-- 3. Informasi Pos --}}
-        <div id="pos" class="card bg-base-300 shadow">
+        {{-- 3. Informasi Location (Pos/Resort) --}}
+        <div id="location" class="card bg-base-300 shadow">
             <div class="card-body p-4">
                 <h3 class="font-bold text-base mb-3 flex items-center gap-2">
                     <x-icon name="solar.map-point-bold-duotone" class="w-5 h-5 text-secondary" />
-                    Informasi Pos Saya
+                    Informasi {{ $this->locationTypeLabel }} Saya
                 </h3>
 
                 @if ($this->assignedPos)

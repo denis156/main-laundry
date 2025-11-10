@@ -143,23 +143,11 @@
                             </div>
                         </div>
 
-                        {{-- Upload Payment Proof Section (if no proof yet) --}}
-                        @if (!$hasProof)
-                            <div class="mt-3 bg-base-200 rounded-lg p-3">
-                                <x-file wire:model="paymentProofs.{{ $payment->id }}" label="Bukti Pembayaran"
-                                    hint="Upload foto/screenshot bukti pembayaran"
-                                    accept="image/png, image/jpeg, image/jpg" />
-                            </div>
-                        @endif
-
                         {{-- Action Buttons --}}
                         <div class="mt-3">
-                            @if (!$hasProof)
-                                {{-- Tampilkan hanya Upload jika belum ada bukti --}}
-                                <x-button wire:click="openUploadModal({{ $payment->id }})" label="Upload Bukti"
-                                    icon="solar.upload-bold-duotone" class="btn-success btn-sm btn-block"
-                                    :disabled="empty($paymentProofs[$payment->id])" />
-                            @endif
+                            <x-button label="Detail Pembayaran" icon="solar.eye-bold"
+                                link="{{ route('kurir.pembayaran.detail', $payment->id) }}"
+                                class="btn-accent btn-sm btn-block" />
                         </div>
                     </div>
                 </div>
@@ -202,23 +190,4 @@
             @endif
         </div>
     </div>
-
-    {{-- Modal Konfirmasi Upload Bukti Pembayaran --}}
-    <x-modal wire:model="showUploadModal" title="Upload Bukti Pembayaran"
-        subtitle="Konfirmasi untuk mengupload bukti pembayaran?" class="modal-bottom sm:modal-middle" persistent
-        separator>
-        <div class="py-4">
-            <p class="text-base-content/70">Pastikan file yang diupload adalah bukti pembayaran yang valid dan jelas
-                terbaca.</p>
-            <div class="mt-3 p-3 bg-warning/10 rounded-lg border border-warning/20">
-                <p class="text-sm text-warning">
-                    <strong>Perhatian:</strong> Setelah upload, status pembayaran akan otomatis berubah menjadi "Lunas".
-                </p>
-            </div>
-        </div>
-        <x-slot:actions>
-            <x-button label="Batal" wire:click="$set('showUploadModal', false)" />
-            <x-button label="Ya, Upload" wire:click="uploadPaymentProof" class="btn-success" />
-        </x-slot:actions>
-    </x-modal>
 </section>

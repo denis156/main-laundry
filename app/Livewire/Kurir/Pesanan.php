@@ -370,6 +370,10 @@ class Pesanan extends Component
             return;
         }
 
+        // Close modal dan reset selected transaction SEBELUM update (agar tidak ke-trigger broadcast)
+        $this->showConfirmModal = false;
+        $this->selectedTransactionId = null;
+
         $transaction->update([
             'courier_id' => $courier->id, // Assign kurir ke transaksi
             'workflow_status' => 'confirmed',
@@ -381,10 +385,6 @@ class Pesanan extends Component
             position: 'toast-top toast-end',
             timeout: 3000
         );
-
-        // Close modal dan reset selected transaction
-        $this->showConfirmModal = false;
-        $this->selectedTransactionId = null;
 
         // Refresh data
         unset($this->transactions);
@@ -432,6 +432,10 @@ class Pesanan extends Component
             return;
         }
 
+        // Close modal dan reset selected transaction SEBELUM update
+        $this->showCancelModal = false;
+        $this->selectedTransactionId = null;
+
         // Assign kurir ke transaksi untuk tracking siapa yang membatalkan
         $transaction->update([
             'courier_id' => $courier->id,
@@ -444,10 +448,6 @@ class Pesanan extends Component
             position: 'toast-top toast-end',
             timeout: 3000
         );
-
-        // Close modal dan reset selected transaction
-        $this->showCancelModal = false;
-        $this->selectedTransactionId = null;
 
         // Refresh data
         unset($this->transactions);
@@ -485,6 +485,10 @@ class Pesanan extends Component
             return;
         }
 
+        // Close modal dan reset selected transaction SEBELUM update
+        $this->showAtLoadingPostModal = false;
+        $this->selectedTransactionId = null;
+
         $transaction->update([
             'workflow_status' => 'at_loading_post',
         ]);
@@ -495,10 +499,6 @@ class Pesanan extends Component
             position: 'toast-top toast-end',
             timeout: 3000
         );
-
-        // Close modal dan reset selected transaction
-        $this->showAtLoadingPostModal = false;
-        $this->selectedTransactionId = null;
 
         // Refresh data
         unset($this->transactions);
@@ -535,6 +535,10 @@ class Pesanan extends Component
             return;
         }
 
+        // Close modal dan reset selected transaction SEBELUM update
+        $this->showOutForDeliveryModal = false;
+        $this->selectedTransactionId = null;
+
         $transaction->update([
             'workflow_status' => 'out_for_delivery',
         ]);
@@ -545,10 +549,6 @@ class Pesanan extends Component
             position: 'toast-top toast-end',
             timeout: 3000
         );
-
-        // Close modal dan reset selected transaction
-        $this->showOutForDeliveryModal = false;
-        $this->selectedTransactionId = null;
 
         // Refresh data
         unset($this->transactions);
@@ -586,6 +586,10 @@ class Pesanan extends Component
             return;
         }
 
+        // Close modal dan reset selected transaction SEBELUM update
+        $this->showDeliveredModal = false;
+        $this->selectedTransactionId = null;
+
         $transaction->update([
             'workflow_status' => 'delivered',
         ]);
@@ -596,10 +600,6 @@ class Pesanan extends Component
             position: 'toast-top toast-end',
             timeout: 3000
         );
-
-        // Close modal dan reset selected transaction
-        $this->showDeliveredModal = false;
-        $this->selectedTransactionId = null;
 
         // Refresh data
         unset($this->transactions);

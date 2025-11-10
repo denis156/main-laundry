@@ -101,6 +101,14 @@
                                 <span class="badge {{ $statusColor }} gap-1">{{ $statusText }}</span>
                             </div>
 
+                            {{-- Metode Pembayaran --}}
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-base-content/70">Metode Pembayaran</span>
+                                <span class="font-semibold">
+                                    {{ $transaction->payment_timing_text ?? 'N/A' }}
+                                </span>
+                            </div>
+
                             {{-- List Items/Layanan --}}
                             @if (count($items) > 0)
                                 <div class="divider my-1"></div>
@@ -146,16 +154,6 @@
                                 </div>
                             @endif
 
-                            {{-- Metode Pembayaran --}}
-                            @if ($transaction->payment_timing)
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-base-content/70">Metode Pembayaran</span>
-                                    <span class="font-semibold">
-                                        {{ $transaction->payment_timing_text ?? 'N/A' }}
-                                    </span>
-                                </div>
-                            @endif
-
                             {{-- Alamat --}}
                             @if ($addressString && $addressString !== 'Belum ada alamat')
                                 <div class="divider my-1"></div>
@@ -189,11 +187,10 @@
                                         class="btn-accent btn-sm" />
                                 </div>
                             @elseif ($transaction->workflow_status === 'confirmed')
-                                {{-- Status: Confirmed - Tampilkan informasi untuk lihat detail --}}
-                                <div class="alert alert-info">
-                                    <x-icon name="o-information-circle" class="w-5 h-5" />
-                                    <span class="text-sm">Klik tombol mata di atas untuk mengisi detail pesanan</span>
-                                </div>
+                                {{-- Status: Confirmed - Tampilkan tombol Detail --}}
+                                <x-button label="Detail Pesanan" icon="solar.eye-bold"
+                                    link="{{ route('kurir.pesanan.detail', $transaction->id) }}"
+                                    class="btn-accent btn-sm btn-block" />
                             @elseif ($transaction->workflow_status === 'picked_up')
                                 {{-- Status: Picked Up - Tampilkan Sudah di Pos --}}
                                 <x-button wire:click="openAtLoadingPostModal({{ $transaction->id }})"
@@ -229,6 +226,11 @@
                                 <x-button wire:click="openDeliveredModal({{ $transaction->id }})" label="Terkirim"
                                     icon="solar.check-circle-bold-duotone" class="btn-success btn-sm btn-block"
                                     :disabled="$transaction->payment_status !== 'paid'" />
+                            @elseif (in_array($transaction->workflow_status, ['delivered', 'cancelled']))
+                                {{-- Status: Delivered / Cancelled - Tampilkan Detail Pesanan --}}
+                                <x-button label="Detail Pesanan" icon="solar.eye-bold"
+                                    link="{{ route('kurir.pesanan.detail', $transaction->id) }}"
+                                    class="btn-accent btn-sm btn-block" />
                             @endif
                         </div>
                     </div>
@@ -272,64 +274,64 @@
     </div>
 
     {{-- Modal Konfirmasi Batalkan Pesanan --}}
-    <x-modal wire:model="showCancelModal" title="Batalkan Pesanan"
+    <x-modal wire:model="showCancelModal" @close="$wire.set('selectedTransactionId', null)" title="Batalkan Pesanan"
         subtitle="Apakah Anda yakin ingin membatalkan pesanan ini?" class="modal-bottom sm:modal-middle" persistent
         separator>
         <div class="py-4">
             <p class="text-base-content/70">Pesanan yang dibatalkan tidak dapat dikembalikan.</p>
         </div>
         <x-slot:actions>
-            <x-button label="Batal" wire:click="$set('showCancelModal', false)" />
-            <x-button label="Ya, Batalkan" wire:click="cancelOrder" class="btn-error" />
+            <x-button label="Batal" @click="$wire.showCancelModal = false" />
+            <x-button label="Ya, Batalkan" wire:click="cancelOrder" class="btn-error" spinner="cancelOrder" />
         </x-slot:actions>
     </x-modal>
 
     {{-- Modal Konfirmasi Ambil Pesanan --}}
-    <x-modal wire:model="showConfirmModal" title="Ambil Pesanan" subtitle="Konfirmasi untuk mengambil pesanan ini?"
+    <x-modal wire:model="showConfirmModal" @close="$wire.set('selectedTransactionId', null)" title="Ambil Pesanan" subtitle="Konfirmasi untuk mengambil pesanan ini?"
         class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Anda akan bertanggung jawab untuk menjemput dan mengantar pesanan ini.</p>
         </div>
         <x-slot:actions>
-            <x-button label="Batal" wire:click="$set('showConfirmModal', false)" />
-            <x-button label="Ya, Ambil Pesanan" wire:click="confirmOrder" class="btn-accent" />
+            <x-button label="Batal" @click="$wire.showConfirmModal = false" />
+            <x-button label="Ya, Ambil Pesanan" wire:click="confirmOrder" class="btn-accent" spinner="confirmOrder" />
         </x-slot:actions>
     </x-modal>
 
     {{-- Modal Konfirmasi Sudah di Pos --}}
-    <x-modal wire:model="showAtLoadingPostModal" title="Tandai Sudah di Pos"
+    <x-modal wire:model="showAtLoadingPostModal" @close="$wire.set('selectedTransactionId', null)" title="Tandai Sudah di Pos"
         subtitle="Konfirmasi pesanan sudah tiba di pos?" class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pesanan akan ditandai sudah berada di pos loading.</p>
         </div>
         <x-slot:actions>
-            <x-button label="Batal" wire:click="$set('showAtLoadingPostModal', false)" />
-            <x-button label="Ya, Sudah di Pos" wire:click="markAsAtLoadingPost" class="btn-warning" />
+            <x-button label="Batal" @click="$wire.showAtLoadingPostModal = false" />
+            <x-button label="Ya, Sudah di Pos" wire:click="markAsAtLoadingPost" class="btn-warning" spinner="markAsAtLoadingPost" />
         </x-slot:actions>
     </x-modal>
 
     {{-- Modal Konfirmasi Mengantar --}}
-    <x-modal wire:model="showOutForDeliveryModal" title="Tandai Mengantar"
+    <x-modal wire:model="showOutForDeliveryModal" @close="$wire.set('selectedTransactionId', null)" title="Tandai Mengantar"
         subtitle="Konfirmasi akan mengantar pesanan ini?" class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pesanan akan ditandai sedang dalam pengiriman.</p>
         </div>
         <x-slot:actions>
-            <x-button label="Batal" wire:click="$set('showOutForDeliveryModal', false)" />
-            <x-button label="Ya, Mengantar" wire:click="markAsOutForDelivery" class="btn-accent" />
+            <x-button label="Batal" @click="$wire.showOutForDeliveryModal = false" />
+            <x-button label="Ya, Mengantar" wire:click="markAsOutForDelivery" class="btn-accent" spinner="markAsOutForDelivery" />
         </x-slot:actions>
     </x-modal>
 
     {{-- Modal Konfirmasi Terkirim --}}
-    <x-modal wire:model="showDeliveredModal" title="Tandai Terkirim" subtitle="Konfirmasi pesanan sudah terkirim?"
+    <x-modal wire:model="showDeliveredModal" @close="$wire.set('selectedTransactionId', null)" title="Tandai Terkirim" subtitle="Konfirmasi pesanan sudah terkirim?"
         class="modal-bottom sm:modal-middle" persistent separator>
         <div class="py-4">
             <p class="text-base-content/70">Pastikan pesanan sudah diterima oleh customer dan pembayaran sudah
                 dilakukan jika ada.</p>
         </div>
         <x-slot:actions>
-            <x-button label="Batal" wire:click="$set('showDeliveredModal', false)" />
-            <x-button label="Ya, Sudah Terkirim" wire:click="markAsDelivered" class="btn-success" />
+            <x-button label="Batal" @click="$wire.showDeliveredModal = false" />
+            <x-button label="Ya, Sudah Terkirim" wire:click="markAsDelivered" class="btn-success" spinner="markAsDelivered" />
         </x-slot:actions>
     </x-modal>
 </section>

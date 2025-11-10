@@ -251,6 +251,32 @@ class LocationHelper
     }
 
     /**
+     * Get location type label (capitalized)
+     * Returns "Pos" or "Resort"
+     */
+    public static function getTypeLabel(Location $location): string
+    {
+        return match ($location->type) {
+            'resort' => 'Resort',
+            'pos' => 'Pos',
+            default => 'Lokasi',
+        };
+    }
+
+    /**
+     * Get location type label (lowercase)
+     * Returns "pos" or "resort"
+     */
+    public static function getTypeLabelLower(Location $location): string
+    {
+        return match ($location->type) {
+            'resort' => 'resort',
+            'pos' => 'pos',
+            default => 'lokasi',
+        };
+    }
+
+    /**
      * Auto-fill location data yang kosong
      * Method ini akan:
      * 1. Auto-fill district_name dari district_code

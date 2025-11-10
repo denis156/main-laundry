@@ -34,6 +34,32 @@ class Info extends Component
     }
 
     /**
+     * Get location type label (capitalized: "Pos" or "Resort")
+     */
+    #[Computed]
+    public function locationTypeLabel(): string
+    {
+        if (!$this->assignedPos) {
+            return 'Lokasi';
+        }
+
+        return LocationHelper::getTypeLabel($this->assignedPos);
+    }
+
+    /**
+     * Get location type label (lowercase: "pos" or "resort")
+     */
+    #[Computed]
+    public function locationTypeLabelLower(): string
+    {
+        if (!$this->assignedPos) {
+            return 'lokasi';
+        }
+
+        return LocationHelper::getTypeLabelLower($this->assignedPos);
+    }
+
+    /**
      * Get PIC name dari assigned pos
      */
     #[Computed]
@@ -96,6 +122,8 @@ class Info extends Component
      */
     public function getWorkflowStatuses(): array
     {
+        $locationLabel = $this->locationTypeLabelLower;
+
         return [
             [
                 'code' => 'pending_confirmation',
@@ -113,13 +141,13 @@ class Info extends Component
                 'code' => 'picked_up',
                 'label' => StatusTransactionHelper::getStatusText('picked_up'),
                 'badge' => StatusTransactionHelper::getStatusBadgeColor('picked_up'),
-                'description' => 'Cucian sudah diambil, dalam perjalanan ke pos'
+                'description' => "Cucian sudah diambil, dalam perjalanan ke {$locationLabel}"
             ],
             [
                 'code' => 'at_loading_post',
                 'label' => StatusTransactionHelper::getStatusText('at_loading_post'),
                 'badge' => StatusTransactionHelper::getStatusBadgeColor('at_loading_post'),
-                'description' => 'Cucian sudah sampai di pos loading'
+                'description' => "Cucian sudah sampai di {$locationLabel} loading"
             ],
             [
                 'code' => 'in_washing',
@@ -197,10 +225,10 @@ class Info extends Component
 
         $courier = Auth::guard('courier')->user();
         $courierName = $courier ? CourierHelper::getName($courier) : 'Kurir';
-        $posName = $this->assignedPos?->name ?? 'Pos tidak diketahui';
+        $locationName = $this->assignedPos?->name ?? "{$this->locationTypeLabel} tidak diketahui";
 
         // Message template
-        $message = "*Halo Admin Main Laundry*, saya *{$courierName}* dari *{$posName}*. Saya ingin bertanya tentang...";
+        $message = "*Halo Admin Main Laundry*, saya *{$courierName}* dari *{$locationName}*. Saya ingin bertanya tentang...";
         $encodedMessage = urlencode($message);
 
         return "https://wa.me/{$cleanPhone}?text={$encodedMessage}";

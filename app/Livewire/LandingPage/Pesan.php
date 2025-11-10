@@ -290,8 +290,9 @@ class Pesan extends Component
                     'pricing_unit' => $pricingUnit,
                     'price_per_kg' => $pricePerKg,
                     'price_per_item' => $pricePerItem,
-                    'quantity' => 0, // Untuk per_item, akan diisi oleh kurir
-                    'total_weight' => 0, // Untuk per_kg, akan ditimbang oleh kurir
+                    'clothing_items' => [], // Untuk per_kg, akan diisi oleh kurir
+                    'total_weight' => null, // Untuk per_kg, akan ditimbang oleh kurir
+                    'quantity' => null, // Untuk per_item, akan diisi oleh kurir
                     'subtotal' => 0, // Akan dihitung setelah ditimbang/diinput quantity
                 ];
             }
@@ -299,12 +300,44 @@ class Pesan extends Component
             // Calculate estimated finish date berdasarkan service terlama
             $estimatedFinishDate = now()->addHours($maxDurationHours);
 
-            // Prepare transaction data for JSONB
+            // Prepare full address string
+            $fullAddress = $this->detail_address . ', ' . $villageName . ', ' . $districtName . ', Kota Kendari';
+
+            // Prepare transaction data for JSONB (sesuai struktur factory)
             $transactionData = [
                 'items' => $items,
+                'pricing' => [
+                    'total_price' => 0, // Akan dihitung oleh observer
+                    'payment_timing' => $this->payment_timing,
+                ],
+                'customer_address' => [
+                    'district_code' => $this->district_code,
+                    'district_name' => $districtName,
+                    'village_code' => $this->village_code,
+                    'village_name' => $villageName,
+                    'detail_address' => $this->detail_address,
+                    'full_address' => $fullAddress,
+                ],
                 'notes' => $this->notes,
-                'order_date' => now()->toDateTimeString(),
-                'estimated_finish_date' => $estimatedFinishDate->toDateTimeString(),
+                'metadata' => [
+                    'tags' => [],
+                    'custom_fields' => [],
+                ],
+                'tracking' => [
+                    'tracking_token' => \Illuminate\Support\Str::uuid()->toString(),
+                ],
+                'timeline' => [
+                    [
+                        'status' => 'pending_confirmation',
+                        'timestamp' => now()->toDateTimeString(),
+                        'notes' => 'Pesanan dibuat dari landing page',
+                    ],
+                ],
+                'anti_bot' => [
+                    'customer_ip' => request()->ip() ?? '127.0.0.1',
+                    'user_agent' => request()->userAgent() ?? '',
+                    'form_loaded_at' => now()->timestamp === $this->form_loaded_at ? null : date('Y-m-d H:i:s', $this->form_loaded_at),
+                ],
             ];
 
             // Create transaction
@@ -315,10 +348,8 @@ class Pesan extends Component
                 'courier_id' => null, // Akan diassign saat kurir ambil pesanan
                 'location_id' => null, // Akan diassign oleh admin
                 'workflow_status' => 'pending_confirmation',
-                'payment_timing' => $this->payment_timing,
                 'payment_status' => 'unpaid',
                 'data' => $transactionData,
-                'form_loaded_at' => Carbon::createFromTimestamp($this->form_loaded_at),
                 // tracking_token, customer_ip, customer_user_agent akan di-set oleh Observer
             ]);
 
