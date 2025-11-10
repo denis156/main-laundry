@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Mary\Traits\Toast;
+use App\Helper\Database\CourierHelper;
 
 #[Title('Profil Kurir')]
 #[Layout('components.layouts.kurir')]
@@ -37,10 +38,10 @@ class Profil extends Component
         $courier = Auth::guard('courier')->user();
 
         if ($courier) {
-            $this->name = $courier->name;
+            $this->name = CourierHelper::getName($courier);
             $this->email = $courier->email;
-            $this->phone = $courier->phone;
-            $this->vehicle_number = $courier->vehicle_number;
+            $this->phone = CourierHelper::getPhone($courier) ?? '';
+            $this->vehicle_number = CourierHelper::getVehicleNumber($courier) ?? '';
         }
     }
 
@@ -54,10 +55,10 @@ class Profil extends Component
     public function assignedPos()
     {
         $courier = $this->courier;
-        if (!$courier || !$courier->assigned_pos_id) {
+        if (!$courier || !$courier->assigned_location_id) {
             return null;
         }
-        return $courier->assignedPos;
+        return $courier->assignedLocation;
     }
 
     #[Computed]
@@ -88,10 +89,10 @@ class Profil extends Component
         }
 
         // Cek apakah ada perubahan pada profil dengan trim untuk menghindari whitespace issue
-        $profileChanged = trim($this->name) !== trim($courier->name)
+        $profileChanged = trim($this->name) !== trim(CourierHelper::getName($courier))
             || trim($this->email) !== trim($courier->email)
-            || trim($this->phone) !== trim($courier->phone)
-            || trim($this->vehicle_number) !== trim($courier->vehicle_number);
+            || trim($this->phone) !== trim(CourierHelper::getPhone($courier) ?? '')
+            || trim($this->vehicle_number) !== trim(CourierHelper::getVehicleNumber($courier) ?? '');
 
         // Cek apakah ada input password
         $passwordFilled = !empty(trim($this->current_password))
@@ -134,7 +135,7 @@ class Profil extends Component
     {
         return [
             'name' => 'required|string|min:3|max:255',
-            'email' => 'required|email|max:255|unique:couriers_motorcycle,email,' . $this->courier->id,
+            'email' => 'required|email|max:255|unique:couriers,email,' . $this->courier->id,
             'phone' => ['required', 'string', 'regex:/^8[0-9]{8,11}$/', 'min:9', 'max:13'],
             'vehicle_number' => 'required|string|max:20',
         ];
@@ -168,10 +169,10 @@ class Profil extends Component
         $courier = $this->courier;
 
         if ($courier) {
-            $this->name = $courier->name;
+            $this->name = CourierHelper::getName($courier);
             $this->email = $courier->email;
-            $this->phone = $courier->phone;
-            $this->vehicle_number = $courier->vehicle_number;
+            $this->phone = CourierHelper::getPhone($courier) ?? '';
+            $this->vehicle_number = CourierHelper::getVehicleNumber($courier) ?? '';
         }
 
         // Reset password fields
@@ -191,12 +192,15 @@ class Profil extends Component
         // Validasi profil menggunakan rules()
         $this->validate($this->rules());
 
-        // Update profil
+        // Update profil - update JSONB data
+        $data = $this->courier->data ?? [];
+        $data['name'] = $this->name;
+        $data['phone'] = $this->phone;
+        $data['vehicle_number'] = $this->vehicle_number;
+
         $this->courier->update([
-            'name' => $this->name,
             'email' => $this->email,
-            'phone' => $this->phone,
-            'vehicle_number' => $this->vehicle_number,
+            'data' => $data,
         ]);
 
         // Refresh courier data setelah update
@@ -245,17 +249,24 @@ class Profil extends Component
             'avatar' => 'required|image|max:2048', // Max 2MB
         ]);
 
-        // Hapus avatar lama jika ada
-        if ($this->courier->avatar_url) {
-            Storage::disk('public')->delete($this->courier->avatar_url);
+        // Get avatar URL lama
+        $oldAvatarUrl = CourierHelper::getAvatarUrl($this->courier);
+
+        // Hapus avatar lama jika ada dan bukan dari URL eksternal
+        if ($oldAvatarUrl && !filter_var($oldAvatarUrl, FILTER_VALIDATE_URL)) {
+            Storage::disk('public')->delete($oldAvatarUrl);
         }
 
         // Simpan avatar baru
         $filename = 'avatar-' . $this->courier->id . '-' . time() . '.' . $this->avatar->getClientOriginalExtension();
         $path = $this->avatar->storeAs('avatars', $filename, 'public');
 
+        // Update JSONB data dengan avatar URL baru
+        $data = $this->courier->data ?? [];
+        $data['avatar_url'] = $path;
+
         $this->courier->update([
-            'avatar_url' => $path,
+            'data' => $data,
         ]);
 
         $this->avatar = null;

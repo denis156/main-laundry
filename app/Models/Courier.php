@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Helper\Database\CourierHelper;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use NotificationChannels\WebPush\PushSubscription;
@@ -68,5 +69,22 @@ class Courier extends Authenticatable
     public function pushSubscriptions(): MorphMany
     {
         return $this->morphMany(PushSubscription::class, 'subscribable');
+    }
+
+    /**
+     * Get Filament avatar URL
+     * Required untuk compatibility dengan Filament components
+     */
+    public function getFilamentAvatarUrl(): string
+    {
+        return CourierHelper::getFilamentAvatarUrl($this);
+    }
+
+    /**
+     * Alias untuk assignedLocation (backward compatibility)
+     */
+    public function assignedPos(): BelongsTo
+    {
+        return $this->assignedLocation();
     }
 }

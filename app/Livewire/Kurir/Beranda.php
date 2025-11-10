@@ -8,7 +8,9 @@ use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
-use App\Models\CourierMotorcycle;
+use App\Models\Courier;
+use App\Helper\Database\CourierHelper;
+use App\Helper\Database\LocationHelper;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Auth;
 
@@ -65,7 +67,7 @@ class Beranda extends Component
     #[Computed]
     public function leaders()
     {
-        return CourierMotorcycle::withCount([
+        return Courier::withCount([
             'transactions' => function ($query) {
                 $query->where('workflow_status', 'delivered')
                       ->whereMonth('created_at', now()->month)
@@ -77,6 +79,8 @@ class Beranda extends Component
         ->get()
         ->map(function ($courier, $index) {
             $courier->rank = $index + 1;
+            // Add name dari JSONB untuk display
+            $courier->display_name = CourierHelper::getName($courier);
             return $courier;
         });
     }
@@ -84,8 +88,11 @@ class Beranda extends Component
     public function getWhatsAppCSUrl(): string
     {
         $courier = $this->courier;
-        $courierName = $courier?->name ?? 'Kurir';
-        $posName = $this->assignedPos?->name ?? 'Pos tidak diketahui';
+        $courierName = $courier ? CourierHelper::getName($courier) : 'Kurir';
+
+        $assignedPos = $this->assignedPos;
+        $posName = $assignedPos ? $assignedPos->name : 'Pos tidak diketahui';
+
         $message = "Halo Admin Main Laundry, saya {$courierName} dari {$posName}. Saya ingin bertanya tentang...";
         $encodedMessage = urlencode($message);
         $csPhone = config('sosmed.phone');

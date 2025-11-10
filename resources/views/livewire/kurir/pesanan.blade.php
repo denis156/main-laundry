@@ -49,7 +49,7 @@
                                     {{ $transaction->invoice_number }}
                                 </h3>
                                 <p class="text-xs text-base-content/60">
-                                    {{ $transaction->formatted_order_date }}
+                                    {{ $transaction->created_at?->translatedFormat('d M Y, H:i') ?? '-' }}
                                 </p>
                             </div>
                             <x-button icon="solar.eye-bold" class="btn-circle btn-accent btn-md"
@@ -67,86 +67,111 @@
                                         alt="{{ $transaction->customer?->name ?? 'Customer' }}" />
                                 </div>
                             </div>
+                            @php
+                                $customerName = $transaction->customer ? \App\Helper\Database\CustomerHelper::getName($transaction->customer) : 'Customer tidak ditemukan';
+                            @endphp
                             <div class="flex-1">
-                                <p class="font-semibold">
-                                    {{ $transaction->customer?->name ?? 'Customer tidak ditemukan' }}</p>
+                                <p class="font-semibold">{{ $customerName }}</p>
                                 <p class="text-xs text-base-content/60">{{ $transaction->customer?->phone ?? '-' }}</p>
                             </div>
                         </div>
 
                         {{-- Order Info --}}
-                        @if (
-                            $transaction->service_id ||
-                                $transaction->pos_id ||
-                                $transaction->weight ||
-                                $transaction->payment_timing ||
-                                $transaction->customer?->address)
-                            <div class="bg-base-200 rounded-lg p-3 space-y-2">
-                                {{-- Status --}}
-                                @php
-                                    $statusColor = StatusTransactionHelper::getStatusBadgeColor(
-                                        $transaction->workflow_status,
-                                    );
-                                    $statusText = StatusTransactionHelper::getStatusText($transaction->workflow_status);
-                                @endphp
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-base-content/70">Status</span>
-                                    <span class="badge {{ $statusColor }} gap-1">{{ $statusText }}</span>
-                                </div>
+                        @php
+                            $items = \App\Helper\Database\TransactionHelper::getItems($transaction);
+                            $totalWeight = 0;
+                            foreach ($items as $item) {
+                                $totalWeight += $item['weight'] ?? $item['total_weight'] ?? 0;
+                            }
+                            $defaultAddress = $transaction->customer ? \App\Helper\Database\CustomerHelper::getDefaultAddress($transaction->customer) : null;
+                            $addressString = $defaultAddress ? \App\Helper\Database\CustomerHelper::getFullAddressString($defaultAddress) : null;
+                            $notes = \App\Helper\Database\TransactionHelper::getNotes($transaction);
+                        @endphp
 
-                                {{-- Layanan --}}
-                                @if ($transaction->service_id)
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-base-content/70">Layanan</span>
-                                        <span class="font-semibold">{{ $transaction->service?->name ?? 'N/A' }}</span>
-                                    </div>
-                                @endif
-
-                                {{-- Berat --}}
-                                @if ($transaction->weight)
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-base-content/70">Berat</span>
-                                        <span class="font-semibold">{{ $transaction->weight }} kg</span>
-                                    </div>
-                                @endif
-
-                                {{-- Pos --}}
-                                @if ($transaction->pos_id)
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-base-content/70">Pos</span>
-                                        <span class="font-semibold">{{ $transaction->pos?->name ?? 'N/A' }}</span>
-                                    </div>
-                                @endif
-
-                                {{-- Metode Pembayaran --}}
-                                @if ($transaction->payment_timing)
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-base-content/70">Metode Pembayaran</span>
-                                        <span class="font-semibold">
-                                            {{ $transaction->payment_timing_text }}
-                                        </span>
-                                    </div>
-                                @endif
-
-                                {{-- Alamat --}}
-                                @if ($transaction->customer?->address)
-                                    @if ($transaction->service_id || $transaction->pos_id || $transaction->weight || $transaction->payment_timing)
-                                        <div class="divider my-1"></div>
-                                    @endif
-                                    <div>
-                                        <p class="text-xs text-base-content/70 mb-1">Alamat</p>
-                                        <p class="text-sm font-semibold text-primary leading-relaxed">
-                                            {{ $transaction->customer->address }}</p>
-                                    </div>
-                                @endif
+                        <div class="bg-base-200 rounded-lg p-3 space-y-2">
+                            {{-- Status --}}
+                            @php
+                                $statusColor = StatusTransactionHelper::getStatusBadgeColor(
+                                    $transaction->workflow_status,
+                                );
+                                $statusText = StatusTransactionHelper::getStatusText($transaction->workflow_status);
+                            @endphp
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-base-content/70">Status</span>
+                                <span class="badge {{ $statusColor }} gap-1">{{ $statusText }}</span>
                             </div>
-                        @endif
+
+                            {{-- List Items/Layanan --}}
+                            @if (count($items) > 0)
+                                <div class="divider my-1"></div>
+                                <div>
+                                    <p class="text-xs font-semibold text-base-content/70 mb-2">Layanan yang Dipesan:</p>
+                                    <div class="space-y-2">
+                                        @foreach ($items as $item)
+                                            @php
+                                                $serviceName = $item['service_name'] ?? null;
+                                                $pricingUnit = $item['pricing_unit'] ?? null;
+
+                                                if ((!$serviceName || !$pricingUnit) && !empty($item['service_id'])) {
+                                                    $service = \App\Models\Service::find($item['service_id']);
+                                                    if ($service) {
+                                                        $serviceName = $serviceName ?: $service->name;
+                                                        $pricingUnit = $pricingUnit ?: ($service->data['pricing']['unit'] ?? 'per_kg');
+                                                    }
+                                                }
+
+                                                $serviceName = $serviceName ?: 'N/A';
+                                                $pricingUnit = $pricingUnit ?: 'per_kg';
+                                            @endphp
+                                            <div class="bg-base-100 rounded p-2">
+                                                <div class="flex justify-between items-start mb-1">
+                                                    <span class="text-sm font-semibold text-primary">{{ $serviceName }}</span>
+                                                    <span class="text-xs badge badge-outline">
+                                                        @if ($pricingUnit === 'per_kg')
+                                                            {{ $item['total_weight'] ?? 0 }} kg
+                                                        @else
+                                                            {{ $item['quantity'] ?? 0 }} item
+                                                        @endif
+                                                    </span>
+                                                </div>
+                                                @if (!empty($item['subtotal']))
+                                                    <div class="flex justify-between items-center text-xs">
+                                                        <span class="text-base-content/60">Subtotal</span>
+                                                        <span class="font-semibold">Rp {{ number_format($item['subtotal'] ?? 0, 0, ',', '.') }}</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- Metode Pembayaran --}}
+                            @if ($transaction->payment_timing)
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-base-content/70">Metode Pembayaran</span>
+                                    <span class="font-semibold">
+                                        {{ $transaction->payment_timing_text ?? 'N/A' }}
+                                    </span>
+                                </div>
+                            @endif
+
+                            {{-- Alamat --}}
+                            @if ($addressString && $addressString !== 'Belum ada alamat')
+                                <div class="divider my-1"></div>
+                                <div>
+                                    <p class="text-xs text-base-content/70 mb-1">Alamat</p>
+                                    <p class="text-sm font-semibold text-primary leading-relaxed">
+                                        {{ $addressString }}</p>
+                                </div>
+                            @endif
+                        </div>
 
                         {{-- Notes --}}
-                        @if ($transaction->notes)
+                        @if ($notes)
                             <div class="mt-2 p-3 bg-base-200 rounded-lg">
                                 <p class="text-xs text-base-content/70 mb-1">Catatan</p>
-                                <p class="text-sm">{{ $transaction->notes }}</p>
+                                <p class="text-sm">{{ $notes }}</p>
                             </div>
                         @endif
 
@@ -164,26 +189,10 @@
                                         class="btn-accent btn-sm" />
                                 </div>
                             @elseif ($transaction->workflow_status === 'confirmed')
-                                {{-- Status: Confirmed - Tampilkan Input Berat + WhatsApp + Dijemput --}}
-                                <div class="bg-base-200 rounded-lg p-3 mb-2">
-                                    {{-- Input Berat --}}
-                                    <x-input wire:model.blur="weights.{{ $transaction->id }}" type="number"
-                                        step="0.01" min="0.01" label="Berat Cucian (kg)"
-                                        placeholder="Contoh: 8.92" icon="solar.scale-bold-duotone"
-                                        hint="Total harga akan muncul setelah input berat" />
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-2">
-                                    @if ($transaction->customer?->phone && $transaction->customer?->name)
-                                        <x-button label="WhatsApp" icon="solar.chat-round-bold-duotone"
-                                            link="{{ $this->getWhatsAppUrl($transaction->customer->phone, $transaction->customer->name, $transaction) }}"
-                                            external class="btn-success btn-sm" />
-                                    @endif
-
-                                    <x-button wire:click="openPickedUpModal({{ $transaction->id }})" label="Dijemput"
-                                        icon="solar.box-bold-duotone"
-                                        class="btn-warning btn-sm {{ $transaction->customer?->phone && $transaction->customer?->name ? '' : 'col-span-2' }}"
-                                        :disabled="empty($weights[$transaction->id]) || $weights[$transaction->id] <= 0" />
+                                {{-- Status: Confirmed - Tampilkan informasi untuk lihat detail --}}
+                                <div class="alert alert-info">
+                                    <x-icon name="o-information-circle" class="w-5 h-5" />
+                                    <span class="text-sm">Klik tombol mata di atas untuk mengisi detail pesanan</span>
                                 </div>
                             @elseif ($transaction->workflow_status === 'picked_up')
                                 {{-- Status: Picked Up - Tampilkan Sudah di Pos --}}
@@ -205,9 +214,9 @@
                             @elseif ($transaction->workflow_status === 'washing_completed')
                                 {{-- Status: Washing Completed - Tampilkan WhatsApp + Mengantar --}}
                                 <div class="grid grid-cols-2 gap-2">
-                                    @if ($transaction->customer?->phone && $transaction->customer?->name)
+                                    @if ($transaction->customer?->phone && $customerName !== 'Customer tidak ditemukan')
                                         <x-button label="WhatsApp" icon="solar.chat-round-bold-duotone"
-                                            link="{{ $this->getWhatsAppUrlForDelivery($transaction->customer->phone, $transaction->customer->name, $transaction) }}"
+                                            link="{{ $this->getWhatsAppUrlForDelivery($transaction->customer->phone, $customerName, $transaction) }}"
                                             external class="btn-success btn-sm" />
                                     @endif
 
@@ -284,18 +293,6 @@
         <x-slot:actions>
             <x-button label="Batal" wire:click="$set('showConfirmModal', false)" />
             <x-button label="Ya, Ambil Pesanan" wire:click="confirmOrder" class="btn-accent" />
-        </x-slot:actions>
-    </x-modal>
-
-    {{-- Modal Konfirmasi Dijemput --}}
-    <x-modal wire:model="showPickedUpModal" title="Tandai Dijemput" subtitle="Konfirmasi pesanan sudah dijemput?"
-        class="modal-bottom sm:modal-middle" persistent separator>
-        <div class="py-4">
-            <p class="text-base-content/70">Pastikan berat cucian sudah diisi dengan benar sebelum melanjutkan.</p>
-        </div>
-        <x-slot:actions>
-            <x-button label="Batal" wire:click="$set('showPickedUpModal', false)" />
-            <x-button label="Ya, Sudah Dijemput" wire:click="markAsPickedUp" class="btn-warning" />
         </x-slot:actions>
     </x-modal>
 

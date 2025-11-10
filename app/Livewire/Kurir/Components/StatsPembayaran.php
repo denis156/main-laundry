@@ -33,35 +33,29 @@ class StatsPembayaran extends Component
         $courier = Auth::guard('courier')->user();
 
         // Count payments dengan status unpaid
-        $unpaidCount = Payment::where('courier_motorcycle_id', $courier->id)
+        $unpaidCount = Payment::where('courier_id', $courier->id)
             ->whereHas('transaction', function ($q) {
                 $q->where('payment_status', 'unpaid')
                     ->whereNotNull('customer_id')
-                    ->whereNotNull('service_id')
-                    ->whereHas('customer')
-                    ->whereHas('service');
+                    ->whereHas('customer');
             })
             ->count();
 
         // Count payments dengan status paid
-        $paidCount = Payment::where('courier_motorcycle_id', $courier->id)
+        $paidCount = Payment::where('courier_id', $courier->id)
             ->whereHas('transaction', function ($q) {
                 $q->where('payment_status', 'paid')
                     ->whereNotNull('customer_id')
-                    ->whereNotNull('service_id')
-                    ->whereHas('customer')
-                    ->whereHas('service');
+                    ->whereHas('customer');
             })
             ->count();
 
         // Total amount yang belum dibayar
-        $unpaidTotal = Payment::where('courier_motorcycle_id', $courier->id)
+        $unpaidTotal = Payment::where('courier_id', $courier->id)
             ->whereHas('transaction', function ($q) {
                 $q->where('payment_status', 'unpaid')
                     ->whereNotNull('customer_id')
-                    ->whereNotNull('service_id')
-                    ->whereHas('customer')
-                    ->whereHas('service');
+                    ->whereHas('customer');
             })
             ->sum('amount');
 

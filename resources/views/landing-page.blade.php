@@ -111,6 +111,9 @@
 
     @livewireScripts
 
+    {{--  TOAST area --}}
+    <x-toast />
+
 </body>
 
 </html>

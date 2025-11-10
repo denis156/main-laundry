@@ -57,26 +57,32 @@ class TransactionAreaFilter
         }
 
         // Filter transaksi berdasarkan area layanan Location
-        $query->whereHas('customer', function ($customerQuery) use ($coverageArea) {
-            $customerQuery->where(function ($subQuery) use ($coverageArea) {
-                // Loop setiap district di coverage area
-                foreach ($coverageArea as $district) {
-                    $districtCode = $district['district_code'] ?? null;
-                    $villages = $district['villages'] ?? [];
+        // $coverageArea berisi array of strings (nama kecamatan untuk resort, nama kelurahan untuk pos)
+        $query->whereHas('customer', function ($customerQuery) use ($coverageArea, $location) {
+            $customerQuery->where(function ($subQuery) use ($coverageArea, $location) {
+                // Cek apakah ini Resort atau Pos
+                $isResort = LocationHelper::isResort($location);
 
-                    if ($districtCode && !empty($villages)) {
-                        // Filter by district & villages in JSONB data
-                        $subQuery->orWhere(function ($addressQuery) use ($districtCode, $villages) {
-                            $addressQuery->whereJsonContains('data->addresses', [
-                                ['district_code' => $districtCode]
-                            ]);
-                            // TODO: Add village filtering when needed
-                        });
+                // Loop setiap area name di coverage area
+                foreach ($coverageArea as $areaName) {
+                    if ($isResort) {
+                        // Resort: filter by district_name
+                        $subQuery->orWhereRaw("EXISTS (
+                            SELECT 1 FROM jsonb_array_elements(data->'addresses') AS addr
+                            WHERE addr->>'district_name' = ?
+                        )", [$areaName]);
+                    } else {
+                        // Pos: filter by village_name
+                        $subQuery->orWhereRaw("EXISTS (
+                            SELECT 1 FROM jsonb_array_elements(data->'addresses') AS addr
+                            WHERE addr->>'village_name' = ?
+                        )", [$areaName]);
                     }
                 }
 
                 // ATAU customer belum punya address data (backward compatibility)
-                $subQuery->orWhereNull('data->addresses');
+                // PostgreSQL JSONB: Check if key tidak ada atau value adalah null atau empty array
+                $subQuery->orWhereRaw("(data->>'addresses' IS NULL OR data->'addresses' = 'null'::jsonb OR data->'addresses' = '[]'::jsonb)");
             });
         });
 
@@ -115,19 +121,26 @@ class TransactionAreaFilter
         }
 
         // Filter transaksi berdasarkan area layanan Location (strict mode)
-        $query->whereHas('customer', function ($customerQuery) use ($coverageArea) {
-            $customerQuery->where(function ($subQuery) use ($coverageArea) {
-                // Loop setiap district di coverage area
-                foreach ($coverageArea as $district) {
-                    $districtCode = $district['district_code'] ?? null;
-                    $villages = $district['villages'] ?? [];
+        // $coverageArea berisi array of strings (nama kecamatan untuk resort, nama kelurahan untuk pos)
+        $query->whereHas('customer', function ($customerQuery) use ($coverageArea, $location) {
+            $customerQuery->where(function ($subQuery) use ($coverageArea, $location) {
+                // Cek apakah ini Resort atau Pos
+                $isResort = LocationHelper::isResort($location);
 
-                    if ($districtCode && !empty($villages)) {
-                        $subQuery->orWhere(function ($addressQuery) use ($districtCode, $villages) {
-                            $addressQuery->whereJsonContains('data->addresses', [
-                                ['district_code' => $districtCode]
-                            ]);
-                        });
+                // Loop setiap area name di coverage area
+                foreach ($coverageArea as $areaName) {
+                    if ($isResort) {
+                        // Resort: filter by district_name
+                        $subQuery->orWhereRaw("EXISTS (
+                            SELECT 1 FROM jsonb_array_elements(data->'addresses') AS addr
+                            WHERE addr->>'district_name' = ?
+                        )", [$areaName]);
+                    } else {
+                        // Pos: filter by village_name
+                        $subQuery->orWhereRaw("EXISTS (
+                            SELECT 1 FROM jsonb_array_elements(data->'addresses') AS addr
+                            WHERE addr->>'village_name' = ?
+                        )", [$areaName]);
                     }
                 }
                 // Strict mode: TIDAK include customer tanpa address data
@@ -175,12 +188,21 @@ class TransactionAreaFilter
             return $includeNull;
         }
 
+        // Cek apakah ini Resort atau Pos
+        $isResort = LocationHelper::isResort($location);
+
         // Check apakah ada address customer yang match dengan coverage area
         foreach ($customerAddresses as $address) {
-            $districtCode = $address['district_code'] ?? null;
-
-            foreach ($coverageArea as $district) {
-                if ($district['district_code'] === $districtCode) {
+            if ($isResort) {
+                // Resort: check by district_name
+                $districtName = $address['district_name'] ?? null;
+                if ($districtName && in_array($districtName, $coverageArea, true)) {
+                    return true;
+                }
+            } else {
+                // Pos: check by village_name
+                $villageName = $address['village_name'] ?? null;
+                if ($villageName && in_array($villageName, $coverageArea, true)) {
                     return true;
                 }
             }

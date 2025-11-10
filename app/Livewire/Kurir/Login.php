@@ -8,6 +8,7 @@ use Mary\Traits\Toast;
 use Livewire\Component;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
+use App\Helper\Database\CourierHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -58,8 +59,8 @@ class Login extends Component
         )) {
             $courier = Auth::guard('courier')->user();
 
-            // Cek apakah kurir aktif
-            if (!$courier->is_active) {
+            // Cek apakah kurir aktif menggunakan CourierHelper
+            if (!CourierHelper::isActive($courier)) {
                 Auth::guard('courier')->logout();
 
                 $this->error(
@@ -84,9 +85,12 @@ class Login extends Component
 
             session()->regenerate();
 
+            // Get nama courier dari JSONB menggunakan CourierHelper
+            $courierName = CourierHelper::getName($courier);
+
             $this->success(
                 title: 'Login Berhasil!',
-                description: 'Selamat datang ' . $courier->name,
+                description: 'Selamat datang ' . $courierName,
                 position: 'toast-top toast-end',
                 timeout: 3000,
                 redirectTo: route('kurir.beranda')

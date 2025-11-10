@@ -4,31 +4,91 @@ declare(strict_types=1);
 
 namespace App\Livewire\Kurir;
 
-use App\Models\Pos;
+use App\Models\Location;
 use Livewire\Component;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Auth;
 use App\Helper\StatusTransactionHelper;
+use App\Helper\Database\CourierHelper;
+use App\Helper\Database\LocationHelper;
 
 #[Title('Info')]
 #[Layout('components.layouts.kurir')]
 class Info extends Component
 {
     /**
-     * Get assigned pos for current courier
+     * Get assigned location (pos/resort) for current courier
      */
     #[Computed]
     public function assignedPos()
     {
         $courier = Auth::guard('courier')->user();
 
-        if (!$courier || !$courier->assigned_pos_id) {
+        if (!$courier || !$courier->assigned_location_id) {
             return null;
         }
 
-        return Pos::find($courier->assigned_pos_id);
+        return Location::with('transactions')->find($courier->assigned_location_id);
+    }
+
+    /**
+     * Get PIC name dari assigned pos
+     */
+    #[Computed]
+    public function posContactName(): ?string
+    {
+        $pos = $this->assignedPos;
+        if (!$pos) {
+            return null;
+        }
+
+        $contactInfo = LocationHelper::getContact($pos);
+        return $contactInfo['pic_name'] ?? null;
+    }
+
+    /**
+     * Get phone dari assigned pos
+     */
+    #[Computed]
+    public function posContactPhone(): ?string
+    {
+        $pos = $this->assignedPos;
+        if (!$pos) {
+            return null;
+        }
+
+        $contactInfo = LocationHelper::getContact($pos);
+        return $contactInfo['phone'] ?? null;
+    }
+
+    /**
+     * Get address dari assigned pos
+     */
+    #[Computed]
+    public function posAddress(): ?string
+    {
+        $pos = $this->assignedPos;
+        if (!$pos) {
+            return null;
+        }
+
+        return LocationHelper::getFullAddress($pos);
+    }
+
+    /**
+     * Get coverage area dari assigned pos
+     */
+    #[Computed]
+    public function posCoverageArea(): array
+    {
+        $pos = $this->assignedPos;
+        if (!$pos) {
+            return [];
+        }
+
+        return LocationHelper::getCoverageArea($pos);
     }
 
     /**
@@ -136,7 +196,7 @@ class Info extends Component
         }
 
         $courier = Auth::guard('courier')->user();
-        $courierName = $courier?->name ?? 'Kurir';
+        $courierName = $courier ? CourierHelper::getName($courier) : 'Kurir';
         $posName = $this->assignedPos?->name ?? 'Pos tidak diketahui';
 
         // Message template
@@ -153,12 +213,19 @@ class Info extends Component
     {
         $pos = $this->assignedPos;
 
-        if (!$pos || !$pos->phone) {
+        if (!$pos) {
+            return null;
+        }
+
+        $contactInfo = LocationHelper::getContact($pos);
+        $phone = $contactInfo['phone'] ?? null;
+
+        if (!$phone) {
             return null;
         }
 
         // Format nomor telepon (hapus karakter non-numeric)
-        $cleanPhone = preg_replace('/[^0-9]/', '', $pos->phone);
+        $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
 
         // Format nomor Indonesia untuk WhatsApp
         if (str_starts_with($cleanPhone, '0')) {
@@ -170,10 +237,11 @@ class Info extends Component
         }
 
         $courier = Auth::guard('courier')->user();
-        $courierName = $courier?->name ?? 'Kurir';
+        $courierName = $courier ? CourierHelper::getName($courier) : 'Kurir';
+        $picName = $contactInfo['pic_name'] ?? 'Admin';
 
         // Message template
-        $message = "Halo {$pos->pic_name}, saya {$courierName} dari {$pos->name}. Saya ingin bertanya tentang...";
+        $message = "Halo {$picName}, saya {$courierName} dari {$pos->name}. Saya ingin bertanya tentang...";
         $encodedMessage = urlencode($message);
 
         return "https://wa.me/{$cleanPhone}?text={$encodedMessage}";

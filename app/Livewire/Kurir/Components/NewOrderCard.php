@@ -31,23 +31,21 @@ class NewOrderCard extends Component
         // Load pos dengan area layanan
         $assignedPos = $courier->assignedPos;
 
-        $query = \App\Models\Transaction::with(['customer', 'service', 'pos'])
+        $query = \App\Models\Transaction::with(['customer', 'location'])
             ->where(function ($q) use ($courier) {
                 // Transaksi yang sudah di-assign ke kurir ini
-                $q->where('courier_motorcycle_id', $courier->id)
+                $q->where('courier_id', $courier->id)
                     // ATAU transaksi yang belum ada kurirnya (bisa diambil)
-                    ->orWhereNull('courier_motorcycle_id');
+                    ->orWhereNull('courier_id');
             })
             ->where('workflow_status', 'pending_confirmation')
             ->whereNotNull('customer_id')
-            ->whereNotNull('service_id')
-            ->whereHas('customer')
-            ->whereHas('service');
+            ->whereHas('customer');
 
         // Filter berdasarkan area layanan pos menggunakan helper
         TransactionAreaFilter::applyFilter($query, $assignedPos);
 
-        return $query->orderBy('order_date', 'desc')
+        return $query->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
     }

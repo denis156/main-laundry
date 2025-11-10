@@ -65,4 +65,47 @@ class Customer extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Transaction::class);
     }
+
+    /**
+     * Get Filament avatar URL
+     */
+    public function getFilamentAvatarUrl(): string
+    {
+        return CustomerHelper::getFilamentAvatarUrl($this);
+    }
+
+    /**
+     * Get customer default address formatted string
+     */
+    public function getAddressAttribute(): ?string
+    {
+        $address = CustomerHelper::getDefaultAddress($this);
+        if (!$address) {
+            return null;
+        }
+
+        $parts = [];
+        if (!empty($address['detail_address'])) {
+            $parts[] = $address['detail_address'];
+        }
+        if (!empty($address['village_name'])) {
+            $parts[] = $address['village_name'];
+        }
+        if (!empty($address['district_name'])) {
+            $parts[] = $address['district_name'];
+        }
+
+        return !empty($parts) ? implode(', ', $parts) : null;
+    }
+
+    /**
+     * Get customer name from JSONB
+     * Using Laravel's Attribute accessor pattern
+     */
+    protected function name(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+            get: fn () => CustomerHelper::getName($this),
+        );
+    }
 }

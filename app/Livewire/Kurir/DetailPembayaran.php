@@ -13,6 +13,7 @@ use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Auth;
+use App\Helper\Database\PaymentHelper;
 
 #[Title('Detail Pembayaran')]
 #[Layout('components.layouts.kurir')]
@@ -20,6 +21,7 @@ class DetailPembayaran extends Component
 {
     use Toast, WithFileUploads;
 
+    public Payment $payment;
     public Transaction $transaction;
 
     // Bukti pembayaran untuk upload
@@ -32,38 +34,43 @@ class DetailPembayaran extends Component
     {
         $courier = Auth::guard('courier')->user();
 
-        // Load transaction dengan semua relasi yang diperlukan
-        $this->transaction = Transaction::with([
-            'customer',
-            'service',
-            'pos',
-            'courierMotorcycle',
-            'payments',
+        // Load payment dengan transaction dan relasi lainnya
+        // $id di sini adalah payment_id, bukan transaction_id
+        $this->payment = Payment::with([
+            'transaction.customer',
+            'transaction.location',
+            'transaction.courier',
+            'courier',
         ])
             ->where('id', $id)
-            ->where('courier_motorcycle_id', $courier->id)
-            ->where(function ($q) {
-                // Transaksi dengan payment_timing = 'on_pickup' dan sudah picked_up
-                $q->where(function ($subQ) {
-                    $subQ->where('payment_timing', 'on_pickup')
-                        ->whereIn('workflow_status', ['picked_up', 'at_loading_post', 'in_washing', 'washing_completed', 'out_for_delivery', 'delivered']);
-                })
-                // Atau transaksi dengan payment_timing = 'on_delivery' dan sudah delivered
-                ->orWhere(function ($subQ) {
-                    $subQ->where('payment_timing', 'on_delivery')
-                        ->whereIn('workflow_status', ['out_for_delivery', 'delivered']);
-                });
-            })
+            ->where('courier_id', $courier->id)
             ->firstOrFail();
+
+        // Set transaction dari payment
+        $this->transaction = $this->payment->transaction;
     }
 
     /**
-     * Get first payment untuk transaksi ini
+     * Get bukti pembayaran URL dari JSONB
      */
     #[Computed]
-    public function payment(): ?Payment
+    public function paymentProofUrl(): ?string
     {
-        return $this->transaction->payments->first();
+        $payment = $this->payment;
+        if (!$payment) {
+            return null;
+        }
+
+        return PaymentHelper::getProofUrl($payment);
+    }
+
+    /**
+     * Check apakah sudah ada bukti pembayaran
+     */
+    #[Computed]
+    public function hasPaymentProof(): bool
+    {
+        return !empty($this->paymentProofUrl);
     }
 
     /**
@@ -91,26 +98,17 @@ class DetailPembayaran extends Component
             return;
         }
 
-        // Cari payment record untuk transaksi ini
-        $payment = Payment::where('transaction_id', $this->transaction->id)->first();
-
-        if (!$payment) {
-            $this->error(
-                title: 'Record Pembayaran Belum Ada!',
-                description: 'Payment akan otomatis dibuat saat status berubah.',
-                position: 'toast-top toast-end',
-                timeout: 3000
-            );
-            return;
-        }
-
+        // Payment sudah di-load di mount(), jadi tinggal pakai
         // Upload file
         $filename = 'payment-proof-' . $this->transaction->invoice_number . '-' . time() . '.' . $this->paymentProof->getClientOriginalExtension();
         $path = $this->paymentProof->storeAs('payment-proofs', $filename, 'public');
 
-        // Update payment record dengan bukti pembayaran
-        $payment->update([
-            'payment_proof_url' => $path,
+        // Update payment record dengan bukti pembayaran ke JSONB field
+        $data = $this->payment->data ?? [];
+        $data['proof_url'] = $path;
+
+        $this->payment->update([
+            'data' => $data,
         ]);
 
         // Update payment_status jadi paid karena sudah ada bukti pembayaran
@@ -129,6 +127,8 @@ class DetailPembayaran extends Component
         $this->paymentProof = null;
         $this->showUploadModal = false;
 
+        // Refresh both
+        $this->payment->refresh();
         $this->transaction->refresh();
     }
 
@@ -138,9 +138,8 @@ class DetailPembayaran extends Component
         $this->transaction->refresh();
         $this->transaction->load([
             'customer',
-            'service',
-            'pos',
-            'courierMotorcycle',
+            'location',
+            'courier',
             'payments',
         ]);
 

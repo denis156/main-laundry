@@ -13,15 +13,24 @@
                     <x-badge value="{{ $this->assignedPos->name }}" class="badge-primary badge-xs md:badge-sm" />
                 @endif
             </x-slot:menu>
+            @php
+                $courierName = \App\Helper\Database\CourierHelper::getName($this->courier);
+                $courierVehicle = \App\Helper\Database\CourierHelper::getVehicleNumber($this->courier);
+                $courierPhone = \App\Helper\Database\CourierHelper::getPhone($this->courier);
+            @endphp
             <x-avatar :image="$this->courier->getFilamentAvatarUrl()" class="w-24">
                 <x-slot:title class="text-xl text-base-content font-bold pl-2">
-                    {{ $this->courier->name }}
+                    {{ $courierName }}
                 </x-slot:title>
 
                 <x-slot:subtitle class="grid gap-0 mt-2 pl-2 text-xs md:text-sm">
-                    <p class="text-secondary font-mono">{{ $this->courier->vehicle_number }}</p>
+                    @if($courierVehicle)
+                    <p class="text-secondary font-mono">{{ $courierVehicle }}</p>
+                    @endif
                     <p class="text-secondary font-mono">{{ $this->courier->email }}</p>
-                    <p class="text-secondary font-mono">{{ $this->courier->phone }}</p>
+                    @if($courierPhone)
+                    <p class="text-secondary font-mono">+62 {{ $courierPhone }}</p>
+                    @endif
                 </x-slot:subtitle>
 
             </x-avatar>
@@ -66,7 +75,7 @@
 
                 {{-- Center align name column --}}
                 @scope('cell_name', $leader)
-                    <span class="text-center whitespace-nowrap">{{ $leader->name }}</span>
+                    <span class="text-center whitespace-nowrap">{{ $leader->display_name ?? \App\Helper\Database\CourierHelper::getName($leader) }}</span>
                 @endscope
 
                 {{-- Center align transactions count --}}

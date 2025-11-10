@@ -14,6 +14,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
+use App\Helper\Database\PaymentHelper;
 
 #[Title('Pembayaran')]
 #[Layout('components.layouts.kurir')]
@@ -45,28 +46,30 @@ class Pembayaran extends Component
     {
         $courier = Auth::guard('courier')->user();
 
-        $query = Payment::with(['transaction.customer', 'transaction.service', 'courierMotorcycle'])
-            ->where('courier_motorcycle_id', $courier->id)
+        $query = Payment::with(['transaction.customer', 'transaction.location', 'courier'])
+            ->where('courier_id', $courier->id)
             ->whereHas('transaction', function ($q) {
                 $q->whereNotNull('customer_id')
-                    ->whereNotNull('service_id')
-                    ->whereHas('customer')
-                    ->whereHas('service');
+                    ->whereHas('customer');
             });
 
-        // Filter berdasarkan bukti pembayaran
+        // Filter berdasarkan bukti pembayaran (di JSONB)
         if ($this->filter === 'with_proof') {
-            $query->whereNotNull('payment_proof_url');
+            $query->whereRaw("data->>'proof_url' IS NOT NULL")
+                  ->whereRaw("data->>'proof_url' != ''");
         } elseif ($this->filter === 'without_proof') {
-            $query->whereNull('payment_proof_url');
+            $query->where(function ($q) {
+                $q->whereRaw("data->>'proof_url' IS NULL")
+                  ->orWhereRaw("data->>'proof_url' = ''");
+            });
         }
 
-        // Search by invoice atau customer name
+        // Search by invoice atau customer name (di JSONB)
         if (!empty($this->search)) {
             $query->whereHas('transaction', function ($q) {
                 $q->where('invoice_number', 'like', '%' . $this->search . '%')
                     ->orWhereHas('customer', function ($subQ) {
-                        $subQ->where('name', 'like', '%' . $this->search . '%');
+                        $subQ->whereRaw("data->>'name' ILIKE ?", ['%' . $this->search . '%']);
                     });
             });
         }
@@ -84,28 +87,30 @@ class Pembayaran extends Component
     {
         $courier = Auth::guard('courier')->user();
 
-        $query = Payment::with(['transaction.customer', 'transaction.service', 'courierMotorcycle'])
-            ->where('courier_motorcycle_id', $courier->id)
+        $query = Payment::with(['transaction.customer', 'transaction.location', 'courier'])
+            ->where('courier_id', $courier->id)
             ->whereHas('transaction', function ($q) {
                 $q->whereNotNull('customer_id')
-                    ->whereNotNull('service_id')
-                    ->whereHas('customer')
-                    ->whereHas('service');
+                    ->whereHas('customer');
             });
 
-        // Filter berdasarkan bukti pembayaran
+        // Filter berdasarkan bukti pembayaran (di JSONB)
         if ($this->filter === 'with_proof') {
-            $query->whereNotNull('payment_proof_url');
+            $query->whereRaw("data->>'proof_url' IS NOT NULL")
+                  ->whereRaw("data->>'proof_url' != ''");
         } elseif ($this->filter === 'without_proof') {
-            $query->whereNull('payment_proof_url');
+            $query->where(function ($q) {
+                $q->whereRaw("data->>'proof_url' IS NULL")
+                  ->orWhereRaw("data->>'proof_url' = ''");
+            });
         }
 
-        // Search by invoice atau customer name
+        // Search by invoice atau customer name (di JSONB)
         if (!empty($this->search)) {
             $query->whereHas('transaction', function ($q) {
                 $q->where('invoice_number', 'like', '%' . $this->search . '%')
                     ->orWhereHas('customer', function ($subQ) {
-                        $subQ->where('name', 'like', '%' . $this->search . '%');
+                        $subQ->whereRaw("data->>'name' ILIKE ?", ['%' . $this->search . '%']);
                     });
             });
         }
@@ -113,7 +118,7 @@ class Pembayaran extends Component
         // Hitung limit berdasarkan currentPage
         $limit = $this->perPage * $this->currentPage;
 
-        return $query->orderBy('payment_date', 'desc')
+        return $query->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get();
     }
@@ -196,7 +201,7 @@ class Pembayaran extends Component
 
         // Validasi ownership
         $courier = Auth::guard('courier')->user();
-        if ($payment->courier_motorcycle_id !== $courier->id) {
+        if ($payment->courier_id !== $courier->id) {
             $this->error(
                 title: 'Akses Ditolak!',
                 description: 'Anda tidak memiliki akses untuk upload bukti pembayaran ini.',
@@ -210,9 +215,12 @@ class Pembayaran extends Component
         $filename = 'payment-proof-' . $payment->transaction->invoice_number . '-' . time() . '.' . $this->paymentProofs[$this->selectedPaymentId]->getClientOriginalExtension();
         $path = $this->paymentProofs[$this->selectedPaymentId]->storeAs('payment-proofs', $filename, 'public');
 
-        // Update payment record dengan bukti pembayaran
+        // Update payment record dengan bukti pembayaran ke JSONB field
+        $data = $payment->data ?? [];
+        $data['proof_url'] = $path;
+
         $payment->update([
-            'payment_proof_url' => $path,
+            'data' => $data,
         ]);
 
         // Update payment_status jadi paid karena sudah ada bukti pembayaran

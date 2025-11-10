@@ -43,12 +43,12 @@ class StatsPesanan extends Component
         };
 
         $deliveredCount = $baseQuery()
-            ->where('courier_motorcycle_id', $courier->id)
+            ->where('courier_id', $courier->id)
             ->where('workflow_status', 'delivered')
             ->count();
 
         $cancelledCount = $baseQuery()
-            ->where('courier_motorcycle_id', $courier->id)
+            ->where('courier_id', $courier->id)
             ->where('workflow_status', 'cancelled')
             ->count();
 

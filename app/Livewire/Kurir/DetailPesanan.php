@@ -6,6 +6,9 @@ namespace App\Livewire\Kurir;
 
 use Mary\Traits\Toast;
 use App\Helper\TransactionAreaFilter;
+use App\Helper\Database\CourierHelper;
+use App\Helper\Database\CustomerHelper;
+use App\Helper\Database\TransactionHelper;
 use App\Models\Transaction;
 use Livewire\Component;
 use Livewire\Attributes\Title;
@@ -20,8 +23,11 @@ class DetailPesanan extends Component
 
     public Transaction $transaction;
 
-    // Berat untuk input (jika status confirmed)
-    public ?float $weight = null;
+    // Input data untuk setiap item/layanan (array)
+    public array $itemInputs = []; // Format: ['service_id' => ['weight' => 0, 'quantity' => 0, 'clothing_items' => []]]
+
+    // Available clothing types untuk dropdown
+    public $clothingTypes = [];
 
     // Modal states
     public bool $showCancelModal = false;
@@ -38,18 +44,48 @@ class DetailPesanan extends Component
         // Load transaction dengan semua relasi yang diperlukan
         $this->transaction = Transaction::with([
             'customer',
-            'service',
-            'pos',
-            'courierMotorcycle',
+            'location',
+            'courier',
             'payments'
         ])
             ->where('id', $id)
             ->where(function ($q) use ($courier) {
                 // Hanya transaksi yang di-handle oleh kurir ini atau belum ada kurirnya
-                $q->where('courier_motorcycle_id', $courier->id)
-                    ->orWhereNull('courier_motorcycle_id');
+                $q->where('courier_id', $courier->id)
+                    ->orWhereNull('courier_id');
             })
             ->firstOrFail();
+
+        // Load active clothing types untuk dropdown
+        $this->clothingTypes = \App\Models\ClothingType::where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        // Initialize itemInputs dari transaction data
+        $items = TransactionHelper::getItems($this->transaction);
+        foreach ($items as $index => $item) {
+            $serviceId = $item['service_id'] ?? $index;
+            $pricingUnit = $item['pricing_unit'] ?? 'per_kg';
+            $clothingItems = $item['clothing_items'] ?? [];
+
+            // Untuk per_kg, jika clothing_items kosong, auto-add 1 item
+            if ($pricingUnit === 'per_kg' && empty($clothingItems)) {
+                $clothingItems = [
+                    [
+                        'clothing_type_id' => null,
+                        'clothing_type_name' => '',
+                        'quantity' => 1,
+                    ]
+                ];
+            }
+
+            $this->itemInputs[$serviceId] = [
+                'total_weight' => $item['total_weight'] ?? 0,
+                'quantity' => $item['quantity'] ?? 0,
+                'clothing_items' => $clothingItems,
+            ];
+        }
     }
 
     /**
@@ -57,14 +93,15 @@ class DetailPesanan extends Component
      */
     public function getWhatsAppUrl(): ?string
     {
-        if (!$this->transaction->customer?->phone || !$this->transaction->customer?->name) {
+        $customer = $this->transaction->customer;
+        if (!$customer || !$customer->phone || !CustomerHelper::getName($customer)) {
             return null;
         }
 
         $courier = Auth::guard('courier')->user();
 
         // Format nomor telepon (hapus karakter non-numeric)
-        $cleanPhone = preg_replace('/[^0-9]/', '', $this->transaction->customer->phone);
+        $cleanPhone = preg_replace('/[^0-9]/', '', $customer->phone);
 
         // Format nomor Indonesia untuk WhatsApp
         if (str_starts_with($cleanPhone, '0')) {
@@ -78,15 +115,19 @@ class DetailPesanan extends Component
             $cleanPhone = '62' . $cleanPhone;
         }
 
-        // Format harga
-        $pricePerKg = number_format((float) $this->transaction->price_per_kg, 0, ',', '.');
-        $serviceName = $this->transaction->service?->name ?? 'Layanan';
+        // Get data from JSONB
+        $items = TransactionHelper::getItems($this->transaction);
+        $firstItem = $items[0] ?? [];
+        $pricePerKg = number_format((float) ($firstItem['price_per_kg'] ?? 0), 0, ',', '.');
+        $serviceName = $firstItem['service_name'] ?? 'Layanan';
         $invoiceNumber = $this->transaction->invoice_number;
-        $customerAddress = $this->transaction->customer?->address ?? 'Alamat belum tersedia';
+        $customerAddress = $customer->address ?? 'Alamat belum tersedia';
+        $customerName = CustomerHelper::getName($customer);
+        $courierName = CourierHelper::getName($courier);
 
         // Message template dengan info layanan dan harga
-        $message = "Halo Kak *{$this->transaction->customer->name}*\n\n";
-        $message .= "Perkenalkan, saya *{$courier->name}* dari *Main Laundry*. ";
+        $message = "Halo Kak *{$customerName}*\n\n";
+        $message .= "Perkenalkan, saya *{$courierName}* dari *Main Laundry*. ";
         $message .= "Saya akan mengambil cucian Kakak hari ini.\n\n";
         $message .= "*Detail Pesanan:*\n";
         $message .= "• Invoice: {$invoiceNumber}\n";
@@ -109,14 +150,15 @@ class DetailPesanan extends Component
      */
     public function getWhatsAppUrlForDelivery(): ?string
     {
-        if (!$this->transaction->customer?->phone || !$this->transaction->customer?->name) {
+        $customer = $this->transaction->customer;
+        if (!$customer || !$customer->phone || !CustomerHelper::getName($customer)) {
             return null;
         }
 
         $courier = Auth::guard('courier')->user();
 
         // Format nomor telepon (hapus karakter non-numeric)
-        $cleanPhone = preg_replace('/[^0-9]/', '', $this->transaction->customer->phone);
+        $cleanPhone = preg_replace('/[^0-9]/', '', $customer->phone);
 
         // Format nomor Indonesia untuk WhatsApp
         if (str_starts_with($cleanPhone, '0')) {
@@ -130,20 +172,24 @@ class DetailPesanan extends Component
             $cleanPhone = '62' . $cleanPhone;
         }
 
-        // Format harga dan detail
-        $totalPrice = number_format((float) $this->transaction->total_price, 0, ',', '.');
-        $pricePerKg = number_format((float) $this->transaction->price_per_kg, 0, ',', '.');
-        $weight = $this->transaction->weight;
-        $serviceName = $this->transaction->service?->name ?? 'Layanan';
+        // Get data from JSONB
+        $items = TransactionHelper::getItems($this->transaction);
+        $totalPrice = number_format((float) TransactionHelper::getTotalPrice($this->transaction), 0, ',', '.');
+        $firstItem = $items[0] ?? [];
+        $pricePerKg = number_format((float) ($firstItem['price_per_kg'] ?? 0), 0, ',', '.');
+        $weight = $this->transaction->weight ?? 0;
+        $serviceName = $firstItem['service_name'] ?? 'Layanan';
         $invoiceNumber = $this->transaction->invoice_number;
         $isPaid = $this->transaction->payment_status === 'paid';
-        $paymentTiming = $this->transaction->payment_timing === 'on_delivery' ? 'Bayar Saat Antar' : 'Bayar Saat Jemput';
-        $customerAddress = $this->transaction->customer?->address ?? 'Alamat belum tersedia';
+        $paymentTiming = TransactionHelper::getPaymentTimingText($this->transaction);
+        $customerAddress = $customer->address ?? 'Alamat belum tersedia';
+        $customerName = CustomerHelper::getName($customer);
+        $courierName = CourierHelper::getName($courier);
 
         // Message template untuk pengantaran dengan detail lengkap
-        $message = "Halo Kak *{$this->transaction->customer->name}*\n\n";
+        $message = "Halo Kak *{$customerName}*\n\n";
         $message .= "Kabar baik! Cucian Kakak sudah selesai dan siap diantar.\n\n";
-        $message .= "Saya *{$courier->name}* dari *Main Laundry* akan mengantar cucian Kakak hari ini.\n\n";
+        $message .= "Saya *{$courierName}* dari *Main Laundry* akan mengantar cucian Kakak hari ini.\n\n";
         $message .= "*Detail Pesanan:*\n";
         $message .= "• Invoice: {$invoiceNumber}\n";
         $message .= "• Layanan: {$serviceName}\n";
@@ -198,8 +244,7 @@ class DetailPesanan extends Component
         }
 
         // Validasi area layanan menggunakan helper
-        $customerVillage = $this->transaction->customer?->village_name;
-        $isInArea = TransactionAreaFilter::isCustomerInPosArea($customerVillage, $assignedPos);
+        $isInArea = TransactionAreaFilter::isCustomerInLocationArea($this->transaction->customer, $assignedPos);
 
         if (!$isInArea) {
             $this->error(
@@ -212,7 +257,7 @@ class DetailPesanan extends Component
         }
 
         $this->transaction->update([
-            'courier_motorcycle_id' => $courier->id,
+            'courier_id' => $courier->id,
             'workflow_status' => 'confirmed',
         ]);
 
@@ -254,7 +299,7 @@ class DetailPesanan extends Component
 
         // Assign kurir ke transaksi untuk tracking siapa yang membatalkan
         $this->transaction->update([
-            'courier_motorcycle_id' => $courier->id,
+            'courier_id' => $courier->id,
             'workflow_status' => 'cancelled',
         ]);
 
@@ -266,6 +311,49 @@ class DetailPesanan extends Component
         );
         $this->showCancelModal = false;
         $this->transaction->refresh();
+    }
+
+    /**
+     * Check apakah button "Sudah Dijemput" disabled
+     */
+    public function isPickedUpButtonDisabled(): bool
+    {
+        $items = TransactionHelper::getItems($this->transaction);
+
+        foreach ($items as $index => $item) {
+            $serviceId = $item['service_id'] ?? $index;
+            $pricingUnit = $item['pricing_unit'] ?? 'per_kg';
+            $input = $this->itemInputs[$serviceId] ?? [];
+
+            if ($pricingUnit === 'per_kg') {
+                // Check weight dan clothing items
+                $weight = $input['total_weight'] ?? 0;
+                $clothingItems = $input['clothing_items'] ?? [];
+
+                if ($weight <= 0) {
+                    return true; // Disabled jika berat belum diisi
+                }
+
+                if (empty($clothingItems)) {
+                    return true; // Disabled jika clothing items kosong
+                }
+
+                // Check apakah ada clothing item yang belum lengkap
+                foreach ($clothingItems as $clothing) {
+                    if (empty($clothing['clothing_type_id']) || ($clothing['quantity'] ?? 0) <= 0) {
+                        return true; // Disabled jika ada yang belum lengkap
+                    }
+                }
+            } else {
+                // Check quantity untuk per_item
+                $quantity = $input['quantity'] ?? 0;
+                if ($quantity <= 0) {
+                    return true; // Disabled jika quantity belum diisi
+                }
+            }
+        }
+
+        return false; // Enable jika semua sudah terisi
     }
 
     /**
@@ -293,53 +381,171 @@ class DetailPesanan extends Component
             return;
         }
 
-        // Validasi berat harus diisi
-        if (empty($this->weight) || $this->weight <= 0) {
+        // Validasi semua item harus diisi
+        $data = $this->transaction->data ?? [];
+        $items = $data['items'] ?? [];
+
+        if (empty($items)) {
             $this->error(
-                title: 'Berat Harus Diisi!',
-                description: 'Berat cucian harus diisi dan lebih dari 0 kg.',
+                title: 'Tidak Ada Item!',
+                description: 'Tidak ada item untuk diproses.',
                 position: 'toast-top toast-end',
                 timeout: 3000
             );
             return;
         }
 
-        $pricePerKg = $this->transaction->price_per_kg;
-        $totalPrice = $this->weight * $pricePerKg;
+        // Update items dengan input data dari kurir
+        $totalPrice = 0;
+        $hasError = false;
+        $errorMessage = '';
+
+        foreach ($items as $index => $item) {
+            $serviceId = $item['service_id'] ?? $index;
+            $pricingUnit = $item['pricing_unit'] ?? 'per_kg';
+            $input = $this->itemInputs[$serviceId] ?? [];
+
+            if ($pricingUnit === 'per_kg') {
+                // Validasi weight dan clothing items untuk per_kg
+                $weight = $input['total_weight'] ?? 0;
+                $clothingItems = $input['clothing_items'] ?? [];
+
+                if ($weight <= 0) {
+                    $hasError = true;
+                    $errorMessage = 'Berat untuk layanan ' . ($item['service_name'] ?? 'N/A') . ' harus diisi!';
+                    break;
+                }
+
+                if (empty($clothingItems)) {
+                    $hasError = true;
+                    $errorMessage = 'Detail pakaian untuk layanan ' . ($item['service_name'] ?? 'N/A') . ' harus diisi!';
+                    break;
+                }
+
+                $pricePerKg = $item['price_per_kg'] ?? 0;
+                $items[$index]['total_weight'] = $weight;
+                $items[$index]['clothing_items'] = $clothingItems;
+                $items[$index]['subtotal'] = $weight * $pricePerKg;
+                $totalPrice += $items[$index]['subtotal'];
+            } else {
+                // Validasi quantity untuk per_item (tidak perlu clothing items)
+                $quantity = $input['quantity'] ?? 0;
+
+                if ($quantity <= 0) {
+                    $hasError = true;
+                    $errorMessage = 'Jumlah item untuk layanan ' . ($item['service_name'] ?? 'N/A') . ' harus diisi!';
+                    break;
+                }
+
+                $pricePerItem = $item['price_per_item'] ?? 0;
+                $items[$index]['quantity'] = $quantity;
+                $items[$index]['subtotal'] = $quantity * $pricePerItem;
+                $totalPrice += $items[$index]['subtotal'];
+            }
+        }
+
+        if ($hasError) {
+            $this->error(
+                title: 'Validasi Gagal!',
+                description: $errorMessage,
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
+            return;
+        }
+
+        // Update transaction data
+        $data['items'] = $items;
 
         $this->transaction->update([
             'workflow_status' => 'picked_up',
-            'pos_id' => $courier->assigned_pos_id,
-            'weight' => $this->weight,
-            'total_price' => $totalPrice,
+            'location_id' => $courier->assigned_location_id,
+            'data' => $data,
         ]);
 
         $this->success(
             title: 'Pesanan Dijemput!',
-            description: 'Pesanan berhasil ditandai sudah dijemput dengan berat ' . $this->weight . ' kg.',
+            description: 'Pesanan berhasil ditandai sudah dijemput.',
             position: 'toast-top toast-end',
             timeout: 3000
         );
 
-        // Clear inputs
-        $this->weight = null;
         $this->showPickedUpModal = false;
-
         $this->transaction->refresh();
     }
 
     /**
-     * Get hint text untuk total harga berdasarkan berat yang diinput
+     * Add clothing item untuk service tertentu
      */
-    public function getTotalPriceHint(): string
+    public function addClothingItem(int $serviceId): void
     {
-        if (empty($this->weight) || $this->weight <= 0 || $this->transaction->price_per_kg <= 0) {
-            return 'Masukkan berat untuk melihat total harga';
+        if (!isset($this->itemInputs[$serviceId]['clothing_items'])) {
+            $this->itemInputs[$serviceId]['clothing_items'] = [];
         }
 
-        $totalPrice = $this->weight * $this->transaction->price_per_kg;
+        $this->itemInputs[$serviceId]['clothing_items'][] = [
+            'clothing_type_id' => null,
+            'clothing_type_name' => '',
+            'quantity' => 1,
+        ];
+    }
 
-        return 'Total: Rp ' . number_format($totalPrice, 0, ',', '.');
+    /**
+     * Remove clothing item
+     */
+    public function removeClothingItem(int $serviceId, int $clothingIndex): void
+    {
+        if (isset($this->itemInputs[$serviceId]['clothing_items'][$clothingIndex])) {
+            unset($this->itemInputs[$serviceId]['clothing_items'][$clothingIndex]);
+            // Re-index array
+            $this->itemInputs[$serviceId]['clothing_items'] = array_values($this->itemInputs[$serviceId]['clothing_items']);
+        }
+    }
+
+    /**
+     * Update clothing type name when selecting from dropdown
+     */
+    public function updatedItemInputs($value, $key): void
+    {
+        // Check if this is a clothing_type_id update
+        // Key format: serviceId.clothing_items.index.clothing_type_id
+        if (str_contains($key, 'clothing_items') && str_ends_with($key, 'clothing_type_id')) {
+            $parts = explode('.', $key);
+            if (count($parts) === 4) {
+                $serviceId = (int) $parts[0];
+                $clothingIndex = (int) $parts[2];
+                $clothingTypeId = $value;
+
+                if ($clothingTypeId) {
+                    $clothingType = $this->clothingTypes->firstWhere('id', $clothingTypeId);
+                    if ($clothingType) {
+                        $this->itemInputs[$serviceId]['clothing_items'][$clothingIndex]['clothing_type_name'] = $clothingType->name;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Get available clothing types untuk service tertentu
+     * Filter out yang sudah dipilih di clothing items lain
+     */
+    public function getAvailableClothingTypes(int $serviceId, int $currentIndex)
+    {
+        $clothingItems = $this->itemInputs[$serviceId]['clothing_items'] ?? [];
+
+        // Ambil ID yang sudah dipilih (kecuali index saat ini)
+        $selectedIds = [];
+        foreach ($clothingItems as $index => $item) {
+            if ($index !== $currentIndex && !empty($item['clothing_type_id'])) {
+                $selectedIds[] = $item['clothing_type_id'];
+            }
+        }
+
+        // Filter clothing types yang belum dipilih
+        return $this->clothingTypes->filter(function ($type) use ($selectedIds) {
+            return !in_array($type->id, $selectedIds);
+        });
     }
 
     /**
@@ -460,9 +666,8 @@ class DetailPesanan extends Component
         $this->transaction->refresh();
         $this->transaction->load([
             'customer',
-            'service',
-            'pos',
-            'courierMotorcycle',
+            'location',
+            'courier',
             'payments'
         ]);
 

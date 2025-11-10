@@ -10,7 +10,7 @@
                             {{ $transaction->invoice_number }}
                         </h3>
                         <p class="text-xs text-base-content/60">
-                            {{ $transaction->formatted_order_date }}
+                            {{ $transaction->created_at?->translatedFormat('d M Y, H:i') ?? '-' }}
                         </p>
                     </div>
                     <span class="badge badge-secondary gap-1">
@@ -36,20 +36,11 @@
 
                 {{-- Order Info --}}
                 @if (
-                    $transaction->service_id ||
-                        $transaction->pos_id ||
+                    $transaction->location_id ||
                         $transaction->weight ||
-                        $transaction->payment_timing ||
+                        $transaction->payment_timing_text ||
                         $transaction->customer?->address)
                     <div class="bg-base-200 rounded-lg p-3 space-y-2">
-                        {{-- Layanan --}}
-                        @if ($transaction->service_id)
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-base-content/70">Layanan</span>
-                                <span class="font-semibold">{{ $transaction->service?->name ?? 'N/A' }}</span>
-                            </div>
-                        @endif
-
                         {{-- Berat --}}
                         @if ($transaction->weight)
                             <div class="flex justify-between items-center">
@@ -58,16 +49,16 @@
                             </div>
                         @endif
 
-                        {{-- Pos --}}
-                        @if ($transaction->pos_id)
+                        {{-- Location (Pos/Resort) --}}
+                        @if ($transaction->location_id)
                             <div class="flex justify-between items-center">
-                                <span class="text-sm text-base-content/70">Pos</span>
-                                <span class="font-semibold">{{ $transaction->pos?->name ?? 'N/A' }}</span>
+                                <span class="text-sm text-base-content/70">Lokasi</span>
+                                <span class="font-semibold">{{ $transaction->location?->name ?? 'N/A' }}</span>
                             </div>
                         @endif
 
                         {{-- Metode Pembayaran --}}
-                        @if ($transaction->payment_timing)
+                        @if ($transaction->payment_timing_text)
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-base-content/70">Metode Pembayaran</span>
                                 <span class="font-semibold">
@@ -78,7 +69,7 @@
 
                         {{-- Alamat --}}
                         @if ($transaction->customer?->address)
-                            @if ($transaction->service_id || $transaction->pos_id || $transaction->weight || $transaction->payment_timing)
+                            @if ($transaction->location_id || $transaction->weight || $transaction->payment_timing_text)
                                 <div class="divider my-1"></div>
                             @endif
                             <div>

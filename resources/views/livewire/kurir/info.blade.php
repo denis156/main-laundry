@@ -235,35 +235,34 @@
                     <div class="bg-base-200 rounded-lg p-3">
                         <div class="mb-3">
                             <h4 class="font-bold text-lg text-primary">{{ $this->assignedPos->name }}</h4>
-                            @if ($this->assignedPos->address)
+                            @if ($this->posAddress)
                                 <p class="text-sm text-base-content/70 mt-2">
                                     <x-icon name="solar.map-point-linear" class="w-4 h-4 inline" />
-                                    {{ $this->assignedPos->address }}
+                                    {{ $this->posAddress }}
                                 </p>
                             @endif
                         </div>
 
-                        @if ($this->assignedPos->pic_name || $this->assignedPos->phone)
+                        @if ($this->posContactName || $this->posContactPhone)
                             <div class="divider my-2"></div>
                             <div>
                                 <p class="text-xs font-semibold text-base-content/60 mb-2">Penanggung Jawab Pos</p>
                                 <div class="space-y-2 mb-3">
-                                    @if ($this->assignedPos->pic_name)
+                                    @if ($this->posContactName)
                                         <div class="flex items-center gap-2">
                                             <x-icon name="solar.user-bold-duotone" class="w-4 h-4 text-primary" />
-                                            <span
-                                                class="text-sm font-semibold">{{ $this->assignedPos->pic_name }}</span>
+                                            <span class="text-sm font-semibold">{{ $this->posContactName }}</span>
                                         </div>
                                     @endif
-                                    @if ($this->assignedPos->phone)
+                                    @if ($this->posContactPhone)
                                         <div class="flex items-center gap-2">
                                             <x-icon name="solar.phone-bold-duotone" class="w-4 h-4 text-success" />
-                                            <span class="text-sm">{{ $this->assignedPos->phone }}</span>
+                                            <span class="text-sm">{{ $this->posContactPhone }}</span>
                                         </div>
                                     @endif
                                 </div>
 
-                                @if ($this->assignedPos->phone)
+                                @if ($this->posContactPhone)
                                     <a href="{{ $this->getWhatsAppPosUrl() }}" target="_blank"
                                         class="btn btn-success btn-sm w-full">
                                         <x-icon name="solar.chat-round-bold-duotone" class="w-4 h-4" />
@@ -273,13 +272,13 @@
                             </div>
                         @endif
 
-                        @if ($this->assignedPos->area && count($this->assignedPos->area) > 0)
+                        @if (count($this->posCoverageArea) > 0)
                             <div class="divider my-2"></div>
                             <div>
                                 <p class="text-xs font-semibold text-base-content/60 mb-2">Area Layanan</p>
                                 <div class="flex flex-wrap gap-1">
-                                    @foreach ($this->assignedPos->area as $kelurahan)
-                                        <span class="badge badge-outline badge-sm">{{ $kelurahan }}</span>
+                                    @foreach ($this->posCoverageArea as $area)
+                                        <span class="badge badge-outline badge-sm">{{ $area }}</span>
                                     @endforeach
                                 </div>
                             </div>

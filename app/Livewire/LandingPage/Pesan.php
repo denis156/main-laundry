@@ -28,7 +28,7 @@ class Pesan extends Component
     public string $village_code = ''; // Kode kelurahan
 
     // Transaction data
-    public ?int $service_id = null;
+    public array $service_ids = []; // Multiple services
     public string $payment_timing = 'on_delivery';
     public string $notes = '';
 
@@ -46,15 +46,32 @@ class Pesan extends Component
     public function mount(): void
     {
         // Load active services
-        $this->services = Service::where('is_active', true)
-            ->orderBy('name')
-            ->get();
+        $this->search();
 
         // Load districts (kecamatan) di Kota Kendari
         $this->districts = WilayahHelper::getKendariDistricts();
 
         // Set form loaded timestamp untuk bot detection
         $this->form_loaded_at = now()->timestamp;
+    }
+
+    /**
+     * Search services untuk x-choices searchable
+     */
+    public function search(string $value = ''): void
+    {
+        // Besides the search results, include the currently selected options
+        $selectedOptions = !empty($this->service_ids)
+            ? Service::whereIn('id', $this->service_ids)->get()
+            : collect();
+
+        $this->services = Service::query()
+            ->where('is_active', true)
+            ->where('name', 'like', "%$value%")
+            ->orderBy('is_featured', 'desc') // Featured first
+            ->orderBy('name')
+            ->get()
+            ->merge($selectedOptions);
     }
 
     /**
@@ -99,7 +116,8 @@ class Pesan extends Component
             'detail_address' => 'required|string|min:10|max:500',
             'district_code' => 'required|string',
             'village_code' => 'required|string',
-            'service_id' => 'required|exists:services,id',
+            'service_ids' => 'required|array|min:1',
+            'service_ids.*' => 'exists:services,id',
             'payment_timing' => 'required|in:on_pickup,on_delivery',
             'notes' => 'nullable|string|max:1000',
             'honeypot' => 'size:0', // Honeypot harus kosong
@@ -120,8 +138,9 @@ class Pesan extends Component
             'detail_address.max' => 'Detail alamat maksimal 500 karakter.',
             'district_code.required' => 'Silakan pilih kecamatan.',
             'village_code.required' => 'Silakan pilih kelurahan.',
-            'service_id.required' => 'Silakan pilih layanan.',
-            'service_id.exists' => 'Layanan tidak valid.',
+            'service_ids.required' => 'Silakan pilih minimal satu layanan.',
+            'service_ids.min' => 'Silakan pilih minimal satu layanan.',
+            'service_ids.*.exists' => 'Layanan tidak valid.',
             'payment_timing.required' => 'Silakan pilih waktu pembayaran.',
             'payment_timing.in' => 'Waktu pembayaran tidak valid.',
             'notes.max' => 'Catatan maksimal 1000 karakter.',
@@ -175,76 +194,130 @@ class Pesan extends Component
             $districtName = $district['name'] ?? '';
             $villageName = $village['name'] ?? '';
 
-            // Format full address
-            $fullAddress = WilayahHelper::formatFullAddress(
-                $this->detail_address,
-                $villageName,
-                $districtName
-            );
+            // Prepare address data for JSONB
+            $addressData = [
+                'detail_address' => $this->detail_address,
+                'village_code' => $this->village_code,
+                'village_name' => $villageName,
+                'district_code' => $this->district_code,
+                'district_name' => $districtName,
+                'city_code' => '74.71', // Kota Kendari
+                'city_name' => 'Kota Kendari',
+                'province_code' => '74',
+                'province_name' => 'Sulawesi Tenggara',
+                'is_default' => true,
+            ];
 
             // Find or create customer by phone number
-            $customer = Customer::firstOrCreate(
-                ['phone' => $this->phone],
-                [
-                    'name' => $this->name,
+            $customer = Customer::where('phone', $this->phone)->first();
+
+            if (!$customer) {
+                // Create new customer with JSONB data structure
+                $customer = Customer::create([
+                    'phone' => $this->phone,
                     'email' => $this->email,
                     'password' => 'pelanggan_main', // Default password untuk customer baru
-                    'district_code' => $this->district_code,
-                    'district_name' => $districtName,
-                    'village_code' => $this->village_code,
-                    'village_name' => $villageName,
-                    'detail_address' => $this->detail_address,
-                    'address' => $fullAddress,
                     'member' => false,
-                ]
-            );
+                    'data' => [
+                        'name' => $this->name,
+                        'addresses' => [$addressData],
+                    ],
+                ]);
+            } else {
+                // Customer sudah ada, update data
+                $existingData = $customer->data ?? [];
 
-            // Jika customer sudah ada, update wilayah, address dan email (jika sebelumnya kosong)
-            // Name tetap pakai data yang pertama kali didaftarkan
-            if (!$customer->wasRecentlyCreated) {
-                $updateData = [
-                    'district_code' => $this->district_code,
-                    'district_name' => $districtName,
-                    'village_code' => $this->village_code,
-                    'village_name' => $villageName,
-                    'detail_address' => $this->detail_address,
-                    'address' => $fullAddress,
-                ];
-
-                // Update email hanya jika sebelumnya kosong dan sekarang diisi
-                if (empty($customer->email) && !empty($this->email)) {
-                    $updateData['email'] = $this->email;
+                // Update name jika belum ada
+                if (empty($existingData['name'])) {
+                    $existingData['name'] = $this->name;
                 }
 
-                $customer->update($updateData);
+                // Update email jika sebelumnya kosong dan sekarang diisi
+                if (empty($customer->email) && !empty($this->email)) {
+                    $customer->email = $this->email;
+                }
+
+                // Update atau tambahkan address
+                $existingAddresses = $existingData['addresses'] ?? [];
+
+                // Cari apakah address dengan village_code dan district_code ini sudah ada
+                $addressExists = false;
+                foreach ($existingAddresses as $index => $addr) {
+                    if (($addr['village_code'] ?? '') === $this->village_code &&
+                        ($addr['district_code'] ?? '') === $this->district_code) {
+                        // Update existing address
+                        $existingAddresses[$index] = $addressData;
+                        $addressExists = true;
+                        break;
+                    }
+                }
+
+                // Jika address belum ada, tambahkan
+                if (!$addressExists) {
+                    // Set semua address lain jadi tidak default
+                    foreach ($existingAddresses as $index => $addr) {
+                        $existingAddresses[$index]['is_default'] = false;
+                    }
+                    $existingAddresses[] = $addressData;
+                }
+
+                $existingData['addresses'] = $existingAddresses;
+                $customer->data = $existingData;
+                $customer->save();
             }
 
-            // Get selected service
-            $service = Service::findOrFail($this->service_id);
+            // Get selected services
+            $services = Service::whereIn('id', $this->service_ids)->get();
 
-            // Calculate estimated finish date
-            $estimatedFinishDate = now()->addDays($service->duration_days);
+            // Prepare items array for multiple services
+            $items = [];
+            $maxDurationHours = 0;
+
+            foreach ($services as $service) {
+                $pricingUnit = $service->data['pricing']['unit'] ?? 'per_kg';
+                $pricePerKg = $service->data['pricing']['price_per_kg'] ?? null;
+                $pricePerItem = $service->data['pricing']['price_per_item'] ?? null;
+                $durationHours = $service->data['duration_hours'] ?? 72;
+
+                // Track max duration untuk estimated finish date
+                if ($durationHours > $maxDurationHours) {
+                    $maxDurationHours = $durationHours;
+                }
+
+                $items[] = [
+                    'service_id' => $service->id,
+                    'service_name' => $service->name,
+                    'pricing_unit' => $pricingUnit,
+                    'price_per_kg' => $pricePerKg,
+                    'price_per_item' => $pricePerItem,
+                    'quantity' => 0, // Untuk per_item, akan diisi oleh kurir
+                    'total_weight' => 0, // Untuk per_kg, akan ditimbang oleh kurir
+                    'subtotal' => 0, // Akan dihitung setelah ditimbang/diinput quantity
+                ];
+            }
+
+            // Calculate estimated finish date berdasarkan service terlama
+            $estimatedFinishDate = now()->addHours($maxDurationHours);
+
+            // Prepare transaction data for JSONB
+            $transactionData = [
+                'items' => $items,
+                'notes' => $this->notes,
+                'order_date' => now()->toDateTimeString(),
+                'estimated_finish_date' => $estimatedFinishDate->toDateTimeString(),
+            ];
 
             // Create transaction
             // Event akan otomatis di-broadcast via TransactionObserver
             $transaction = Transaction::create([
                 'invoice_number' => InvoiceHelper::generateInvoiceNumber(),
                 'customer_id' => $customer->id,
-                'service_id' => $service->id,
-                'courier_motorcycle_id' => null, // Akan diassign oleh admin
-                'pos_id' => null, // Akan diassign oleh admin
-                'weight' => 0, // Akan ditimbang oleh kurir
-                'price_per_kg' => $service->price_per_kg,
-                'total_price' => 0, // Akan dihitung setelah ditimbang
+                'courier_id' => null, // Akan diassign saat kurir ambil pesanan
+                'location_id' => null, // Akan diassign oleh admin
                 'workflow_status' => 'pending_confirmation',
                 'payment_timing' => $this->payment_timing,
                 'payment_status' => 'unpaid',
-                'payment_proof_url' => null,
-                'paid_at' => null,
-                'notes' => $this->notes,
-                'order_date' => now(),
-                'estimated_finish_date' => $estimatedFinishDate,
-                'actual_finish_date' => null,
+                'data' => $transactionData,
                 'form_loaded_at' => Carbon::createFromTimestamp($this->form_loaded_at),
                 // tracking_token, customer_ip, customer_user_agent akan di-set oleh Observer
             ]);
@@ -265,7 +338,7 @@ class Pesan extends Component
                 'detail_address',
                 'district_code',
                 'village_code',
-                'service_id',
+                'service_ids',
                 'notes',
                 'honeypot'
             ]);
@@ -308,7 +381,7 @@ class Pesan extends Component
             'detail_address',
             'district_code',
             'village_code',
-            'service_id',
+            'service_ids',
             'notes',
             'honeypot'
         ]);

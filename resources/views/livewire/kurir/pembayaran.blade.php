@@ -28,6 +28,14 @@
         {{-- Payment Cards --}}
         <div class="space-y-3">
             @forelse ($this->payments as $payment)
+                @php
+                    $paymentDate = \App\Helper\Database\PaymentHelper::getFormattedPaymentDate($payment);
+                    $customerName = $payment->transaction->customer ? \App\Helper\Database\CustomerHelper::getName($payment->transaction->customer) : 'Customer tidak ditemukan';
+                    $items = \App\Helper\Database\TransactionHelper::getItems($payment->transaction);
+                    $totalPrice = \App\Helper\Database\TransactionHelper::getTotalPrice($payment->transaction);
+                    $hasProof = !empty(\App\Helper\Database\PaymentHelper::getProofUrl($payment));
+                @endphp
+
                 <div class="card bg-base-300 shadow">
                     <div class="card-body p-4">
                         {{-- Header: Invoice & Eye Button --}}
@@ -36,12 +44,14 @@
                                 <h3 class="font-bold text-primary text-lg">
                                     {{ $payment->transaction->invoice_number }}
                                 </h3>
-                                <p class="text-xs text-base-content/60">
-                                    Dibayar: {{ $payment->formatted_payment_date }}
-                                </p>
+                                @if ($paymentDate !== '-')
+                                    <p class="text-xs text-base-content/60">
+                                        Dibayar: {{ $paymentDate }}
+                                    </p>
+                                @endif
                             </div>
                             <x-button icon="solar.eye-bold" class="btn-circle btn-accent btn-md"
-                                link="{{ route('kurir.pembayaran.detail', $payment->transaction->id) }}" />
+                                link="{{ route('kurir.pembayaran.detail', $payment->id) }}" />
                         </div>
 
                         <div class="divider my-2"></div>
@@ -52,12 +62,11 @@
                                 <div
                                     class="ring-accent ring-offset-base-100 w-10 h-10 rounded-full ring-2 ring-offset-2">
                                     <img src="{{ $payment->transaction->customer?->getFilamentAvatarUrl() }}"
-                                        alt="{{ $payment->transaction->customer?->name ?? 'Customer' }}" />
+                                        alt="{{ $customerName }}" />
                                 </div>
                             </div>
                             <div class="flex-1">
-                                <p class="font-semibold">
-                                    {{ $payment->transaction->customer?->name ?? 'Customer tidak ditemukan' }}</p>
+                                <p class="font-semibold">{{ $customerName }}</p>
                                 <p class="text-xs text-base-content/60">
                                     {{ $payment->transaction->customer?->phone ?? '-' }}</p>
                             </div>
@@ -75,35 +84,67 @@
                                 @endif
                             </div>
 
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-base-content/70">Layanan</span>
-                                <span class="font-semibold">{{ $payment->transaction->service?->name ?? 'N/A' }}</span>
+                            {{-- List Items/Layanan --}}
+                            <div class="divider my-1"></div>
+                            <div>
+                                <p class="text-xs font-semibold text-base-content/70 mb-2">Layanan yang Dipesan:</p>
+                                <div class="space-y-2">
+                                    @foreach ($items as $index => $item)
+                                        @php
+                                            // Get service info from service_name/pricing_unit or fallback to service_id lookup
+                                            $serviceName = $item['service_name'] ?? null;
+                                            $pricingUnit = $item['pricing_unit'] ?? null;
+
+                                            if ((!$serviceName || !$pricingUnit) && !empty($item['service_id'])) {
+                                                $service = \App\Models\Service::find($item['service_id']);
+                                                if ($service) {
+                                                    $serviceName = $serviceName ?: $service->name;
+                                                    $pricingUnit = $pricingUnit ?: ($service->data['pricing']['unit'] ?? 'per_kg');
+                                                }
+                                            }
+
+                                            $serviceName = $serviceName ?: 'N/A';
+                                            $pricingUnit = $pricingUnit ?: 'per_kg';
+                                        @endphp
+                                        <div class="bg-base-100 rounded p-2">
+                                            <div class="flex justify-between items-start mb-1">
+                                                <span class="text-sm font-semibold text-primary">
+                                                    {{ $serviceName }}
+                                                </span>
+                                                <span class="text-xs badge badge-outline">
+                                                    @if ($pricingUnit === 'per_kg')
+                                                        {{ $item['total_weight'] ?? 0 }} kg
+                                                    @else
+                                                        {{ $item['quantity'] ?? 0 }} item
+                                                    @endif
+                                                </span>
+                                            </div>
+                                            <div class="flex justify-between items-center text-xs">
+                                                <span class="text-base-content/60">Subtotal</span>
+                                                <span class="font-semibold">Rp {{ number_format($item['subtotal'] ?? 0, 0, ',', '.') }}</span>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-base-content/70">Berat</span>
-                                <span class="font-semibold">{{ $payment->transaction->weight }} kg</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-base-content/70">Harga/kg</span>
-                                <span class="font-semibold">{{ $payment->transaction->formatted_price_per_kg }}</span>
-                            </div>
+
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-base-content/70">Metode Pembayaran</span>
                                 <span class="font-semibold">
-                                    {{ $payment->transaction->payment_timing_text }}
+                                    {{ $payment->transaction->payment_timing_text ?? 'N/A' }}
                                 </span>
                             </div>
                             <div class="divider my-1"></div>
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-base-content/70">Jumlah Bayar</span>
                                 <span class="font-semibold text-right text-primary text-base">
-                                    {{ $payment->formatted_amount }}
+                                    Rp {{ number_format($totalPrice, 0, ',', '.') }}
                                 </span>
                             </div>
                         </div>
 
                         {{-- Upload Payment Proof Section (if no proof yet) --}}
-                        @if (!$payment->payment_proof_url)
+                        @if (!$hasProof)
                             <div class="mt-3 bg-base-200 rounded-lg p-3">
                                 <x-file wire:model="paymentProofs.{{ $payment->id }}" label="Bukti Pembayaran"
                                     hint="Upload foto/screenshot bukti pembayaran"
@@ -113,7 +154,7 @@
 
                         {{-- Action Buttons --}}
                         <div class="mt-3">
-                            @if (!$payment->payment_proof_url)
+                            @if (!$hasProof)
                                 {{-- Tampilkan hanya Upload jika belum ada bukti --}}
                                 <x-button wire:click="openUploadModal({{ $payment->id }})" label="Upload Bukti"
                                     icon="solar.upload-bold-duotone" class="btn-success btn-sm btn-block"

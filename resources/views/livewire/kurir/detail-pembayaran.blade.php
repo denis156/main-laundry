@@ -18,9 +18,12 @@
                 <div class="flex items-start justify-between">
                     <div>
                         <p class="font-bold text-lg text-primary">{{ $transaction->invoice_number }}</p>
-                        @if ($this->payment?->payment_date)
+                        @php
+                            $paymentDate = \App\Helper\Database\PaymentHelper::getFormattedPaymentDate($payment);
+                        @endphp
+                        @if ($paymentDate !== '-')
                             <p class="text-xs text-base-content/60">
-                                Dibayar: {{ $this->payment->formatted_payment_date }}
+                                Dibayar: {{ $paymentDate }}
                             </p>
                         @endif
                     </div>
@@ -43,23 +46,30 @@
                     Informasi Pelanggan
                 </h3>
 
+                @php
+                    $customerName = $transaction->customer ? \App\Helper\Database\CustomerHelper::getName($transaction->customer) : 'N/A';
+                    $customerPhone = $transaction->customer?->phone ?? '-';
+                    $defaultAddress = $transaction->customer ? \App\Helper\Database\CustomerHelper::getDefaultAddress($transaction->customer) : null;
+                    $addressString = $defaultAddress ? \App\Helper\Database\CustomerHelper::getFullAddressString($defaultAddress) : null;
+                @endphp
+
                 <div class="bg-base-200 rounded-lg p-3 space-y-2 mb-3">
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-base-content/70">Nama</span>
-                        <span class="font-semibold">{{ $transaction->customer?->name ?? 'N/A' }}</span>
+                        <span class="font-semibold">{{ $customerName }}</span>
                     </div>
 
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-base-content/70">No. Telepon</span>
-                        <span class="font-semibold">{{ $transaction->customer?->phone ?? '-' }}</span>
+                        <span class="font-semibold">{{ $customerPhone }}</span>
                     </div>
 
-                    @if ($transaction->customer?->address)
+                    @if ($addressString && $addressString !== 'Belum ada alamat')
                         <div class="divider my-1"></div>
                         <div>
                             <p class="text-xs text-base-content/70 mb-1">Alamat</p>
                             <p class="text-sm font-semibold text-primary leading-relaxed">
-                                {{ $transaction->customer->address }}</p>
+                                {{ $addressString }}</p>
                         </div>
                     @endif
                 </div>
@@ -72,38 +82,104 @@
                     Ringkasan Pembayaran
                 </h3>
 
+                @php
+                    $items = \App\Helper\Database\TransactionHelper::getItems($transaction);
+                    $totalPrice = \App\Helper\Database\TransactionHelper::getTotalPrice($transaction);
+                    $paymentDateSummary = \App\Helper\Database\PaymentHelper::getFormattedPaymentDate($payment);
+                @endphp
+
                 <div class="bg-base-200 rounded-lg p-3 space-y-2 mb-3">
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-base-content/70">Layanan</span>
-                        <span class="font-semibold">{{ $transaction->service?->name ?? 'N/A' }}</span>
+                    {{-- List Items/Layanan --}}
+                    <div>
+                        <p class="text-xs font-semibold text-base-content/70 mb-2">Layanan yang Dipesan:</p>
+                        <div class="space-y-2">
+                            @foreach ($items as $index => $item)
+                                @php
+                                    // Get service info from service_name/pricing_unit or fallback to service_id lookup
+                                    $serviceName = $item['service_name'] ?? null;
+                                    $pricingUnit = $item['pricing_unit'] ?? null;
+
+                                    if ((!$serviceName || !$pricingUnit) && !empty($item['service_id'])) {
+                                        $service = \App\Models\Service::find($item['service_id']);
+                                        if ($service) {
+                                            $serviceName = $serviceName ?: $service->name;
+                                            $pricingUnit = $pricingUnit ?: ($service->data['pricing']['unit'] ?? 'per_kg');
+                                        }
+                                    }
+
+                                    $serviceName = $serviceName ?: 'N/A';
+                                    $pricingUnit = $pricingUnit ?: 'per_kg';
+                                @endphp
+                                <div class="bg-base-100 rounded p-2">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <span class="text-sm font-semibold text-primary">
+                                            {{ $serviceName }}
+                                        </span>
+                                        <span class="text-xs badge badge-outline">
+                                            @if ($pricingUnit === 'per_kg')
+                                                {{ $item['total_weight'] ?? 0 }} kg
+                                            @else
+                                                {{ $item['quantity'] ?? 0 }} item
+                                            @endif
+                                        </span>
+                                    </div>
+
+                                    {{-- Clothing Items (jika ada) --}}
+                                    @if (!empty($item['clothing_items']))
+                                        <div class="mt-2 space-y-1">
+                                            <p class="text-xs text-base-content/60">Detail Pakaian:</p>
+                                            @foreach ($item['clothing_items'] as $clothing)
+                                                @php
+                                                    // Get clothing type name or fallback to clothing_type_id lookup
+                                                    $clothingTypeName = $clothing['clothing_type_name'] ?? null;
+                                                    if (!$clothingTypeName && !empty($clothing['clothing_type_id'])) {
+                                                        $clothingType = \App\Models\ClothingType::find($clothing['clothing_type_id']);
+                                                        $clothingTypeName = $clothingType?->name ?? 'N/A';
+                                                    }
+                                                    $clothingTypeName = $clothingTypeName ?: 'N/A';
+                                                @endphp
+                                                <div class="flex justify-between text-xs pl-2">
+                                                    <span class="text-base-content/70">• {{ $clothingTypeName }}</span>
+                                                    <span class="text-base-content/60">{{ $clothing['quantity'] ?? 0 }} pcs</span>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
+                                    <div class="flex justify-between items-center text-xs mt-2 pt-2 border-t border-base-200">
+                                        <span class="text-base-content/60">Subtotal</span>
+                                        <span class="font-semibold">Rp {{ number_format($item['subtotal'] ?? 0, 0, ',', '.') }}</span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-base-content/70">Berat</span>
-                        <span class="font-semibold">{{ $transaction->weight }} kg</span>
-                    </div>
+
+                    <div class="divider my-1"></div>
+
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-base-content/70">Metode Pembayaran</span>
                         <span class="font-semibold">
-                            {{ $transaction->payment_timing_text }}
+                            {{ $transaction->payment_timing_text ?? 'N/A' }}
                         </span>
                     </div>
-                    @if ($this->payment?->payment_date)
+                    @if ($paymentDateSummary !== '-')
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-base-content/70">Tanggal Bayar</span>
-                            <span class="font-semibold">{{ $this->payment->formatted_payment_date }}</span>
+                            <span class="font-semibold">{{ $paymentDateSummary }}</span>
                         </div>
                     @endif
                     <div class="divider my-1"></div>
                     <div class="flex justify-between items-center">
-                        <span class="text-sm text-base-content/70">Jumlah Bayar</span>
+                        <span class="text-sm text-base-content/70">Total Pembayaran</span>
                         <span class="font-semibold text-right text-primary text-base">
-                            {{ $transaction->formatted_total_price }}
+                            Rp {{ number_format($totalPrice, 0, ',', '.') }}
                         </span>
                     </div>
                 </div>
 
                 {{-- Payment Proof Image --}}
-                @if ($this->payment?->payment_proof_url)
+                @if ($this->hasPaymentProof)
                     <div class="divider my-2"></div>
 
                     <h3 class="font-bold text-base mb-2 flex items-center gap-2">
@@ -111,7 +187,7 @@
                         Bukti Pembayaran
                     </h3>
 
-                    <img src="{{ asset('storage/' . $this->payment->payment_proof_url) }}" alt="Bukti Pembayaran"
+                    <img src="{{ asset('storage/' . $this->paymentProofUrl) }}" alt="Bukti Pembayaran"
                         class="w-full rounded-lg shadow cursor-pointer"
                         onclick="document.getElementById('payment_proof_modal').showModal()" />
 
@@ -122,7 +198,7 @@
                                 <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
                             </form>
                             <h3 class="font-bold text-lg mb-4">Bukti Pembayaran</h3>
-                            <img src="{{ asset('storage/' . $this->payment->payment_proof_url) }}"
+                            <img src="{{ asset('storage/' . $this->paymentProofUrl) }}"
                                 alt="Bukti Pembayaran" class="w-full rounded-lg" />
                         </div>
                         <form method="dialog" class="modal-backdrop">
@@ -132,7 +208,7 @@
                 @endif
 
                 {{-- Upload Payment Proof Section (hanya jika Payment ada tapi belum ada bukti) --}}
-                @if ($this->payment && !$this->payment->payment_proof_url)
+                @if (!$this->hasPaymentProof)
                     <div class="divider my-2"></div>
 
                     <h3 class="font-bold text-base mb-2 flex items-center gap-2">
@@ -145,20 +221,13 @@
                         <x-file wire:model="paymentProof" label="Bukti Pembayaran"
                             hint="Upload foto/screenshot bukti pembayaran" accept="image/png, image/jpeg, image/jpg" />
                     </div>
-                @elseif (!$this->payment)
-                    {{-- Info jika Payment belum dibuat --}}
-                    <div class="divider my-2"></div>
-
-                    <div class="alert alert-info">
-                        <x-icon name="solar.info-circle-bold-duotone" class="w-5 h-5" />
-                        <span class="text-sm">
-                            Record pembayaran akan otomatis dibuat saat pesanan sudah dijemput atau siap diantar.
-                        </span>
-                    </div>
                 @endif
 
                 {{-- Notes --}}
-                @if ($transaction->notes)
+                @php
+                    $notes = \App\Helper\Database\TransactionHelper::getNotes($transaction);
+                @endphp
+                @if ($notes)
                     <div class="divider my-2"></div>
 
                     <h3 class="font-bold text-base mb-2 flex items-center gap-2">
@@ -167,19 +236,14 @@
                     </h3>
 
                     <div class="bg-base-200 rounded-lg p-3">
-                        <p class="text-sm">{{ $transaction->notes }}</p>
+                        <p class="text-sm">{{ $notes }}</p>
                     </div>
                 @endif
 
                 {{-- Action Buttons --}}
                 <div class="mt-3">
-                    @php
-                        $hasPayment = $this->payment !== null;
-                        $hasBukti = $this->payment?->payment_proof_url !== null;
-                    @endphp
-
-                    @if ($hasPayment && !$hasBukti)
-                        {{-- Ada Payment tapi belum ada bukti - Tampilkan hanya Upload --}}
+                    @if (!$this->hasPaymentProof)
+                        {{-- Belum ada bukti - Tampilkan Upload --}}
                         <x-button wire:click="openUploadModal" label="Upload Bukti" icon="solar.upload-bold-duotone"
                             class="btn-success btn-sm btn-block" :disabled="empty($paymentProof)" />
                     @endif

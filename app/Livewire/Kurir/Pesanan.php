@@ -6,6 +6,9 @@ namespace App\Livewire\Kurir;
 
 use Mary\Traits\Toast;
 use App\Helper\TransactionAreaFilter;
+use App\Helper\Database\CourierHelper;
+use App\Helper\Database\CustomerHelper;
+use App\Helper\Database\TransactionHelper;
 use App\Models\Transaction;
 use Livewire\Component;
 use Livewire\Attributes\Title;
@@ -28,13 +31,9 @@ class Pesanan extends Component
     public int $perPage = 5;
     public int $currentPage = 1;
 
-    // Array untuk menyimpan berat per transaksi [transaction_id => weight]
-    public array $weights = [];
-
     // Modal states
     public bool $showCancelModal = false;
     public bool $showConfirmModal = false;
-    public bool $showPickedUpModal = false;
     public bool $showAtLoadingPostModal = false;
     public bool $showOutForDeliveryModal = false;
     public bool $showDeliveredModal = false;
@@ -63,17 +62,15 @@ class Pesanan extends Component
         // Load pos dengan area layanan
         $assignedPos = $courier->assignedPos;
 
-        $query = Transaction::with(['customer', 'service', 'pos'])
+        $query = Transaction::with(['customer', 'location'])
             ->where(function ($q) use ($courier) {
                 // Transaksi yang sudah di-assign ke kurir ini
-                $q->where('courier_motorcycle_id', $courier->id)
+                $q->where('courier_id', $courier->id)
                     // ATAU transaksi yang belum ada kurirnya (bisa diambil)
-                    ->orWhereNull('courier_motorcycle_id');
+                    ->orWhereNull('courier_id');
             })
             ->whereNotNull('customer_id')
-            ->whereNotNull('service_id')
-            ->whereHas('customer')
-            ->whereHas('service');
+            ->whereHas('customer');
 
         // Filter berdasarkan area layanan pos menggunakan helper
         TransactionAreaFilter::applyFilter($query, $assignedPos);
@@ -88,7 +85,7 @@ class Pesanan extends Component
             $query->where(function ($q) {
                 $q->where('invoice_number', 'like', '%' . $this->search . '%')
                     ->orWhereHas('customer', function ($subQ) {
-                        $subQ->where('name', 'like', '%' . $this->search . '%');
+                        $subQ->whereRaw("data->>'name' ILIKE ?", ['%' . $this->search . '%']);
                     });
             });
         }
@@ -109,17 +106,15 @@ class Pesanan extends Component
         // Load pos dengan area layanan
         $assignedPos = $courier->assignedPos;
 
-        $query = Transaction::with(['customer', 'service', 'pos'])
+        $query = Transaction::with(['customer', 'location'])
             ->where(function ($q) use ($courier) {
                 // Transaksi yang sudah di-assign ke kurir ini
-                $q->where('courier_motorcycle_id', $courier->id)
+                $q->where('courier_id', $courier->id)
                     // ATAU transaksi yang belum ada kurirnya (bisa diambil)
-                    ->orWhereNull('courier_motorcycle_id');
+                    ->orWhereNull('courier_id');
             })
             ->whereNotNull('customer_id')
-            ->whereNotNull('service_id')
-            ->whereHas('customer')
-            ->whereHas('service');
+            ->whereHas('customer');
 
         // Filter berdasarkan area layanan pos menggunakan helper
         TransactionAreaFilter::applyFilter($query, $assignedPos);
@@ -134,7 +129,7 @@ class Pesanan extends Component
             $query->where(function ($q) {
                 $q->where('invoice_number', 'like', '%' . $this->search . '%')
                     ->orWhereHas('customer', function ($subQ) {
-                        $subQ->where('name', 'like', '%' . $this->search . '%');
+                        $subQ->whereRaw("data->>'name' ILIKE ?", ['%' . $this->search . '%']);
                     });
             });
         }
@@ -142,7 +137,7 @@ class Pesanan extends Component
         // Hitung limit berdasarkan currentPage
         $limit = $this->perPage * $this->currentPage;
 
-        return $query->orderBy('order_date', 'desc')
+        return $query->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get();
     }
@@ -208,15 +203,30 @@ class Pesanan extends Component
             $cleanPhone = '62' . $cleanPhone;
         }
 
-        // Format harga
-        $pricePerKg = number_format((float) $transaction->price_per_kg, 0, ',', '.');
-        $serviceName = $transaction->service?->name ?? 'Layanan';
+        // Get data from JSONB
+        $items = TransactionHelper::getItems($transaction);
+        $firstItem = $items[0] ?? [];
+        $pricePerKg = number_format((float) ($firstItem['price_per_kg'] ?? 0), 0, ',', '.');
+        $serviceName = $firstItem['service_name'] ?? null;
+
+        // Fallback ke Service model jika service_name tidak ada
+        if (!$serviceName && !empty($firstItem['service_id'])) {
+            $service = \App\Models\Service::find($firstItem['service_id']);
+            $serviceName = $service?->name ?? 'Layanan';
+        }
+        $serviceName = $serviceName ?: 'Layanan';
+
         $invoiceNumber = $transaction->invoice_number;
-        $customerAddress = $transaction->customer?->address ?? 'Alamat belum tersedia';
+
+        // Get customer address from JSONB
+        $defaultAddress = CustomerHelper::getDefaultAddress($transaction->customer);
+        $customerAddress = $defaultAddress ? CustomerHelper::getFullAddressString($defaultAddress) : 'Alamat belum tersedia';
+
+        $courierName = CourierHelper::getName($courier);
 
         // Message template dengan info layanan dan harga
         $message = "Halo Kak *{$customerName}*\n\n";
-        $message .= "Perkenalkan, saya *{$courier->name}* dari *Main Laundry*. ";
+        $message .= "Perkenalkan, saya *{$courierName}* dari *Main Laundry*. ";
         $message .= "Saya akan mengambil cucian Kakak hari ini.\n\n";
         $message .= "*Detail Pesanan:*\n";
         $message .= "• Invoice: {$invoiceNumber}\n";
@@ -256,20 +266,41 @@ class Pesanan extends Component
             $cleanPhone = '62' . $cleanPhone;
         }
 
-        // Format harga dan detail
-        $totalPrice = number_format((float) $transaction->total_price, 0, ',', '.');
-        $pricePerKg = number_format((float) $transaction->price_per_kg, 0, ',', '.');
-        $weight = $transaction->weight;
-        $serviceName = $transaction->service?->name ?? 'Layanan';
+        // Get data from JSONB
+        $items = TransactionHelper::getItems($transaction);
+        $totalPrice = number_format((float) TransactionHelper::getTotalPrice($transaction), 0, ',', '.');
+        $firstItem = $items[0] ?? [];
+        $pricePerKg = number_format((float) ($firstItem['price_per_kg'] ?? 0), 0, ',', '.');
+
+        // Calculate total weight from items
+        $weight = 0;
+        foreach ($items as $item) {
+            $weight += $item['weight'] ?? $item['total_weight'] ?? 0;
+        }
+
+        $serviceName = $firstItem['service_name'] ?? null;
+
+        // Fallback ke Service model jika service_name tidak ada
+        if (!$serviceName && !empty($firstItem['service_id'])) {
+            $service = \App\Models\Service::find($firstItem['service_id']);
+            $serviceName = $service?->name ?? 'Layanan';
+        }
+        $serviceName = $serviceName ?: 'Layanan';
+
         $invoiceNumber = $transaction->invoice_number;
         $isPaid = $transaction->payment_status === 'paid';
-        $paymentTiming = $transaction->payment_timing === 'on_delivery' ? 'Bayar Saat Antar' : 'Bayar Saat Jemput';
-        $customerAddress = $transaction->customer?->address ?? 'Alamat belum tersedia';
+        $paymentTiming = TransactionHelper::getPaymentTimingText($transaction);
+
+        // Get customer address from JSONB
+        $defaultAddress = CustomerHelper::getDefaultAddress($transaction->customer);
+        $customerAddress = $defaultAddress ? CustomerHelper::getFullAddressString($defaultAddress) : 'Alamat belum tersedia';
+
+        $courierName = CourierHelper::getName($courier);
 
         // Message template untuk pengantaran dengan detail lengkap
         $message = "Halo Kak *{$customerName}*\n\n";
         $message .= "Kabar baik! Cucian Kakak sudah selesai dan siap diantar.\n\n";
-        $message .= "Saya *{$courier->name}* dari *Main Laundry* akan mengantar cucian Kakak hari ini.\n\n";
+        $message .= "Saya *{$courierName}* dari *Main Laundry* akan mengantar cucian Kakak hari ini.\n\n";
         $message .= "*Detail Pesanan:*\n";
         $message .= "• Invoice: {$invoiceNumber}\n";
         $message .= "• Layanan: {$serviceName}\n";
@@ -319,8 +350,8 @@ class Pesanan extends Component
         $query = Transaction::where('id', $this->selectedTransactionId)
             ->where(function ($q) use ($courier) {
                 // Transaksi yang sudah di-assign ke kurir ini ATAU belum ada kurirnya
-                $q->where('courier_motorcycle_id', $courier->id)
-                    ->orWhereNull('courier_motorcycle_id');
+                $q->where('courier_id', $courier->id)
+                    ->orWhereNull('courier_id');
             })
             ->where('workflow_status', 'pending_confirmation');
 
@@ -340,7 +371,7 @@ class Pesanan extends Component
         }
 
         $transaction->update([
-            'courier_motorcycle_id' => $courier->id, // Assign kurir ke transaksi
+            'courier_id' => $courier->id, // Assign kurir ke transaksi
             'workflow_status' => 'confirmed',
         ]);
 
@@ -381,8 +412,8 @@ class Pesanan extends Component
         $query = Transaction::where('id', $this->selectedTransactionId)
             ->where(function ($q) use ($courier) {
                 // Transaksi yang sudah di-assign ke kurir ini ATAU belum ada kurirnya
-                $q->where('courier_motorcycle_id', $courier->id)
-                    ->orWhereNull('courier_motorcycle_id');
+                $q->where('courier_id', $courier->id)
+                    ->orWhereNull('courier_id');
             })
             ->where('workflow_status', 'pending_confirmation');
 
@@ -403,7 +434,7 @@ class Pesanan extends Component
 
         // Assign kurir ke transaksi untuk tracking siapa yang membatalkan
         $transaction->update([
-            'courier_motorcycle_id' => $courier->id,
+            'courier_id' => $courier->id,
             'workflow_status' => 'cancelled',
         ]);
 
@@ -422,93 +453,6 @@ class Pesanan extends Component
         unset($this->transactions);
     }
 
-    /**
-     * Buka modal konfirmasi untuk tandai pesanan dijemput
-     */
-    public function openPickedUpModal(int $transactionId): void
-    {
-        $this->selectedTransactionId = $transactionId;
-        $this->showPickedUpModal = true;
-    }
-
-    /**
-     * Tandai pesanan sudah dijemput (ubah status dari confirmed ke picked_up)
-     * Update pos_id sesuai dengan pos kurir dan simpan berat yang ditimbang
-     */
-    public function markAsPickedUp(): void
-    {
-        $courier = Auth::guard('courier')->user();
-
-        // Validasi berat harus diisi
-        if (empty($this->weights[$this->selectedTransactionId]) || $this->weights[$this->selectedTransactionId] <= 0) {
-            $this->error(
-                title: 'Berat Harus Diisi!',
-                description: 'Berat cucian harus diisi dan lebih dari 0 kg.',
-                position: 'toast-top toast-end',
-                timeout: 3000
-            );
-            return;
-        }
-
-        $transaction = Transaction::where('id', $this->selectedTransactionId)
-            ->where('courier_motorcycle_id', $courier->id)
-            ->where('workflow_status', 'confirmed')
-            ->first();
-
-        if (!$transaction) {
-            $this->error(
-                title: 'Tidak Bisa Diupdate!',
-                description: 'Pesanan tidak ditemukan atau tidak bisa diupdate.',
-                position: 'toast-top toast-end',
-                timeout: 3000
-            );
-            return;
-        }
-
-        $weight = (float) $this->weights[$this->selectedTransactionId];
-        $pricePerKg = $transaction->price_per_kg;
-        $totalPrice = $weight * $pricePerKg;
-
-        $transaction->update([
-            'workflow_status' => 'picked_up',
-            'pos_id' => $courier->assigned_pos_id,
-            'weight' => $weight,
-            'total_price' => $totalPrice,
-        ]);
-
-        $this->success(
-            title: 'Pesanan Dijemput!',
-            description: 'Pesanan berhasil ditandai sudah dijemput dengan berat ' . $weight . ' kg.',
-            position: 'toast-top toast-end',
-            timeout: 3000
-        );
-
-        // Clear inputs setelah berhasil
-        unset($this->weights[$this->selectedTransactionId]);
-
-        // Close modal dan reset selected transaction
-        $this->showPickedUpModal = false;
-        $this->selectedTransactionId = null;
-
-        // Refresh data
-        unset($this->transactions);
-    }
-
-    /**
-     * Get hint text untuk total harga berdasarkan berat yang diinput
-     */
-    public function getTotalPriceHint(Transaction $transaction): string
-    {
-        $weight = $this->weights[$transaction->id] ?? 0;
-
-        if ($weight <= 0 || $transaction->price_per_kg <= 0) {
-            return 'Masukkan berat untuk melihat total harga';
-        }
-
-        $totalPrice = $weight * $transaction->price_per_kg;
-
-        return 'Total: Rp ' . number_format($totalPrice, 0, ',', '.');
-    }
 
     /**
      * Buka modal konfirmasi untuk tandai pesanan sudah di pos
@@ -527,7 +471,7 @@ class Pesanan extends Component
         $courier = Auth::guard('courier')->user();
 
         $transaction = Transaction::where('id', $this->selectedTransactionId)
-            ->where('courier_motorcycle_id', $courier->id)
+            ->where('courier_id', $courier->id)
             ->where('workflow_status', 'picked_up')
             ->first();
 
@@ -577,7 +521,7 @@ class Pesanan extends Component
         $courier = Auth::guard('courier')->user();
 
         $transaction = Transaction::where('id', $this->selectedTransactionId)
-            ->where('courier_motorcycle_id', $courier->id)
+            ->where('courier_id', $courier->id)
             ->where('workflow_status', 'washing_completed')
             ->first();
 
@@ -628,7 +572,7 @@ class Pesanan extends Component
         $courier = Auth::guard('courier')->user();
 
         $transaction = Transaction::where('id', $this->selectedTransactionId)
-            ->where('courier_motorcycle_id', $courier->id)
+            ->where('courier_id', $courier->id)
             ->where('workflow_status', 'out_for_delivery')
             ->first();
 

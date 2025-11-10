@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Helper\Database\TransactionHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -62,5 +63,47 @@ class Transaction extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Get formatted order date
+     */
+    public function getFormattedOrderDateAttribute(): string
+    {
+        return $this->created_at?->translatedFormat('d M Y, H:i') ?? '-';
+    }
+
+    /**
+     * Get payment timing text
+     */
+    public function getPaymentTimingTextAttribute(): string
+    {
+        return TransactionHelper::getPaymentTimingText($this);
+    }
+
+    /**
+     * Get notes from JSONB
+     */
+    public function getNotesAttribute(): ?string
+    {
+        return TransactionHelper::getNotes($this);
+    }
+
+    /**
+     * Get total weight from JSONB items
+     */
+    public function getWeightAttribute(): ?float
+    {
+        $items = TransactionHelper::getItems($this);
+        if (empty($items)) {
+            return null;
+        }
+
+        $totalWeight = 0;
+        foreach ($items as $item) {
+            $totalWeight += (float) ($item['weight'] ?? 0);
+        }
+
+        return $totalWeight > 0 ? $totalWeight : null;
     }
 }

@@ -25,8 +25,10 @@
                         <div class="mb-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {{-- Nama Lengkap --}}
-                                <x-input label="Nama Lengkap" wire:model="name" placeholder="Contoh: Budi Santoso"
-                                    icon="o-user" hint="Nama sesuai KTP" />
+                                <div class="md:col-span-2">
+                                    <x-input label="Nama Lengkap" wire:model="name" placeholder="Contoh: Budi Santoso"
+                                        icon="o-user" hint="Nama sesuai KTP" />
+                                </div>
 
                                 {{-- Nomor WhatsApp --}}
                                 <x-input label="Nomor WhatsApp" wire:model="phone" placeholder="Contoh: 81234567890"
@@ -37,10 +39,39 @@
                                     placeholder="Contoh: budi@email.com" icon="o-envelope"
                                     hint="Untuk bukti invoice digital" />
 
-                                {{-- Pilih Layanan --}}
-                                <x-select label="Pilih Layanan" wire:model="service_id" :options="$services"
-                                    option-value="id" option-label="name" icon="o-sparkles"
-                                    placeholder="--- Pilih Layanan ---" hint="Pilih jenis layanan yang Anda inginkan" />
+                                {{-- Pilih Layanan (Multiple) --}}
+                                <div class="md:col-span-2">
+                                    <x-choices label="Pilih Layanan" wire:model="service_ids" :options="$services"
+                                        icon="o-sparkles" placeholder="Pilih satu atau lebih layanan..."
+                                        hint="Anda bisa memilih beberapa layanan sekaligus" searchable>
+                                        @scope('item', $service)
+                                            <x-list-item :item="$service">
+                                                <x-slot:avatar>
+                                                    <x-icon name="o-sparkles" class="bg-accent/10 p-2 w-9 h-9 rounded-full" />
+                                                </x-slot:avatar>
+                                                <x-slot:value>
+                                                    {{ $service->name }}
+                                                </x-slot:value>
+                                                <x-slot:sub-value>
+                                                    @php
+                                                        $pricingUnit = $service->data['pricing']['unit'] ?? 'per_kg';
+                                                        $pricePerKg = $service->data['pricing']['price_per_kg'] ?? null;
+                                                        $pricePerItem = $service->data['pricing']['price_per_item'] ?? null;
+                                                        $price = $pricingUnit === 'per_kg' ? $pricePerKg : $pricePerItem;
+                                                        $durationHours = $service->data['duration_hours'] ?? 0;
+                                                        $durationDays = ceil($durationHours / 24);
+                                                    @endphp
+                                                    {{ $durationDays }} hari •
+                                                    @if ($pricingUnit === 'per_kg')
+                                                        Rp {{ number_format($price, 0, ',', '.') }}/kg
+                                                    @else
+                                                        Rp {{ number_format($price, 0, ',', '.') }}/item
+                                                    @endif
+                                                </x-slot:sub-value>
+                                            </x-list-item>
+                                        @endscope
+                                    </x-choices>
+                                </div>
 
                                 {{-- Kecamatan --}}
                                 <x-select label="Kecamatan" wire:model.live="district_code" :options="$districts"

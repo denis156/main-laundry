@@ -13,20 +13,24 @@
             <div class="dropdown dropdown-end">
                 <div tabindex="0" role="button" class="btn btn-outline btn-circle avatar">
                     <div class="w-10 rounded-full">
-                        <img src="{{ Auth::guard('courier')->user()->getFilamentAvatarUrl() }}"
-                            alt="{{ Auth::guard('courier')->user()->name }}" />
+                        @php
+                            $courier = Auth::guard('courier')->user();
+                            $courierName = \App\Helper\Database\CourierHelper::getName($courier);
+                            $courierPhone = \App\Helper\Database\CourierHelper::getPhone($courier);
+                        @endphp
+                        <img src="{{ $courier->getFilamentAvatarUrl() }}"
+                            alt="{{ $courierName }}" />
                     </div>
                 </div>
                 <div tabindex="0" class="card card-compact dropdown-content bg-base-200 z-50 mt-1 w-64 shadow-lg">
                     <div class="card-body text-base-content">
                         {{-- User Info --}}
                         <div class="text-center pb-2">
-                            <h3 class="font-semibold text-lg">{{ Auth::guard('courier')->user()->name }}</h3>
+                            <h3 class="font-semibold text-lg">{{ $courierName }}</h3>
                             <div class="flex justify-center gap-2 mt-2">
                                 @php
-                                    $courierId = Auth::guard('courier')->user()->id;
-                                    $completedCount = \App\Models\Transaction::where('courier_motorcycle_id', $courierId)->where('workflow_status', 'delivered')->count();
-                                    $cancelledCount = \App\Models\Transaction::where('courier_motorcycle_id', $courierId)->where('workflow_status', 'cancelled')->count();
+                                    $completedCount = \App\Models\Transaction::where('courier_id', $courier->id)->where('workflow_status', 'delivered')->count();
+                                    $cancelledCount = \App\Models\Transaction::where('courier_id', $courier->id)->where('workflow_status', 'cancelled')->count();
                                 @endphp
                                 <x-badge
                                     value="{{ $completedCount }} Pesanan Selesai"
@@ -43,12 +47,14 @@
                         <div class="space-y-1.5">
                             <div class="flex items-center gap-2">
                                 <x-icon name="solar.letter-bold-duotone" class="w-4 h-4 text-primary shrink-0" />
-                                <span class="text-xs truncate">{{ Auth::guard('courier')->user()->email }}</span>
+                                <span class="text-xs truncate">{{ $courier->email }}</span>
                             </div>
+                            @if($courierPhone)
                             <div class="flex items-center gap-2">
                                 <x-icon name="solar.phone-bold-duotone" class="w-4 h-4 text-secondary shrink-0" />
-                                <span class="text-xs">+62 {{ Auth::guard('courier')->user()->phone }}</span>
+                                <span class="text-xs">+62 {{ $courierPhone }}</span>
                             </div>
+                            @endif
                         </div>
 
                         <div class="divider my-0"></div>
