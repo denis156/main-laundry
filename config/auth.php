@@ -79,7 +79,7 @@ return [
 
         'couriers' => [
             'driver' => 'eloquent',
-            'model' => App\Models\CourierMotorcycle::class,
+            'model' => App\Models\Courier::class,
         ],
 
         'customers' => [

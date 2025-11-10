@@ -19,7 +19,7 @@ class WebPushApi extends Component
     public function subscribe(array $subscription): void
     {
         // Cek guard mana yang sedang login
-        /** @var \App\Models\CourierMotorcycle|\App\Models\Customer|null $user */
+        /** @var \App\Models\Courier|\App\Models\Customer|null $user */
         $user = Auth::guard('courier')->user() ?? Auth::guard('customer')->user();
 
         if (!$user) {
@@ -51,7 +51,7 @@ class WebPushApi extends Component
     public function unsubscribe(string $endpoint): void
     {
         // Cek guard mana yang sedang login
-        /** @var \App\Models\CourierMotorcycle|\App\Models\Customer|null $user */
+        /** @var \App\Models\Courier|\App\Models\Customer|null $user */
         $user = Auth::guard('courier')->user() ?? Auth::guard('customer')->user();
 
         if (!$user) {
