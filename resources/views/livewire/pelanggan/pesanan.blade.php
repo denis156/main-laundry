@@ -45,82 +45,89 @@
                                 <h3 class="font-bold text-primary text-lg">{{ $transaction->invoice_number }}</h3>
                                 <p class="text-xs text-base-content/60">{{ $transaction->formatted_order_date }}</p>
                             </div>
-                            <x-button
-                                icon="solar.eye-bold"
-                                class="btn-circle btn-accent btn-md"
+                            <x-button icon="solar.eye-bold" class="btn-circle btn-accent btn-md"
                                 link="{{ route('pelanggan.pesanan.detail', $transaction->id) }}" />
                         </div>
 
                         <div class="divider my-2"></div>
 
                         {{-- Courier Info (show if confirmed and has courier) --}}
-                        @if ($transaction->courierMotorcycle && $transaction->workflow_status !== 'pending_confirmation')
+                        @if ($transaction->courier && $transaction->workflow_status !== 'pending_confirmation')
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="avatar">
                                     <div class="ring-accent ring-offset-base-100 w-10 h-10 rounded-full ring-2 ring-offset-2">
-                                        <img src="{{ $transaction->courierMotorcycle->getFilamentAvatarUrl() }}"
-                                             alt="{{ $transaction->courierMotorcycle->name ?? 'Kurir' }}" />
+                                        <img src="{{ $transaction->courier->getFilamentAvatarUrl() }}"
+                                             alt="{{ App\Helper\Database\CourierHelper::getName($transaction->courier) }}" />
                                     </div>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="font-semibold">{{ $transaction->courierMotorcycle->name }}</p>
-                                    <p class="text-xs text-base-content/60">{{ $transaction->courierMotorcycle->phone }}</p>
+                                    <p class="font-semibold">{{ App\Helper\Database\CourierHelper::getName($transaction->courier) }}</p>
+                                    <p class="text-xs text-base-content/60">{{ App\Helper\Database\CourierHelper::getPhone($transaction->courier) ?? '-' }}</p>
                                 </div>
                             </div>
                         @endif
 
                         {{-- Order Info --}}
+                        @php
+                            $items = App\Helper\Database\TransactionHelper::getItems($transaction);
+                            $notes = App\Helper\Database\TransactionHelper::getNotes($transaction);
+                        @endphp
+
                         <div class="bg-base-200 rounded-lg p-3 space-y-2">
                             {{-- Status --}}
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-base-content/70">Status</span>
-                                <span class="badge {{ StatusTransactionCustomerHelper::getStatusBadgeColor($transaction->workflow_status) }}">
+                                <span class="badge {{ StatusTransactionCustomerHelper::getStatusBadgeColor($transaction->workflow_status) }} gap-1">
                                     {{ StatusTransactionCustomerHelper::getStatusText($transaction->workflow_status) }}
                                 </span>
                             </div>
 
-                            @if ($transaction->service_id)
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-base-content/70">Layanan</span>
-                                    <span class="font-semibold">{{ $transaction->service?->name }}</span>
-                                </div>
-                            @endif
+                            {{-- Metode Pembayaran --}}
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-base-content/70">Metode Pembayaran</span>
+                                <span class="font-semibold">{{ $transaction->payment_timing_text ?? 'N/A' }}</span>
+                            </div>
 
-                            @if ($transaction->weight)
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-base-content/70">Berat</span>
-                                    <span class="font-semibold">{{ $transaction->weight }} kg</span>
-                                </div>
-                            @endif
-
-                            @if ($transaction->price_per_kg)
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-base-content/70">Harga/kg</span>
-                                    <span class="font-semibold">{{ $transaction->formatted_price_per_kg }}</span>
-                                </div>
-                            @endif
-
-                            @if ($transaction->payment_timing)
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-base-content/70">Metode Pembayaran</span>
-                                    <span class="font-semibold">{{ $transaction->payment_timing_text }}</span>
-                                </div>
-                            @endif
-
-                            @if ($transaction->total_price)
+                            {{-- List Items/Layanan --}}
+                            @if (count($items) > 0)
                                 <div class="divider my-1"></div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-base-content/70">Total</span>
-                                    <span class="font-semibold text-right text-primary text-base">{{ $transaction->formatted_total_price }}</span>
+                                <div>
+                                    <p class="text-xs font-semibold text-base-content/70 mb-2">Layanan yang Dipesan:</p>
+                                    <div class="space-y-2">
+                                        @foreach ($items as $item)
+                                            @php
+                                                $serviceName = $item['service_name'] ?? 'N/A';
+                                                $pricingUnit = $item['pricing_unit'] ?? 'per_kg';
+                                            @endphp
+                                            <div class="bg-base-100 rounded p-2">
+                                                <div class="flex justify-between items-start mb-1">
+                                                    <span class="text-sm font-semibold text-primary">{{ $serviceName }}</span>
+                                                    <span class="text-xs badge badge-outline">
+                                                        @if ($pricingUnit === 'per_kg')
+                                                            {{ $item['total_weight'] ?? 0 }} kg
+                                                        @else
+                                                            {{ $item['quantity'] ?? 0 }} item
+                                                        @endif
+                                                    </span>
+                                                </div>
+                                                @if (!empty($item['subtotal']))
+                                                    <div class="flex justify-between items-center text-xs">
+                                                        <span class="text-base-content/60">Subtotal</span>
+                                                        <span class="font-semibold">Rp {{ number_format($item['subtotal'] ?? 0, 0, ',', '.') }}</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 </div>
                             @endif
                         </div>
 
                         {{-- Notes --}}
-                        @if ($transaction->notes)
+                        @if ($notes)
                             <div class="mt-2 p-3 bg-base-200 rounded-lg">
                                 <p class="text-xs text-base-content/70 mb-1">Catatan</p>
-                                <p class="text-sm">{{ $transaction->notes }}</p>
+                                <p class="text-sm">{{ $notes }}</p>
                             </div>
                         @endif
 
@@ -134,7 +141,7 @@
                                     class="btn-error btn-sm btn-block" />
                             @elseif (in_array($transaction->workflow_status, ['confirmed', 'picked_up', 'at_loading_post']))
                                 {{-- Status: Diproses - Show WA to Kurir --}}
-                                @if ($transaction->courierMotorcycle)
+                                @if ($transaction->courier)
                                     <x-button link="{{ $this->getWhatsAppKurirUrl($transaction) }}"
                                         external
                                         label="Hubungi Kurir"
@@ -150,7 +157,7 @@
                                     class="btn-success btn-sm btn-block" />
                             @elseif ($transaction->workflow_status === 'out_for_delivery')
                                 {{-- Status: Diantar - Show WA to Kurir --}}
-                                @if ($transaction->courierMotorcycle)
+                                @if ($transaction->courier)
                                     <x-button link="{{ $this->getWhatsAppKurirUrl($transaction) }}"
                                         external
                                         label="Hubungi Kurir"

@@ -71,9 +71,9 @@ class Beranda extends Component
     public function activeOrders()
     {
         return Transaction::where('customer_id', $this->customer->id)
-            ->whereNotIn('workflow_status', ['completed', 'cancelled'])
-            ->with(['service', 'courierMotorcycle'])
-            ->orderBy('order_date', 'desc')
+            ->whereNotIn('workflow_status', ['delivered', 'cancelled'])
+            ->with(['courier', 'location'])
+            ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
     }
@@ -84,7 +84,7 @@ class Beranda extends Component
     public function getWhatsAppCSUrl(): string
     {
         $customer = $this->customer;
-        $customerName = $customer?->name ?? 'Pelanggan';
+        $customerName = \App\Helper\Database\CustomerHelper::getName($customer);
         $message = "Halo Admin Main Laundry, saya {$customerName}. Saya ingin bertanya tentang...";
         $encodedMessage = urlencode($message);
         $csPhone = config('sosmed.phone');

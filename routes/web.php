@@ -22,6 +22,7 @@ use App\Livewire\Pelanggan\Beranda as BerandaPelanggan;
 use App\Livewire\Pelanggan\Pesanan as PesananPelanggan;
 use App\Livewire\Pelanggan\BuatPesanan as BuatPesananPelanggan;
 use App\Livewire\Pelanggan\DetailPesanan as DetailPesananPelanggan;
+use App\Livewire\Pelanggan\DetailLayanan as DetailLayananPelanggan;
 use App\Livewire\Pelanggan\Components\SplashScreen;
 
 // Landing Page
@@ -86,6 +87,7 @@ Route::prefix('pelanggan')->name('pelanggan.')->group(function () {
         Route::get('/pesanan', PesananPelanggan::class)->name('pesanan');
         Route::get('/pesanan/{id}', DetailPesananPelanggan::class)->name('pesanan.detail');
         Route::get('/buat-pesanan', BuatPesananPelanggan::class)->name('buat-pesanan');
+        Route::get('/layanan/{id}', DetailLayananPelanggan::class)->name('layanan.detail');
         Route::get('/info', InfoPelanggan::class)->name('info');
         Route::get('/profil', ProfilPelanggan::class)->name('profil');
 

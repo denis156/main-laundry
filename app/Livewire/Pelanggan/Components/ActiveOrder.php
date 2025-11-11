@@ -38,10 +38,10 @@ class ActiveOrder extends Component
     {
         $customer = Auth::guard('customer')->user();
 
-        return Transaction::with(['service', 'courierMotorcycle'])
+        return Transaction::with(['courier', 'location'])
             ->where('customer_id', $customer->id)
             ->whereNotIn('workflow_status', ['delivered', 'cancelled'])
-            ->orderBy('order_date', 'desc')
+            ->orderBy('created_at', 'desc')
             ->skip(($this->currentPage - 1) * $this->perPage)
             ->take($this->perPage)
             ->get();

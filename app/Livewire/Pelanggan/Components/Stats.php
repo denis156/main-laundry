@@ -21,13 +21,13 @@ class Stats extends Component
     }
 
     /**
-     * Get active orders count (excluding 'completed' and 'cancelled')
+     * Get active orders count (excluding 'delivered' and 'cancelled')
      */
     #[Computed]
     public function activeOrdersCount()
     {
         return Transaction::where('customer_id', $this->customer->id)
-            ->whereNotIn('workflow_status', ['completed', 'cancelled'])
+            ->whereNotIn('workflow_status', ['delivered', 'cancelled'])
             ->count();
     }
 
@@ -38,7 +38,7 @@ class Stats extends Component
     public function completedOrdersCount()
     {
         return Transaction::where('customer_id', $this->customer->id)
-            ->where('workflow_status', 'completed')
+            ->where('workflow_status', 'delivered')
             ->count();
     }
 

@@ -10,7 +10,7 @@ use App\Models\Service;
  * Service Helper
  *
  * Helper untuk menangani data JSONB di tabel services.
- * 
+ *
  * JSONB Structure:
  * - service_type: string (cuci_kering, cuci_setrika, dll)
  * - pricing: {price_per_kg, currency}

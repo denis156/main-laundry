@@ -62,7 +62,7 @@ class Pesanan extends Component
     {
         $customer = Auth::guard('customer')->user();
 
-        $query = Transaction::with(['service', 'courierMotorcycle'])
+        $query = Transaction::with(['courier', 'location'])
             ->where('customer_id', $customer->id);
 
         // Filter by status
@@ -75,7 +75,7 @@ class Pesanan extends Component
             $query->where('invoice_number', 'like', '%' . $this->search . '%');
         }
 
-        return $query->orderBy('order_date', 'desc')
+        return $query->orderBy('created_at', 'desc')
             ->skip(($this->currentPage - 1) * $this->perPage)
             ->take($this->perPage)
             ->get();
@@ -159,12 +159,16 @@ class Pesanan extends Component
             $cleanPhone = '62' . $cleanPhone;
         }
 
+        $customerName = \App\Helper\Database\CustomerHelper::getName($customer);
+        $items = \App\Helper\Database\TransactionHelper::getItems($transaction);
+        $serviceNames = array_map(fn($item) => $item['service_name'] ?? 'N/A', $items);
+
         // Message template
         $message = "Halo Admin *Main Laundry*\n\n";
-        $message .= "Saya *{$customer->name}* ingin menanyakan status pesanan saya.\n\n";
+        $message .= "Saya *{$customerName}* ingin menanyakan status pesanan saya.\n\n";
         $message .= "*Detail Pesanan:*\n";
         $message .= "• Invoice: {$transaction->invoice_number}\n";
-        $message .= "• Layanan: {$transaction->service?->name}\n\n";
+        $message .= "• Layanan: " . implode(', ', $serviceNames) . "\n\n";
         $message .= "Terima kasih";
 
         $encodedMessage = urlencode($message);
@@ -176,27 +180,32 @@ class Pesanan extends Component
      */
     public function getWhatsAppKurirUrl(Transaction $transaction): ?string
     {
-        if (!$transaction->courierMotorcycle) {
+        if (!$transaction->courier) {
             return null;
         }
 
         $customer = Auth::guard('customer')->user();
-        $kurirPhone = $transaction->courierMotorcycle->phone;
+        $customerName = \App\Helper\Database\CustomerHelper::getName($customer);
+        $courierName = \App\Helper\Database\CourierHelper::getName($transaction->courier);
+        $courierPhone = \App\Helper\Database\CourierHelper::getPhone($transaction->courier);
 
         // Format nomor telepon
-        $cleanPhone = preg_replace('/[^0-9]/', '', $kurirPhone);
+        $cleanPhone = preg_replace('/[^0-9]/', '', $courierPhone);
         if (str_starts_with($cleanPhone, '0')) {
             $cleanPhone = '62' . substr($cleanPhone, 1);
         } elseif (!str_starts_with($cleanPhone, '62')) {
             $cleanPhone = '62' . $cleanPhone;
         }
 
+        $items = \App\Helper\Database\TransactionHelper::getItems($transaction);
+        $serviceNames = array_map(fn($item) => $item['service_name'] ?? 'N/A', $items);
+
         // Message template
-        $message = "Halo Kak *{$transaction->courierMotorcycle->name}*\n\n";
-        $message .= "Saya *{$customer->name}* ingin menanyakan pesanan saya.\n\n";
+        $message = "Halo Kak *{$courierName}*\n\n";
+        $message .= "Saya *{$customerName}* ingin menanyakan pesanan saya.\n\n";
         $message .= "*Detail Pesanan:*\n";
         $message .= "• Invoice: {$transaction->invoice_number}\n";
-        $message .= "• Layanan: {$transaction->service?->name}\n\n";
+        $message .= "• Layanan: " . implode(', ', $serviceNames) . "\n\n";
         $message .= "Terima kasih";
 
         $encodedMessage = urlencode($message);

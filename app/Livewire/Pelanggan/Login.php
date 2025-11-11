@@ -102,21 +102,20 @@ class Login extends Component
 
             session()->regenerate();
 
-            // Cek apakah data pelanggan lengkap (district, village, dan detail address)
-            $isProfileIncomplete = empty($customer->district_code) ||
-                                   empty($customer->village_code) ||
-                                   empty($customer->detail_address);
+            // Cek apakah data pelanggan lengkap (addresses)
+            $addresses = \App\Helper\Database\CustomerHelper::getAddresses($customer);
+            $isProfileIncomplete = empty($addresses);
 
             if ($isProfileIncomplete) {
                 // Set session flash untuk menampilkan modal lengkapi profil
                 session()->flash('show_lengkapi_profil_modal', [
-                    'customer_name' => $customer->name,
+                    'customer_name' => \App\Helper\Database\CustomerHelper::getName($customer),
                     'redirect_from' => 'login'
                 ]);
 
                 $this->success(
                     title: 'Login Berhasil!',
-                    description: 'Selamat datang ' . $customer->name,
+                    description: 'Selamat datang ' . \App\Helper\Database\CustomerHelper::getName($customer),
                     position: 'toast-top toast-end',
                     timeout: 3000,
                     redirectTo: route('pelanggan.beranda')
@@ -124,7 +123,7 @@ class Login extends Component
             } else {
                 $this->success(
                     title: 'Login Berhasil!',
-                    description: 'Selamat datang ' . $customer->name,
+                    description: 'Selamat datang ' . \App\Helper\Database\CustomerHelper::getName($customer),
                     position: 'toast-top toast-end',
                     timeout: 3000,
                     redirectTo: route('pelanggan.beranda')
