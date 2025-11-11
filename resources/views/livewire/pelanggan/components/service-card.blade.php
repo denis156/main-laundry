@@ -23,7 +23,7 @@
                                 <span>{{ $feature }}</span>
                             </li>
                         @endforeach
-                    </ul>
+                    </ul>k
 
                     {{-- Show remaining features count --}}
                     @if ($remainingCount > 0)
