@@ -8,10 +8,10 @@
     name: "light";
     default: true;
     prefersdark: false;
-    color-scheme: "light";
-    --color-base-100: oklch(98% 0.01 60);
-    --color-base-200: oklch(96% 0.015 60);
-    --color-base-300: oklch(93% 0.02 60);
+    color-scheme: "mainLight";
+    --color-base-100: oklch(94% 0.01 60);
+    --color-base-200: oklch(96% 0.01 60);
+    --color-base-300: oklch(98% 0.01 60);
     --color-base-content: oklch(21% 0.006 285.885);
     --color-primary: oklch(71.06% 0.154 254.03);
     --color-primary-content: oklch(100% 0 0);
@@ -29,60 +29,6 @@
     --color-warning-content: oklch(41% 0.112 45.904);
     --color-error: oklch(71% 0.194 13.428);
     --color-error-content: oklch(27% 0.105 12.094);
-    --radius-selector: 1rem;
-    --radius-field: 0.5rem;
-    --radius-box: 1rem;
-    --size-selector: 0.25rem;
-    --size-field: 0.25rem;
-    --border: 1px;
-    --depth: 1;
-    --noise: 1;
-}
-
-@plugin "daisyui/theme" {
-    name: "dark";
-    default: false;
-    prefersdark: true;
-    color-scheme: "dark";
-    /* Base: Neutral dark with subtle purple hint - optimized for readability */
-    --color-base-100: oklch(22% 0.012 254);
-    --color-base-200: oklch(19% 0.010 254);
-    --color-base-300: oklch(16% 0.008 254);
-    /* Content: Light enough for WCAG AA contrast (min 7:1) */
-    --color-base-content: oklch(94% 0.01 254);
-
-    /* Primary: Brighter purple for visibility, darker content for contrast */
-    --color-primary: oklch(80% 0.22 254.03);
-    --color-primary-content: oklch(12% 0.01 254.03);
-
-    /* Secondary: Neutral gray for subtle elements */
-    --color-secondary: oklch(65% 0.02 254);
-    --color-secondary-content: oklch(12% 0.01 254);
-
-    /* Accent: Rich purple that pops but not overwhelming */
-    --color-accent: oklch(55% 0.20 257.73);
-    --color-accent-content: oklch(98% 0.01 257.73);
-
-    /* Neutral: Soft light for less critical text */
-    --color-neutral: oklch(85% 0.008 254);
-    --color-neutral-content: oklch(18% 0.008 254);
-
-    /* Info: Cool blue with proper contrast */
-    --color-info: oklch(68% 0.19 232.661);
-    --color-info-content: oklch(12% 0.01 232);
-
-    /* Success: Vibrant green that's visible but not harsh */
-    --color-success: oklch(70% 0.20 163.223);
-    --color-success-content: oklch(12% 0.01 163);
-
-    /* Warning: Warm amber/orange with dark text for maximum contrast */
-    --color-warning: oklch(76% 0.21 84.429);
-    --color-warning-content: oklch(15% 0.02 84);
-
-    /* Error: Softer red that's still attention-grabbing */
-    --color-error: oklch(66% 0.22 13.428);
-    --color-error-content: oklch(12% 0.01 13);
-
     --radius-selector: 1rem;
     --radius-field: 0.5rem;
     --radius-box: 1rem;
