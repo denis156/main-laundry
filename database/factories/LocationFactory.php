@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\Location;
+use App\Helper\WilayahHelper;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -13,111 +14,33 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class LocationFactory extends Factory
 {
     /**
-     * Data wilayah sample di Kota Kendari
+     * Generate Indonesian phone number format
      */
-    private function getKendariWilayah(): array
+    private function generateIndonesianPhone(): string
     {
-        return [
-            [
-                'district_code' => '74.71.01',
-                'district_name' => 'Mandonga',
-                'villages' => [
-                    ['code' => '74.71.01.1001', 'name' => 'Mandonga'],
-                    ['code' => '74.71.01.1002', 'name' => 'Wundumbolo'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.02',
-                'district_name' => 'Baruga',
-                'villages' => [
-                    ['code' => '74.71.02.1001', 'name' => 'Baruga'],
-                    ['code' => '74.71.02.1002', 'name' => 'Wundulako'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.03',
-                'district_name' => 'Puuwatu',
-                'villages' => [
-                    ['code' => '74.71.03.1001', 'name' => 'Puuwatu'],
-                    ['code' => '74.71.03.1002', 'name' => 'Benubenua'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.04',
-                'district_name' => 'Kadia',
-                'villages' => [
-                    ['code' => '74.71.04.1001', 'name' => 'Kadia'],
-                    ['code' => '74.71.04.1002', 'name' => 'Bende'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.05',
-                'district_name' => 'Wua-Wua',
-                'villages' => [
-                    ['code' => '74.71.05.1001', 'name' => 'Wua-Wua'],
-                    ['code' => '74.71.05.1002', 'name' => 'Anduonohu'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.06',
-                'district_name' => 'Kambu',
-                'villages' => [
-                    ['code' => '74.71.06.1001', 'name' => 'Kambu'],
-                    ['code' => '74.71.06.1002', 'name' => 'Lalolara'],
-                    ['code' => '74.71.06.1003', 'name' => 'Korumba'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.07',
-                'district_name' => 'Poasia',
-                'villages' => [
-                    ['code' => '74.71.07.1001', 'name' => 'Poasia'],
-                    ['code' => '74.71.07.1002', 'name' => 'Watubangga'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.08',
-                'district_name' => 'Abeli',
-                'villages' => [
-                    ['code' => '74.71.08.1001', 'name' => 'Abeli'],
-                    ['code' => '74.71.08.1002', 'name' => 'Lapulu'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.09',
-                'district_name' => 'Kendari Barat',
-                'villages' => [
-                    ['code' => '74.71.09.1001', 'name' => 'Purirano'],
-                    ['code' => '74.71.09.1002', 'name' => 'Tobimeita'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.10',
-                'district_name' => 'Kendari',
-                'villages' => [
-                    ['code' => '74.71.10.1001', 'name' => 'Bungkutoko'],
-                    ['code' => '74.71.10.1002', 'name' => 'Lahundape'],
-                ],
-            ],
-        ];
+        return fake()->numerify('8##########');
     }
 
     /**
      * Generate coverage area untuk Resort (kecamatan yang dilayani)
      */
-    private function generateResortCoverageArea(array $currentDistrict, array $allDistricts): array
+    private function generateResortCoverageArea(string $currentDistrictCode): array
     {
+        $districts = WilayahHelper::getKendariDistricts();
         $coverageDistricts = [];
 
         // Tambahkan kecamatan resort itu sendiri
-        $coverageDistricts[] = $currentDistrict['district_name'];
+        $currentDistrict = collect($districts)->firstWhere('code', $currentDistrictCode);
+        if ($currentDistrict) {
+            $coverageDistricts[] = $currentDistrict['name'];
+        }
 
         // Tambahkan 2-4 kecamatan tetangga
-        $neighborDistricts = array_filter($allDistricts, fn($d) => $d['district_code'] !== $currentDistrict['district_code']);
-        $selectedNeighbors = fake()->randomElements($neighborDistricts, fake()->numberBetween(2, 4));
+        $neighborDistricts = array_filter($districts, fn($d) => $d['code'] !== $currentDistrictCode);
+        $selectedNeighbors = fake()->randomElements($neighborDistricts, fake()->numberBetween(2, min(4, count($neighborDistricts))));
 
         foreach ($selectedNeighbors as $neighbor) {
-            $coverageDistricts[] = $neighbor['district_name'];
+            $coverageDistricts[] = $neighbor['name'];
         }
 
         return array_unique($coverageDistricts);
@@ -126,24 +49,29 @@ class LocationFactory extends Factory
     /**
      * Generate coverage area untuk POS (kelurahan yang dilayani)
      */
-    private function generatePosCoverageArea(array $currentDistrict, array $allDistricts): array
+    private function generatePosCoverageArea(string $currentDistrictCode): array
     {
         $coverageVillages = [];
 
-        // Tambahkan semua kelurahan dari district pos ini
-        foreach ($currentDistrict['villages'] as $village) {
+        // Tambahkan semua kelurahan dari district POS ini
+        $villages = WilayahHelper::getVillagesByDistrict($currentDistrictCode);
+        foreach ($villages as $village) {
             $coverageVillages[] = $village['name'];
         }
 
         // Tambahkan beberapa kelurahan dari district tetangga (random 1-2 district)
-        $neighborDistricts = array_filter($allDistricts, fn($d) => $d['district_code'] !== $currentDistrict['district_code']);
-        $selectedNeighbors = fake()->randomElements($neighborDistricts, fake()->numberBetween(1, 2));
+        $districts = WilayahHelper::getKendariDistricts();
+        $neighborDistricts = array_filter($districts, fn($d) => $d['code'] !== $currentDistrictCode);
+        $selectedNeighbors = fake()->randomElements($neighborDistricts, fake()->numberBetween(1, min(2, count($neighborDistricts))));
 
         foreach ($selectedNeighbors as $neighbor) {
             // Ambil 1-2 kelurahan dari district tetangga
-            $neighborVillages = fake()->randomElements($neighbor['villages'], fake()->numberBetween(1, 2));
-            foreach ($neighborVillages as $village) {
-                $coverageVillages[] = $village['name'];
+            $neighborVillages = WilayahHelper::getVillagesByDistrict($neighbor['code']);
+            if (!empty($neighborVillages)) {
+                $selectedVillages = fake()->randomElements($neighborVillages, fake()->numberBetween(1, min(2, count($neighborVillages))));
+                foreach ($selectedVillages as $village) {
+                    $coverageVillages[] = $village['name'];
+                }
             }
         }
 
@@ -157,12 +85,13 @@ class LocationFactory extends Factory
      */
     public function definition(): array
     {
-        // Pilih random district
-        $districts = $this->getKendariWilayah();
+        // Pilih random district dari WilayahHelper
+        $districts = WilayahHelper::getKendariDistricts();
         $selectedDistrict = fake()->randomElement($districts);
 
         // Pilih random village dari district tersebut
-        $selectedVillage = fake()->randomElement($selectedDistrict['villages']);
+        $villages = WilayahHelper::getVillagesByDistrict($selectedDistrict['code']);
+        $selectedVillage = fake()->randomElement($villages);
 
         // Tentukan tipe lokasi (default: pos)
         $type = 'pos';
@@ -176,57 +105,35 @@ class LocationFactory extends Factory
             ', RT ' . str_pad((string) fake()->numberBetween(1, 20), 3, '0', STR_PAD_LEFT) .
             '/RW ' . str_pad((string) fake()->numberBetween(1, 10), 3, '0', STR_PAD_LEFT);
 
-        // Format full address
-        $fullAddress = sprintf(
-            '%s, %s, %s, Kota Kendari, Sulawesi Tenggara',
+        // Format full address menggunakan WilayahHelper
+        $fullAddress = WilayahHelper::formatFullAddress(
             $detailAddress,
             $selectedVillage['name'],
-            $selectedDistrict['district_name']
+            $selectedDistrict['name']
         );
 
         // Generate coverage area berdasarkan tipe
         $coverageArea = $type === 'resort'
-            ? $this->generateResortCoverageArea($selectedDistrict, $districts)
-            : $this->generatePosCoverageArea($selectedDistrict, $districts);
-
-        // Generate coordinates (fake, untuk area Kendari)
-        $coordinates = [
-            'latitude' => fake()->randomFloat(6, -4.015, -3.919),
-            'longitude' => fake()->randomFloat(6, 122.484, 122.633),
-        ];
+            ? $this->generateResortCoverageArea($selectedDistrict['code'])
+            : $this->generatePosCoverageArea($selectedDistrict['code']);
 
         return [
             'type' => $type,
             'parent_id' => null,
-            'name' => ucfirst($type) . ' ' . ($type === 'resort' ? $selectedDistrict['district_name'] : $selectedVillage['name']),
+            'name' => ucfirst($type) . ' ' . ($type === 'resort' ? $selectedDistrict['name'] : $selectedVillage['name']),
             'data' => [
                 'location' => [
-                    'district_code' => $selectedDistrict['district_code'],
-                    'district_name' => $selectedDistrict['district_name'],
+                    'district_code' => $selectedDistrict['code'],
+                    'district_name' => $selectedDistrict['name'],
                     'village_code' => $selectedVillage['code'],
                     'village_name' => $selectedVillage['name'],
                     'detail_address' => $detailAddress,
                     'address' => $fullAddress,
-                    'coordinates' => $coordinates,
                 ],
                 'coverage_area' => $coverageArea,
-                'operating_hours' => [
-                    'weekday' => ['open' => '08:00', 'close' => '20:00'],
-                    'weekend' => ['open' => '08:00', 'close' => '18:00'],
-                ],
                 'contact' => [
-                    'phone' => fake()->numerify('8##########'),
-                    'email' => fake()->optional()->safeEmail(),
+                    'phone' => $this->generateIndonesianPhone(),
                     'pic_name' => fake()->name(),
-                ],
-                'facilities' => $type === 'resort'
-                    ? ['Mesin Cuci Industrial', 'Ruang Setrika', 'Ruang Packing', 'Gudang']
-                    : ['Tempat Parkir', 'Ruang Tunggu'],
-                'capacity' => $type === 'resort'
-                    ? ['max_daily_kg' => fake()->numberBetween(500, 2000)]
-                    : ['max_daily_kg' => fake()->numberBetween(100, 500)],
-                'metadata' => [
-                    'created_reason' => 'Factory seeding',
                 ],
             ],
             'is_active' => fake()->boolean(90),
@@ -239,51 +146,41 @@ class LocationFactory extends Factory
     public function resort(): static
     {
         return $this->state(function () {
-            $districts = $this->getKendariWilayah();
+            $districts = WilayahHelper::getKendariDistricts();
             $selectedDistrict = fake()->randomElement($districts);
-            $selectedVillage = fake()->randomElement($selectedDistrict['villages']);
+            $villages = WilayahHelper::getVillagesByDistrict($selectedDistrict['code']);
+            $selectedVillage = fake()->randomElement($villages);
 
             $detailAddress = fake()->randomElement(['Jl. Ahmad Yani', 'Jl. Sudirman', 'Jl. Veteran', 'Jl. Diponegoro']) .
-                ' No. ' . fake()->numberBetween(1, 200);
+                ' No. ' . fake()->numberBetween(1, 200) .
+                ', RT ' . str_pad((string) fake()->numberBetween(1, 20), 3, '0', STR_PAD_LEFT) .
+                '/RW ' . str_pad((string) fake()->numberBetween(1, 10), 3, '0', STR_PAD_LEFT);
 
-            $fullAddress = sprintf(
-                '%s, %s, %s, Kota Kendari, Sulawesi Tenggara',
+            $fullAddress = WilayahHelper::formatFullAddress(
                 $detailAddress,
                 $selectedVillage['name'],
-                $selectedDistrict['district_name']
+                $selectedDistrict['name']
             );
 
-            $coverageArea = $this->generateResortCoverageArea($selectedDistrict, $districts);
+            $coverageArea = $this->generateResortCoverageArea($selectedDistrict['code']);
 
             return [
                 'type' => 'resort',
-                'name' => 'Resort ' . $selectedDistrict['district_name'],
+                'name' => 'Resort ' . $selectedDistrict['name'],
                 'data' => [
                     'location' => [
-                        'district_code' => $selectedDistrict['district_code'],
-                        'district_name' => $selectedDistrict['district_name'],
+                        'district_code' => $selectedDistrict['code'],
+                        'district_name' => $selectedDistrict['name'],
                         'village_code' => $selectedVillage['code'],
                         'village_name' => $selectedVillage['name'],
                         'detail_address' => $detailAddress,
                         'address' => $fullAddress,
-                        'coordinates' => [
-                            'latitude' => fake()->randomFloat(6, -4.015, -3.919),
-                            'longitude' => fake()->randomFloat(6, 122.484, 122.633),
-                        ],
                     ],
                     'coverage_area' => $coverageArea,
-                    'operating_hours' => [
-                        'weekday' => ['open' => '08:00', 'close' => '20:00'],
-                        'weekend' => ['open' => '08:00', 'close' => '18:00'],
-                    ],
                     'contact' => [
-                        'phone' => fake()->numerify('8##########'),
-                        'email' => fake()->optional()->safeEmail(),
+                        'phone' => $this->generateIndonesianPhone(),
                         'pic_name' => fake()->name(),
                     ],
-                    'facilities' => ['Mesin Cuci Industrial', 'Ruang Setrika', 'Ruang Packing', 'Gudang'],
-                    'capacity' => ['max_daily_kg' => fake()->numberBetween(500, 2000)],
-                    'metadata' => ['created_reason' => 'Factory seeding'],
                 ],
             ];
         });

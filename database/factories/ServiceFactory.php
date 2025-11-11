@@ -106,13 +106,7 @@ class ServiceFactory extends Factory
                     'unit' => $selectedService['unit'],
                     'price_per_kg' => $selectedService['price_per_kg'],
                     'price_per_item' => $selectedService['price_per_item'],
-                    'currency' => 'IDR',
                 ],
-                'pricing_tiers' => $selectedService['unit'] === 'per_kg' ? [
-                    ['min_kg' => 0, 'max_kg' => 5, 'price_per_kg' => $selectedService['price_per_kg']],
-                    ['min_kg' => 5, 'max_kg' => 10, 'price_per_kg' => $selectedService['price_per_kg'] * 0.95],
-                    ['min_kg' => 10, 'max_kg' => null, 'price_per_kg' => $selectedService['price_per_kg'] * 0.90],
-                ] : [],
                 'duration_hours' => $selectedService['duration_hours'],
                 'features' => $selectedService['features'],
                 'includes' => [

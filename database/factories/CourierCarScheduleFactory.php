@@ -13,6 +13,23 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class CourierCarScheduleFactory extends Factory
 {
     /**
+     * Generate Indonesian phone number format
+     */
+    private function generateIndonesianPhone(): string
+    {
+        return fake()->numerify('8##########');
+    }
+
+    /**
+     * Generate Indonesian vehicle number format
+     */
+    private function generateIndonesianVehicleNumber(): string
+    {
+        $plates = ['DD', 'DT', 'DN', 'DP']; // Sulawesi Tenggara plates
+        return fake()->randomElement($plates) . ' ' . fake()->numberBetween(1000, 9999) . ' ' . strtoupper(fake()->randomLetter()) . strtoupper(fake()->randomLetter());
+    }
+
+    /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
@@ -39,8 +56,8 @@ class CourierCarScheduleFactory extends Factory
                 'location_ids' => $selectedLocationIds,
                 'driver_info' => [
                     'name' => fake()->name(),
-                    'phone' => fake()->numerify('8##########'),
-                    'vehicle_number' => strtoupper(fake()->bothify('? #### ???')),
+                    'phone' => $this->generateIndonesianPhone(),
+                    'vehicle_number' => $this->generateIndonesianVehicleNumber(),
                 ],
                 'notes' => fake()->optional()->sentence(),
             ],

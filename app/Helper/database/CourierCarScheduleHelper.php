@@ -10,11 +10,10 @@ use App\Models\CourierCarSchedule;
  * CourierCarSchedule Helper
  *
  * Helper untuk menangani data JSONB di tabel courier_cars_schedules.
- * 
+ *
  * JSONB Structure:
  * - departure_time: time
  * - location_ids: [int] (array ID locations yang dikunjungi)
- * - route: [{location_id, arrival_time, departure_time, status}]
  * - driver_info: {name, phone, vehicle_number}
  * - notes: string
  */
@@ -30,11 +29,7 @@ class CourierCarScheduleHelper
         return $schedule->data['location_ids'] ?? [];
     }
 
-    public static function getRoute(CourierCarSchedule $schedule): array
-    {
-        return $schedule->data['route'] ?? [];
-    }
-
+    
     public static function getDriverInfo(CourierCarSchedule $schedule): array
     {
         return $schedule->data['driver_info'] ?? [];

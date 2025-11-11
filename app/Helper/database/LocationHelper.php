@@ -13,13 +13,9 @@ use App\Models\Location;
  * Helper untuk menangani data JSONB di tabel locations.
  *
  * JSONB Structure:
- * - location: {district_code, district_name, village_code, village_name, detail_address, address, coordinates}
+ * - location: {district_code, district_name, village_code, village_name, detail_address, address}
  * - coverage_area: [array of district names for resort OR array of village names for pos]
- * - operating_hours: {weekday: {open, close}, weekend: {open, close}}
- * - contact: {phone, email, pic_name}
- * - facilities: [array of facility names]
- * - capacity: {max_daily_kg}
- * - metadata: {created_reason, notes, etc}
+ * - contact: {phone, pic_name}
  */
 class LocationHelper
 {
@@ -79,14 +75,7 @@ class LocationHelper
         return $location->data['location']['address'] ?? null;
     }
 
-    /**
-     * Get coordinates from location address
-     */
-    public static function getCoordinates(Location $location): ?array
-    {
-        return $location->data['location']['coordinates'] ?? null;
-    }
-
+    
     /**
      * Set location address data
      */
@@ -96,8 +85,7 @@ class LocationHelper
         string $districtName,
         string $villageCode,
         string $villageName,
-        string $detailAddress,
-        ?array $coordinates = null
+        string $detailAddress
     ): void {
         $data = $location->data ?? [];
         $data['location'] = [
@@ -107,7 +95,6 @@ class LocationHelper
             'village_name' => $villageName,
             'detail_address' => $detailAddress,
             'address' => WilayahHelper::formatFullAddress($detailAddress, $villageName, $districtName),
-            'coordinates' => $coordinates,
         ];
         $location->data = $data;
     }
@@ -210,14 +197,7 @@ class LocationHelper
         return $location->data['contact']['phone'] ?? null;
     }
 
-    /**
-     * Get email from contact
-     */
-    public static function getEmail(Location $location): ?string
-    {
-        return $location->data['contact']['email'] ?? null;
-    }
-
+    
     /**
      * Get PIC name from contact
      */

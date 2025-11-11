@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Helper\WilayahHelper;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -12,77 +13,11 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class CustomerFactory extends Factory
 {
     /**
-     * Data wilayah sample di Kota Kendari
+     * Generate Indonesian phone number format
      */
-    private function getKendariWilayah(): array
+    private function generateIndonesianPhone(): string
     {
-        return [
-            [
-                'district_code' => '74.71.01',
-                'district_name' => 'Mandonga',
-                'villages' => [
-                    ['code' => '74.71.01.1001', 'name' => 'Mandonga'],
-                    ['code' => '74.71.01.1002', 'name' => 'Wundumbolo'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.02',
-                'district_name' => 'Baruga',
-                'villages' => [
-                    ['code' => '74.71.02.1001', 'name' => 'Baruga'],
-                    ['code' => '74.71.02.1002', 'name' => 'Wundulako'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.03',
-                'district_name' => 'Puuwatu',
-                'villages' => [
-                    ['code' => '74.71.03.1001', 'name' => 'Puuwatu'],
-                    ['code' => '74.71.03.1002', 'name' => 'Benubenua'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.04',
-                'district_name' => 'Kadia',
-                'villages' => [
-                    ['code' => '74.71.04.1001', 'name' => 'Kadia'],
-                    ['code' => '74.71.04.1002', 'name' => 'Bende'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.05',
-                'district_name' => 'Wua-Wua',
-                'villages' => [
-                    ['code' => '74.71.05.1001', 'name' => 'Wua-Wua'],
-                    ['code' => '74.71.05.1002', 'name' => 'Anduonohu'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.06',
-                'district_name' => 'Kambu',
-                'villages' => [
-                    ['code' => '74.71.06.1001', 'name' => 'Kambu'],
-                    ['code' => '74.71.06.1002', 'name' => 'Lalolara'],
-                    ['code' => '74.71.06.1003', 'name' => 'Korumba'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.07',
-                'district_name' => 'Poasia',
-                'villages' => [
-                    ['code' => '74.71.07.1001', 'name' => 'Poasia'],
-                    ['code' => '74.71.07.1002', 'name' => 'Watubangga'],
-                ],
-            ],
-            [
-                'district_code' => '74.71.08',
-                'district_name' => 'Abeli',
-                'villages' => [
-                    ['code' => '74.71.08.1001', 'name' => 'Abeli'],
-                    ['code' => '74.71.08.1002', 'name' => 'Lapulu'],
-                ],
-            ],
-        ];
+        return fake()->numerify('8##########');
     }
 
     /**
@@ -92,12 +27,13 @@ class CustomerFactory extends Factory
      */
     public function definition(): array
     {
-        // Pilih random district
-        $districts = $this->getKendariWilayah();
+        // Pilih random district dari WilayahHelper
+        $districts = WilayahHelper::getKendariDistricts();
         $selectedDistrict = fake()->randomElement($districts);
 
         // Pilih random village dari district tersebut
-        $selectedVillage = fake()->randomElement($selectedDistrict['villages']);
+        $villages = WilayahHelper::getVillagesByDistrict($selectedDistrict['code']);
+        $selectedVillage = fake()->randomElement($villages);
 
         // Generate detail address
         $streets = ['Jl. Mawar', 'Jl. Melati', 'Jl. Anggrek', 'Jl. Dahlia', 'Jl. Kenanga', 'Jl. Flamboyan'];
@@ -105,12 +41,11 @@ class CustomerFactory extends Factory
             ', RT ' . str_pad((string) fake()->numberBetween(1, 20), 3, '0', STR_PAD_LEFT) .
             '/RW ' . str_pad((string) fake()->numberBetween(1, 10), 3, '0', STR_PAD_LEFT);
 
-        // Format full address
-        $fullAddress = sprintf(
-            '%s, %s, %s, Kota Kendari, Sulawesi Tenggara',
+        // Format full address menggunakan WilayahHelper
+        $fullAddress = WilayahHelper::formatFullAddress(
             $detailAddress,
             $selectedVillage['name'],
-            $selectedDistrict['district_name']
+            $selectedDistrict['name']
         );
 
         // Decide login method (phone or email)
@@ -118,16 +53,16 @@ class CustomerFactory extends Factory
 
         return [
             'email' => $usePhone ? null : fake()->unique()->safeEmail(),
-            'phone' => $usePhone ? fake()->unique()->numerify('8##########') : null,
-            'password' => 'pelanggan_main', // Default password untuk customer
+            'phone' => $usePhone ? $this->generateIndonesianPhone() : null,
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'data' => [
                 'name' => fake()->name(),
                 'avatar_url' => null,
                 'addresses' => [
                     [
                         'type' => 'Rumah',
-                        'district_code' => $selectedDistrict['district_code'],
-                        'district_name' => $selectedDistrict['district_name'],
+                        'district_code' => $selectedDistrict['code'],
+                        'district_name' => $selectedDistrict['name'],
                         'village_code' => $selectedVillage['code'],
                         'village_name' => $selectedVillage['name'],
                         'detail_address' => $detailAddress,
@@ -170,7 +105,7 @@ class CustomerFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email' => null,
-            'phone' => fake()->unique()->numerify('8##########'),
+            'phone' => $this->generateIndonesianPhone(),
         ]);
     }
 }

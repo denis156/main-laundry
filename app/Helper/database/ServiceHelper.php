@@ -13,16 +13,12 @@ use App\Models\Service;
  *
  * JSONB Structure:
  * - service_type: string (cuci_kering, cuci_setrika, dll)
- * - pricing: {price_per_kg, currency}
- * - pricing_tiers: [{min_kg, max_kg, price_per_kg}]
- * - duration_days: int
+ * - pricing: {unit, price_per_kg, price_per_item}
+ * - duration_hours: int
  * - features: [string]
  * - includes: [string]
  * - restrictions: [string]
  * - materials_used: [string]
- * - icon: string
- * - color: string
- * - badge_settings: {text, color}
  */
 class ServiceHelper
 {
@@ -39,11 +35,6 @@ class ServiceHelper
     public static function getPricePerKg(Service $service): float
     {
         return (float) ($service->data['pricing']['price_per_kg'] ?? 0);
-    }
-
-    public static function getDurationDays(Service $service): int
-    {
-        return (int) ($service->data['duration_days'] ?? 1);
     }
 
     public static function getDurationHours(Service $service): int
@@ -78,11 +69,6 @@ class ServiceHelper
     {
         $price = self::getPricePerKg($service);
         return 'Rp ' . number_format($price, 0, ',', '.');
-    }
-
-    public static function getBadgeSettings(Service $service): ?array
-    {
-        return $service->data['badge_settings'] ?? null;
     }
 
     /**

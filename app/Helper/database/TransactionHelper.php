@@ -13,14 +13,10 @@ use App\Models\Transaction;
  * Helper untuk menangani data JSONB di tabel transactions.
  *
  * JSONB Structure:
- * - items: [{service_id, service_name, weight, price_per_kg, subtotal}]
+ * - items: [{service_id, service_name, clothing_items, pricing_unit, total_weight, quantity, subtotal}]
  * - pricing: {total_price, payment_timing: on_pickup|on_delivery}
- * - customer_address: {district_code, district_name, village_code, village_name, detail_address}
  * - notes: string
- * - metadata: {tags, custom_fields}
- * - tracking: {tracking_token, tracking_url}
  * - timeline: [{status, timestamp, notes}]
- * - anti_bot: {customer_ip, user_agent, form_loaded_at}
  */
 class TransactionHelper
 {
@@ -52,19 +48,9 @@ class TransactionHelper
             : 'Bayar Saat Antar';
     }
 
-    public static function getCustomerAddress(Transaction $transaction): array
-    {
-        return $transaction->data['customer_address'] ?? [];
-    }
-
     public static function getNotes(Transaction $transaction): ?string
     {
         return $transaction->data['notes'] ?? null;
-    }
-
-    public static function getTrackingToken(Transaction $transaction): ?string
-    {
-        return $transaction->data['tracking']['tracking_token'] ?? null;
     }
 
     public static function getTimeline(Transaction $transaction): array

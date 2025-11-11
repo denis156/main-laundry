@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\Storage;
  * - vehicle_number: string
  * - avatar_url: string|null
  * - is_active: boolean
- * - preferences: {notification_enabled}
  */
 class CourierHelper
 {

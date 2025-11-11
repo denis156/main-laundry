@@ -13,6 +13,23 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class CourierFactory extends Factory
 {
     /**
+     * Generate Indonesian phone number format
+     */
+    private function generateIndonesianPhone(): string
+    {
+        return fake()->numerify('8##########');
+    }
+
+    /**
+     * Generate Indonesian vehicle number format
+     */
+    private function generateIndonesianVehicleNumber(): string
+    {
+        $plates = ['DD', 'DT', 'DN', 'DP']; // Sulawesi Tenggara plates
+        return fake()->randomElement($plates) . ' ' . fake()->numberBetween(1000, 9999) . ' ' . strtoupper(fake()->randomLetter()) . strtoupper(fake()->randomLetter());
+    }
+
+    /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
@@ -21,13 +38,13 @@ class CourierFactory extends Factory
     {
         return [
             'email' => fake()->unique()->safeEmail(),
-            'password' => 'password', // default password
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'assigned_location_id' => Location::factory(),
             'data' => [
                 'avatar_url' => null,
                 'name' => fake()->name(),
-                'phone' => fake()->numerify('8##########'),
-                'vehicle_number' => strtoupper(fake()->bothify('? #### ???')),
+                'phone' => $this->generateIndonesianPhone(),
+                'vehicle_number' => $this->generateIndonesianVehicleNumber(),
                 'is_active' => fake()->boolean(85),
             ],
         ];

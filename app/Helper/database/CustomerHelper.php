@@ -14,9 +14,7 @@ use Illuminate\Support\Facades\Storage;
  *
  * JSONB Structure:
  * - name: string
- * - addresses: [{type, district_code, district_name, village_code, village_name, detail_address, is_default}]
- * - preferences: {notification_enabled, language}
- * - google_oauth: {google_id, google_token, google_refresh_token}
+ * - addresses: [{type, district_code, district_name, village_code, village_name, detail_address, full_address, is_default}]
  * - member: boolean
  * - avatar_url: string
  */

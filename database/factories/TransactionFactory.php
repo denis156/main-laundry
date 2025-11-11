@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Helper\database\CustomerHelper;
-use App\Helper\database\ServiceHelper;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Courier;
@@ -42,18 +40,9 @@ class TransactionFactory extends Factory
         $paymentTiming = fake()->randomElement(['on_pickup', 'on_delivery']);
         $isPaid = fake()->boolean(60);
 
-        $formLoadedAt = (clone $orderDate)->modify('-' . fake()->numberBetween(5, 300) . ' seconds');
-
-        // Generate customer untuk mendapatkan address
-        $customer = Customer::factory()->make();
-        $customerAddress = CustomerHelper::getDefaultAddress($customer);
-
         // Generate service items (bisa per_kg atau per_item)
         $items = $this->generateServiceItems();
         $totalPrice = array_sum(array_column($items, 'subtotal'));
-
-        // Generate timeline berdasarkan workflow status
-        $timeline = $this->generateTimeline($workflowStatus, $orderDate);
 
         return [
             'invoice_number' => 'INV/' . $orderDate->format('Ymd') . '/' . str_pad((string) fake()->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
@@ -68,29 +57,7 @@ class TransactionFactory extends Factory
                     'total_price' => $totalPrice,
                     'payment_timing' => $paymentTiming,
                 ],
-                'customer_address' => $customerAddress ?? [
-                    'district_code' => '74.71.01',
-                    'district_name' => 'Mandonga',
-                    'village_code' => '74.71.01.1001',
-                    'village_name' => 'Mandonga',
-                    'detail_address' => 'Jl. Example No. 123',
-                    'full_address' => 'Jl. Example No. 123, Mandonga, Mandonga, Kota Kendari',
-                ],
                 'notes' => fake()->optional()->sentence(),
-                'metadata' => [
-                    'tags' => [],
-                    'custom_fields' => [],
-                ],
-                'tracking' => [
-                    'tracking_token' => fake()->uuid(),
-                    'tracking_url' => url('/tracking/' . fake()->uuid()),
-                ],
-                'timeline' => $timeline,
-                'anti_bot' => [
-                    'customer_ip' => fake()->ipv4(),
-                    'user_agent' => fake()->userAgent(),
-                    'form_loaded_at' => $formLoadedAt->format('Y-m-d H:i:s'),
-                ],
             ],
         ];
     }
@@ -125,21 +92,47 @@ class TransactionFactory extends Factory
         $pricePerKg = fake()->randomFloat(2, 5000, 15000);
         $totalWeight = fake()->randomFloat(2, 1, 20);
 
-        // Generate clothing items (2-5 jenis pakaian)
+        // Generate clothing items (2-5 jenis pakaian) dengan proper clothing type relationships
         $clothingItems = [];
         $clothingCount = fake()->numberBetween(2, 5);
 
+        // Get actual clothing types from database or use fallback
+        $clothingTypes = ClothingType::where('is_active', true)->pluck('name', 'id')->toArray();
+        if (empty($clothingTypes)) {
+            $clothingTypes = ['Kemeja', 'Celana Panjang', 'Kaos', 'Rok', 'Dress'];
+        }
+
         for ($i = 0; $i < $clothingCount; $i++) {
+            if (is_numeric(array_key_first($clothingTypes))) {
+                // Use actual database clothing types
+                $clothingTypeId = array_rand($clothingTypes);
+                $clothingTypeName = $clothingTypes[$clothingTypeId];
+            } else {
+                // Use fallback names
+                $clothingTypeName = array_rand($clothingTypes);
+                $clothingTypeId = null;
+            }
+
             $clothingItems[] = [
-                'clothing_type_id' => null, // Will be filled by seeder
-                'clothing_type_name' => fake()->randomElement(['Kemeja', 'Celana Panjang', 'Kaos', 'Rok', 'Dress']),
+                'clothing_type_id' => $clothingTypeId,
+                'clothing_type_name' => $clothingTypeName,
                 'quantity' => fake()->numberBetween(1, 10),
             ];
         }
 
+        // Get actual service or use fallback
+        $services = Service::where('is_active', true)->where('data->pricing->unit', 'per_kg')->pluck('name', 'id')->toArray();
+        if (is_numeric(array_key_first($services))) {
+            $serviceId = array_rand($services);
+            $serviceName = $services[$serviceId];
+        } else {
+            $serviceName = fake()->randomElement(['Cuci Kering', 'Cuci Setrika', 'Setrika Saja', 'Cuci Express', 'Cuci Premium']);
+            $serviceId = null;
+        }
+
         return [
-            'service_id' => null, // Will be filled by seeder
-            'service_name' => fake()->randomElement(['Cuci Kering', 'Cuci Setrika', 'Setrika Saja', 'Cuci Express', 'Cuci Premium', 'Dry Clean']),
+            'service_id' => $serviceId,
+            'service_name' => $serviceName,
             'pricing_unit' => 'per_kg',
             'price_per_kg' => $pricePerKg,
             'price_per_item' => null,
@@ -158,9 +151,19 @@ class TransactionFactory extends Factory
         $pricePerItem = fake()->randomFloat(2, 30000, 60000);
         $quantity = fake()->numberBetween(1, 5);
 
+        // Get actual service or use fallback
+        $services = Service::where('is_active', true)->where('data->pricing->unit', 'per_item')->pluck('name', 'id')->toArray();
+        if (is_numeric(array_key_first($services))) {
+            $serviceId = array_rand($services);
+            $serviceName = $services[$serviceId];
+        } else {
+            $serviceName = fake()->randomElement(['Cuci Karpet Besar', 'Cuci Selimut Tebal', 'Cuci Karpet Kecil', 'Cuci Jas', 'Cuci Boneka Besar']);
+            $serviceId = null;
+        }
+
         return [
-            'service_id' => null, // Will be filled by seeder
-            'service_name' => fake()->randomElement(['Cuci Karpet Besar', 'Cuci Selimut Tebal']),
+            'service_id' => $serviceId,
+            'service_name' => $serviceName,
             'pricing_unit' => 'per_item',
             'price_per_kg' => null,
             'price_per_item' => $pricePerItem,
@@ -172,40 +175,24 @@ class TransactionFactory extends Factory
     }
 
     /**
-     * Generate timeline based on workflow status
+     * Indicate that the transaction is unpaid (for payment generation)
      */
-    private function generateTimeline(string $workflowStatus, $orderDate): array
+    public function unpaid(): static
     {
-        $timeline = [];
-        $currentDate = clone $orderDate;
-
-        $statusFlow = [
-            'pending_confirmation',
-            'confirmed',
-            'picked_up',
-            'at_loading_post',
-            'in_washing',
-            'washing_completed',
-            'out_for_delivery',
-            'delivered',
-        ];
-
-        $statusIndex = array_search($workflowStatus, $statusFlow);
-        if ($statusIndex === false) {
-            $statusIndex = 0;
-        }
-
-        for ($i = 0; $i <= $statusIndex; $i++) {
-            $timeline[] = [
-                'status' => $statusFlow[$i],
-                'timestamp' => $currentDate->format('Y-m-d H:i:s'),
-                'notes' => fake()->optional()->sentence(),
+        return $this->state(function (array $attributes) {
+            return [
+                'payment_status' => 'unpaid',
+                'workflow_status' => fake()->randomElement([
+                    'pending_confirmation',
+                    'confirmed',
+                    'picked_up',
+                    'at_loading_post',
+                    'in_washing',
+                    'washing_completed',
+                    'out_for_delivery',
+                ]),
             ];
-
-            // Add random hours for next status
-            $currentDate->modify('+' . fake()->numberBetween(1, 24) . ' hours');
-        }
-
-        return $timeline;
+        });
     }
+
 }
