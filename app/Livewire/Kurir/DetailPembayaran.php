@@ -6,13 +6,16 @@ namespace App\Livewire\Kurir;
 
 use Mary\Traits\Toast;
 use App\Models\Payment;
-use App\Models\Transaction;
 use Livewire\Component;
+use App\Helper\QrisHelper;
+use App\Models\Transaction;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Helper\Database\PaymentHelper;
 
 #[Title('Detail Pembayaran')]
@@ -29,6 +32,12 @@ class DetailPembayaran extends Component
 
     // Modal state
     public bool $showUploadModal = false;
+
+    // QR Code properties
+    public bool $showQrModal = false;
+    public string $qrCodeUrl = '';
+    public string $qrCodeData = '';
+    public float $qrAmount = 0;
 
     public function mount(int $id): void
     {
@@ -79,6 +88,96 @@ class DetailPembayaran extends Component
     public function openUploadModal(): void
     {
         $this->showUploadModal = true;
+    }
+
+    /**
+     * Generate QR Code untuk pembayaran dengan nominal
+     */
+    public function generateQrCode(): void
+    {
+        try {
+            $amount = $this->transaction->data['pricing']['total_price'] ?? 0;
+
+            if ($amount <= 0) {
+                $this->error(
+                    title: 'Nominal Tidak Valid!',
+                    description: 'Nominal pembayaran harus lebih dari 0.',
+                    position: 'toast-top toast-end',
+                    timeout: 3000
+                );
+                return;
+            }
+
+            // Generate QR Code dengan nominal
+            $qrData = QrisHelper::generatePaymentQrCode($amount, $this->transaction->id);
+
+            $this->qrCodeUrl = $qrData['image_url'];
+            $this->qrCodeData = $qrData['qris_data'];
+            $this->qrAmount = $qrData['amount'];
+            $this->showQrModal = true;
+
+            $this->success(
+                title: 'QR Code Berhasil Dibuat!',
+                description: 'QR Code untuk pembayaran sebesar ' . QrisHelper::formatAmount($amount),
+                position: 'toast-top toast-end',
+                timeout: 2000
+            );
+        } catch (\Exception $e) {
+            $this->error(
+                title: 'Gagal Generate QR Code!',
+                description: 'Terjadi kesalahan saat generate QR Code. Silakan coba lagi.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
+
+            Log::error('QR Code Generation Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Tutup QR Code modal
+     */
+    public function closeQrModal(): void
+    {
+        $this->showQrModal = false;
+        $this->qrCodeUrl = '';
+        $this->qrCodeData = '';
+        $this->qrAmount = 0;
+    }
+
+    /**
+     * Download QR Code image
+     */
+    public function downloadQrCode()
+    {
+        if (!empty($this->qrCodeUrl)) {
+            // Create download response
+            $filename = 'qris-payment-' . $this->transaction->invoice_number . '.png';
+
+            // Extract the relative path from URL
+            // Handle different URL formats
+            if (str_contains($this->qrCodeUrl, '/storage/')) {
+                // Format: http://domain/storage/qrcodes/filename.png
+                $relativePath = substr($this->qrCodeUrl, strpos($this->qrCodeUrl, '/storage/') + 9);
+            } else {
+                // Fallback: assume the format is already relative
+                $relativePath = ltrim($this->qrCodeUrl, '/');
+            }
+
+            // Ensure relative path starts with qrcodes/
+            if (!str_starts_with($relativePath, 'qrcodes/')) {
+                $relativePath = 'qrcodes/' . basename($relativePath);
+            }
+
+            // Use Storage facade to get the file and return download response
+            $storagePath = 'public/' . $relativePath;
+
+            if (Storage::exists($relativePath)) {
+                return response()->download(storage_path($storagePath), $filename);
+            }
+        }
+
+        return null;
     }
 
     /**

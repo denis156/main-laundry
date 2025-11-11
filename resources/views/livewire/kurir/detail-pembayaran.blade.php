@@ -1,4 +1,7 @@
-@php use App\Helper\StatusTransactionHelper; @endphp
+@php
+use App\Helper\StatusTransactionHelper;
+use App\Helper\QrisHelper;
+@endphp
 <section class="bg-base-100" wire:poll.25s.visible>
     {{-- Header --}}
     <x-header icon="solar.wallet-money-bold-duotone" icon-classes="text-primary w-6 h-6" title="Detail Pembayaran"
@@ -242,15 +245,59 @@
 
                 {{-- Action Buttons --}}
                 <div class="mt-3">
-                    @if (!$this->hasPaymentProof)
-                        {{-- Belum ada bukti - Tampilkan Upload --}}
-                        <x-button wire:click="openUploadModal" label="Upload Bukti" icon="solar.upload-bold-duotone"
-                            class="btn-success btn-sm btn-block" :disabled="empty($paymentProof)" />
+                    @if ($transaction->payment_status === 'unpaid')
+                        <div class="grid grid-cols-2 gap-2">
+                            {{-- QR Code Button --}}
+                            <x-button wire:click="generateQrCode" label="Generate QR" icon="solar.qr-code-bold-duotone"
+                                class="btn-primary btn-sm" />
+
+                            {{-- Upload Bukti Button --}}
+                            @if (!$this->hasPaymentProof)
+                                <x-button wire:click="openUploadModal" label="Upload Bukti" icon="solar.upload-bold-duotone"
+                                    class="btn-success btn-sm" :disabled="empty($paymentProof)" />
+                            @endif
+                        </div>
                     @endif
                 </div>
             </div>
         </div>
     </div>
+
+    {{-- Modal QR Code Pembayaran --}}
+    <x-modal wire:model="showQrModal" title="QR Code Pembayaran"
+        subtitle="Scan QR Code untuk pembayaran" class="modal-bottom sm:modal-middle" persistent>
+        <div class="py-4">
+            @if (!empty($qrCodeUrl))
+                <div class="text-center space-y-4">
+                    {{-- QR Code Image --}}
+                    <div class="flex justify-center">
+                        <div class="p-4">
+                            <img src="{{ $qrCodeUrl }}" alt="QR Code Pembayaran"
+                                class="w-64 h-64" />
+                        </div>
+                    </div>
+
+                    {{-- Payment Info --}}
+                    <div class="bg-base-200 rounded-lg p-4">
+                        <h4 class="font-bold text-lg text-primary mb-2">
+                            {{ QrisHelper::formatAmount($qrAmount) }}
+                        </h4>
+                        <p class="text-sm text-base-content/70">
+                            Invoice: {{ $transaction->invoice_number }}
+                        </p>
+                        <p class="text-sm text-base-content/70">
+                            Pelanggan: {{ $transaction->customer?->name ?? 'N/A' }}
+                        </p>
+                    </div>
+                </div>
+            @endif
+        </div>
+        <x-slot:actions>
+            <x-button label="Download QR" wire:click="downloadQrCode" icon="solar.download-bold-duotone"
+                class="btn-primary" :disabled="empty($qrCodeUrl)" />
+            <x-button label="Tutup" wire:click="closeQrModal" />
+        </x-slot:actions>
+    </x-modal>
 
     {{-- Modal Konfirmasi Upload Bukti Pembayaran --}}
     <x-modal wire:model="showUploadModal" title="Upload Bukti Pembayaran"

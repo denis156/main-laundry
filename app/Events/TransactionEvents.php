@@ -62,7 +62,7 @@ class TransactionEvents implements ShouldBroadcast
         $customer = $this->transaction->customer;
         $courier = $this->transaction->courier;
         $items = TransactionHelper::getItems($this->transaction);
-        $customerAddress = TransactionHelper::getCustomerAddress($this->transaction);
+        $defaultAddress = $customer ? CustomerHelper::getDefaultAddress($customer) : null;
 
         return [
             'action' => $this->action, // 'created', 'updated', 'deleted'
@@ -70,7 +70,7 @@ class TransactionEvents implements ShouldBroadcast
             'invoice_number' => $this->transaction->invoice_number,
             'customer_id' => $this->transaction->customer_id,
             'customer_name' => $customer ? CustomerHelper::getName($customer) : null,
-            'customer_village' => $customerAddress['village_name'] ?? null,
+            'customer_village' => $defaultAddress['village_name'] ?? null,
             'courier_id' => $this->transaction->courier_id,
             'courier_name' => $courier ? CourierHelper::getName($courier) : null,
             'location_id' => $this->transaction->location_id,
