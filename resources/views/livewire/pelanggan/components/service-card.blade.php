@@ -1,5 +1,4 @@
 {{-- Layanan Kami --}}
-
 <div class="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4">
     @foreach ($this->services as $service)
         <x-card title="{{ $service->name }}"
@@ -23,7 +22,7 @@
                                 <span>{{ $feature }}</span>
                             </li>
                         @endforeach
-                    </ul>k
+                    </ul>
 
                     {{-- Show remaining features count --}}
                     @if ($remainingCount > 0)
