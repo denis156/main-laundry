@@ -267,13 +267,14 @@ use App\Helper\QrisHelper;
     <x-modal wire:model="showQrModal" title="QR Code Pembayaran"
         subtitle="Scan QR Code untuk pembayaran" class="modal-bottom sm:modal-middle" persistent>
         <div class="py-4">
-            @if (!empty($qrCodeUrl))
+            @if (!empty($qrSvg))
                 <div class="text-center space-y-4">
-                    {{-- QR Code Image --}}
+                    {{-- QR Code SVG --}}
                     <div class="flex justify-center">
-                        <div class="p-4">
-                            <img src="{{ $qrCodeUrl }}" alt="QR Code Pembayaran"
-                                class="w-64 h-64" />
+                        <div class="p-4 bg-white rounded-lg shadow">
+                            <div class="w-64 h-64 flex items-center justify-center">
+                                {!! $qrSvg !!}
+                            </div>
                         </div>
                     </div>
 

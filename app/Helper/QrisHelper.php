@@ -65,25 +65,19 @@ class QrisHelper
     }
 
     /**
-     * Generate QR Code untuk payment dengan nominal dari transaction
+     * Generate QR Code untuk payment dengan nominal dari transaction (on-demand)
      */
     public static function generatePaymentQrCode(float $amount, int $transactionId): array
     {
         try {
-            // Generate dynamic QRIS
-            $dynamicQris = self::generateDynamicQris($amount);
-
-            // Generate filename unik
-            $filename = 'payment-' . $transactionId . '-' . time() . '.png';
-
-            // Generate dan save QR Code image
-            $imagePath = self::generateQrCodeImage($dynamicQris, $filename);
+            // Generate on-demand QR Code (SVG, tidak disimpan)
+            $qrSvg = self::generateOnDemandQrCode($amount);
 
             return [
-                'qris_data' => $dynamicQris,
-                'image_path' => $imagePath,
-                'image_url' => asset('storage/' . $imagePath),
+                'qris_data' => self::generateDynamicQris($amount),
+                'qr_svg' => $qrSvg, // SVG string for display
                 'amount' => $amount,
+                'transaction_id' => $transactionId,
             ];
         } catch (Exception $e) {
             Log::error('Payment QR Code Generation Error: ' . $e->getMessage());
@@ -164,6 +158,224 @@ class QrisHelper
     {
         // Basic validation - check if it starts with correct prefix
         return str_starts_with($qris, '000201010211');
+    }
+
+    /**
+     * Generate QR Code on-demand (tidak disimpan, hanya untuk display)
+     */
+    public static function generateOnDemandQrCode(float $amount): string
+    {
+        try {
+            // Generate dynamic QRIS
+            $dynamicQris = self::generateDynamicQris($amount);
+
+            // Generate QR Code string (base64 encoded)
+            $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
+                ->size(300)
+                ->errorCorrection('H')
+                ->margin(0)
+                ->generate($dynamicQris);
+
+            return (string) $qrCode;
+        } catch (Exception $e) {
+            Log::error('QR Code On-Demand Generation Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Generate QR Code dengan storage (untuk download)
+     */
+    public static function generateStorableQrCode(float $amount, int $transactionId): array
+    {
+        try {
+            // Auto cleanup old QR codes sebelum generate baru
+            self::autoCleanupOldQrCodes();
+
+            // Generate dynamic QRIS
+            $dynamicQris = self::generateDynamicQris($amount);
+
+            // Generate filename unik dengan timestamp yang lebih pendek
+            $timestamp = time();
+            $shortTimestamp = substr((string)$timestamp, -6); // 6 digit terakhir
+            $filename = 'qr-' . $transactionId . '-' . $shortTimestamp . '.svg';
+
+            // Generate QR Code SVG (lebih kecil dari PNG)
+            $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
+                ->size(200) // lebih kecil untuk hemat storage
+                ->errorCorrection('M') // error correction medium (lebih kecil)
+                ->margin(1) // minimal margin
+                ->generate($dynamicQris);
+
+            // Convert to string for storage
+            $qrCodeString = (string) $qrCode;
+
+            // Save ke storage
+            $storageConfig = config('qrisconvert.storage');
+            $path = $storageConfig['path'] . "/{$filename}";
+            Storage::disk($storageConfig['disk'])->put($path, $qrCodeString);
+
+            return [
+                'qris_data' => $dynamicQris,
+                'image_path' => $path,
+                'image_url' => asset('storage/' . $path),
+                'amount' => $amount,
+                'file_size' => strlen($qrCodeString),
+            ];
+        } catch (Exception $e) {
+            Log::error('QR Code Storable Generation Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Clean up old QR Code files (lebih dari X jam)
+     */
+    public static function cleanupOldQrCodes(int $hoursOld = 24): array
+    {
+        try {
+            $storageConfig = config('qrisconvert.storage');
+            $path = $storageConfig['path'];
+
+            $files = Storage::disk($storageConfig['disk'])->files($path);
+            $deletedFiles = [];
+            $totalSize = 0;
+
+            foreach ($files as $file) {
+                $fileName = basename($file);
+                if (!str_starts_with($fileName, 'qr-')) {
+                    continue; // skip non-QR files
+                }
+
+                $filePath = $file;
+
+                // Get last modified time
+                $lastModified = Storage::disk($storageConfig['disk'])->lastModified($filePath);
+                $ageHours = (time() - $lastModified) / 3600;
+
+                if ($ageHours > $hoursOld) {
+                    $fileSize = Storage::disk($storageConfig['disk'])->size($filePath);
+
+                    if (Storage::disk($storageConfig['disk'])->delete($filePath)) {
+                        $deletedFiles[] = [
+                            'file' => $fileName,
+                            'age_hours' => round($ageHours, 2),
+                            'size_bytes' => $fileSize,
+                        ];
+                        $totalSize += $fileSize;
+                    }
+                }
+            }
+
+            return [
+                'deleted_count' => count($deletedFiles),
+                'total_size_bytes' => $totalSize,
+                'total_size_mb' => round($totalSize / 1024 / 1024, 2),
+                'files' => $deletedFiles,
+            ];
+        } catch (Exception $e) {
+            Log::error('QR Code Cleanup Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Get storage usage statistics
+     */
+    public static function getStorageStats(): array
+    {
+        try {
+            $storageConfig = config('qrisconvert.storage');
+            $path = $storageConfig['path'];
+
+            $files = Storage::disk($storageConfig['disk'])->files($path);
+            $totalFiles = 0;
+            $totalSize = 0;
+            $oldestFile = null;
+            $newestFile = null;
+
+            foreach ($files as $file) {
+                $fileName = basename($file);
+                if (!str_starts_with($fileName, 'qr-')) {
+                    continue;
+                }
+
+                $filePath = $file;
+                $fileSize = Storage::disk($storageConfig['disk'])->size($filePath);
+                $lastModified = Storage::disk($storageConfig['disk'])->lastModified($filePath);
+
+                $totalFiles++;
+                $totalSize += $fileSize;
+
+                if (!$oldestFile || $lastModified < $oldestFile['time']) {
+                    $oldestFile = [
+                        'file' => $fileName,
+                        'time' => $lastModified,
+                        'age_hours' => round((time() - $lastModified) / 3600, 2),
+                    ];
+                }
+
+                if (!$newestFile || $lastModified > $newestFile['time']) {
+                    $newestFile = [
+                        'file' => $fileName,
+                        'time' => $lastModified,
+                        'age_hours' => round((time() - $lastModified) / 3600, 2),
+                    ];
+                }
+            }
+
+            return [
+                'total_files' => $totalFiles,
+                'total_size_bytes' => $totalSize,
+                'total_size_mb' => round($totalSize / 1024 / 1024, 2),
+                'oldest_file' => $oldestFile,
+                'newest_file' => $newestFile,
+            ];
+        } catch (Exception $e) {
+            Log::error('QR Code Storage Stats Error: ' . $e->getMessage());
+            return [
+                'total_files' => 0,
+                'total_size_bytes' => 0,
+                'total_size_mb' => 0,
+                'oldest_file' => null,
+                'newest_file' => null,
+            ];
+        }
+    }
+
+    /**
+     * Auto cleanup old QR codes berdasarkan konfigurasi
+     * Dipanggil otomatis saat generate QR code baru
+     */
+    private static function autoCleanupOldQrCodes(): void
+    {
+        try {
+            $cleanupConfig = config('qrisconvert.cleanup');
+
+            // Skip jika auto_cleanup disabled
+            if (!$cleanupConfig['auto_cleanup']) {
+                return;
+            }
+
+            $retentionHours = $cleanupConfig['retention_hours'];
+
+            // Skip jika retention hours = 0 atau kurang dari 1
+            if ($retentionHours <= 0) {
+                return;
+            }
+
+            // Lakukan cleanup
+            $result = self::cleanupOldQrCodes($retentionHours);
+
+            // Log hasil cleanup (hanya jika ada file yang dihapus)
+            if ($result['deleted_count'] > 0) {
+                Log::info('QR Code Auto Cleanup: Deleted ' . $result['deleted_count'] .
+                         ' old QR files, freed up ' . $result['total_size_mb'] . ' MB');
+            }
+        } catch (Exception $e) {
+            // Log error tapi jangan block proses generate QR
+            Log::warning('QR Code Auto Cleanup failed: ' . $e->getMessage());
+        }
     }
 
     /**

@@ -76,4 +76,20 @@ return [
         'disk' => 'public',
         'path' => 'qrcodes',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Auto Cleanup Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Konfigurasi otomatis hapus QR Code lama
+    | - retention_hours: berapa lama QR Code disimpan (dari env QRIS_RETENTION_HOURS)
+    | - auto_cleanup: enable/disable otomatis cleanup (true jika retention > 0)
+    |
+    */
+
+    'cleanup' => [
+        'retention_hours' => (int) env('QRIS_RETENTION_HOURS', 72),
+        'auto_cleanup' => (int) env('QRIS_RETENTION_HOURS', 72) > 0,
+    ],
 ];

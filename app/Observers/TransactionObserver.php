@@ -155,7 +155,7 @@ class TransactionObserver
             $totalPrice = TransactionHelper::getTotalPrice($transaction);
             $courierId = $transaction->courier_id;
 
-            // Bayar Saat Jemput: Payment dibuat saat status 'picked_up'
+            // Case 1: Bayar Saat Jemput (original setting)
             if (
                 $paymentTiming === 'on_pickup' &&
                 $transaction->workflow_status === 'picked_up' &&
@@ -178,7 +178,7 @@ class TransactionObserver
                 }
             }
 
-            // Bayar Saat Antar: Payment dibuat saat status 'out_for_delivery'
+            // Case 2: Bayar Saat Antar (original setting)
             if (
                 $paymentTiming === 'on_delivery' &&
                 $transaction->workflow_status === 'out_for_delivery' &&
@@ -196,6 +196,36 @@ class TransactionObserver
                             'payment_date' => now()->toIso8601String(),
                             'method' => 'cash',
                             'notes' => 'Pembayaran saat antar - Auto-generated',
+                        ],
+                    ]);
+                }
+            }
+
+            // Case 3: Status berubah ke 'picked_up' (Dijemput) - auto create payment regardless of original timing
+            // This handles cases where courier marks order as picked up but payment wasn't set to on_pickup
+            if (
+                $transaction->workflow_status === 'picked_up' &&
+                !empty($courierId) &&
+                $totalPrice > 0
+            ) {
+                $existingPayment = Payment::where('transaction_id', $transaction->id)->first();
+
+                if (!$existingPayment) {
+                    // Determine payment method based on original timing
+                    $paymentMethod = $paymentTiming === 'on_delivery' ? 'cash_on_delivery' : 'cash';
+                    $notes = $paymentTiming === 'on_delivery'
+                        ? 'Pembayaran saat jemput (ubah dari saat antar) - Auto-generated'
+                        : 'Pembayaran saat jemput - Auto-generated';
+
+                    Payment::create([
+                        'transaction_id' => $transaction->id,
+                        'courier_id' => $courierId,
+                        'amount' => $totalPrice,
+                        'data' => [
+                            'payment_date' => now()->toIso8601String(),
+                            'method' => $paymentMethod,
+                            'original_timing' => $paymentTiming,
+                            'notes' => $notes,
                         ],
                     ]);
                 }

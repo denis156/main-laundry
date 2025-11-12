@@ -15,7 +15,6 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use App\Helper\Database\PaymentHelper;
 
 #[Title('Detail Pembayaran')]
@@ -35,9 +34,10 @@ class DetailPembayaran extends Component
 
     // QR Code properties
     public bool $showQrModal = false;
-    public string $qrCodeUrl = '';
+    public string $qrSvg = '';
     public string $qrCodeData = '';
     public float $qrAmount = 0;
+    public string $qrDownloadUrl = '';
 
     public function mount(int $id): void
     {
@@ -91,7 +91,7 @@ class DetailPembayaran extends Component
     }
 
     /**
-     * Generate QR Code untuk pembayaran dengan nominal
+     * Generate QR Code untuk pembayaran dengan nominal (on-demand)
      */
     public function generateQrCode(): void
     {
@@ -108,12 +108,13 @@ class DetailPembayaran extends Component
                 return;
             }
 
-            // Generate QR Code dengan nominal
+            // Generate QR Code on-demand (SVG, tidak disimpan)
             $qrData = QrisHelper::generatePaymentQrCode($amount, $this->transaction->id);
 
-            $this->qrCodeUrl = $qrData['image_url'];
+            $this->qrSvg = $qrData['qr_svg'];
             $this->qrCodeData = $qrData['qris_data'];
             $this->qrAmount = $qrData['amount'];
+            $this->qrDownloadUrl = ''; // Reset download URL
             $this->showQrModal = true;
 
             $this->success(
@@ -140,44 +141,38 @@ class DetailPembayaran extends Component
     public function closeQrModal(): void
     {
         $this->showQrModal = false;
-        $this->qrCodeUrl = '';
+        $this->qrSvg = '';
         $this->qrCodeData = '';
         $this->qrAmount = 0;
+        $this->qrDownloadUrl = '';
     }
 
     /**
-     * Download QR Code image
+     * Download QR Code image (generate storable QR saat dibutuhkan)
      */
     public function downloadQrCode()
     {
-        if (!empty($this->qrCodeUrl)) {
-            // Create download response
-            $filename = 'qris-payment-' . $this->transaction->invoice_number . '.png';
+        try {
+            $filename = 'qris-payment-' . $this->transaction->invoice_number . '.svg';
 
-            // Extract the relative path from URL
-            // Handle different URL formats
-            if (str_contains($this->qrCodeUrl, '/storage/')) {
-                // Format: http://domain/storage/qrcodes/filename.png
-                $relativePath = substr($this->qrCodeUrl, strpos($this->qrCodeUrl, '/storage/') + 9);
-            } else {
-                // Fallback: assume the format is already relative
-                $relativePath = ltrim($this->qrCodeUrl, '/');
-            }
+            // Generate storable QR Code (SVG, lebih hemat storage)
+            $qrData = QrisHelper::generateStorableQrCode($this->qrAmount, $this->transaction->id);
 
-            // Ensure relative path starts with qrcodes/
-            if (!str_starts_with($relativePath, 'qrcodes/')) {
-                $relativePath = 'qrcodes/' . basename($relativePath);
-            }
+            $this->qrDownloadUrl = $qrData['image_url'];
 
-            // Use Storage facade to get the file and return download response
-            $storagePath = 'public/' . $relativePath;
+            return response()->download(storage_path('app/public/' . $qrData['image_path']), $filename);
+        } catch (\Exception $e) {
+            Log::error('QR Code Download Error: ' . $e->getMessage());
 
-            if (Storage::exists($relativePath)) {
-                return response()->download(storage_path($storagePath), $filename);
-            }
+            $this->error(
+                title: 'Gagal Download QR Code!',
+                description: 'Terjadi kesalahan saat generate file download.',
+                position: 'toast-top toast-end',
+                timeout: 3000
+            );
+
+            return null;
         }
-
-        return null;
     }
 
     /**
