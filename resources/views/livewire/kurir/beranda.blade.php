@@ -1,10 +1,8 @@
-<section class="bg-base-100">
-    <x-header icon="solar.home-bold-duotone" icon-classes="text-primary w-6 h-6" title="Beranda"
-        subtitle="Dashboard Kurir {{ config('app.name') }}" separator />
+<section class="bg-base-100 relative overflow-hidden">
+    <!-- Background Decorative Capsules -->
+    <div class="fixed inset-0 z-0 h-[56dvh] flex items-center justify-center bg-primary/68 rounded-b-2xl"></div>
 
     <div class="space-y-4">
-        {{-- Stats Cards Component --}}
-        <livewire:kurir.components.stats-beranda />
 
         {{-- Welcome Card --}}
         <x-card class="bg-base-300 shadow" title="Hai {{ $this->greeting }}" subtitle="{{ $this->todayDate }}" separator>
@@ -19,22 +17,25 @@
                 $courierPhone = \App\Helper\Database\CourierHelper::getPhone($this->courier);
             @endphp
             <x-avatar :image="$this->courier->getFilamentAvatarUrl()" class="w-24">
-                <x-slot:title class="text-xl text-base-content font-bold pl-2">
+                <x-slot:title class="text-lg text-base-content font-bold pl-2">
                     {{ $courierName }}
                 </x-slot:title>
 
                 <x-slot:subtitle class="grid gap-0 mt-2 pl-2 text-xs md:text-sm">
-                    @if($courierVehicle)
-                    <p class="text-secondary font-mono">{{ $courierVehicle }}</p>
+                    @if ($courierVehicle)
+                        <p class="text-secondary font-mono">{{ $courierVehicle }}</p>
                     @endif
                     <p class="text-secondary font-mono">{{ $this->courier->email }}</p>
-                    @if($courierPhone)
-                    <p class="text-secondary font-mono">+62 {{ $courierPhone }}</p>
+                    @if ($courierPhone)
+                        <p class="text-secondary font-mono">+62 {{ $courierPhone }}</p>
                     @endif
                 </x-slot:subtitle>
 
             </x-avatar>
         </x-card>
+
+        {{-- Stats Cards Component --}}
+        <livewire:kurir.components.stats-beranda />
 
         {{-- Quick Actions --}}
         <x-card class="bg-base-300 shadow" body-class="grid grid-cols-2 gap-4" title="Aksi Cepat"
@@ -75,7 +76,8 @@
 
                 {{-- Center align name column --}}
                 @scope('cell_name', $leader)
-                    <span class="text-center whitespace-nowrap">{{ $leader->display_name ?? \App\Helper\Database\CourierHelper::getName($leader) }}</span>
+                    <span
+                        class="text-center whitespace-nowrap">{{ $leader->display_name ?? \App\Helper\Database\CourierHelper::getName($leader) }}</span>
                 @endscope
 
                 {{-- Center align transactions count --}}

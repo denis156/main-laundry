@@ -42,10 +42,12 @@
                     icon="solar.lock-keyhole-bold-duotone" :hint="empty($current_password) ? 'Isi password lama terlebih dahulu' : 'Ulangi password baru'" right :readonly="empty($current_password)" />
 
                 <x-slot:actions>
-                    <x-button label="Batal" class="btn-secondary btn-outline" wire:click="cancel"
-                        icon="solar.close-circle-bold-duotone" :disabled="!$this->hasChanges" />
-                    <x-button label="Simpan Perubahan" class="btn-primary" type="submit" spinner="save"
-                        icon="solar.diskette-bold-duotone" :disabled="!$this->hasChanges" />
+                    <div class="w-full grid grid-cols-2 gap-4">
+                        <x-button label="Batal" class="btn-secondary" wire:click="cancel"
+                            icon="solar.close-circle-bold-duotone" :disabled="!$this->hasChanges" />
+                        <x-button label="Simpan" class="btn-primary" type="submit" spinner="save"
+                            icon="solar.diskette-bold-duotone" :disabled="!$this->hasChanges" />
+                    </div>
                 </x-slot:actions>
             </x-form>
         </x-card>

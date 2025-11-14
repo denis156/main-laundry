@@ -2,7 +2,7 @@
 <section class="bg-base-100" wire:poll.25s.visible>
     {{-- Header --}}
     <x-header icon="solar.bill-list-bold-duotone" icon-classes="text-primary w-6 h-6" title="Detail Pesanan"
-        subtitle="Pelanggan atas nama {{ $transaction->customer?->name ?? 'Customer tidak ditemukan' }}" separator
+        subtitle="Pelanggan {{ $transaction->customer?->name ?? 'Customer tidak ditemukan' }}" separator
         progress-indicator>
         <x-slot:actions>
             <x-button icon="solar.undo-left-linear" link="{{ route('kurir.pesanan') }}" class="btn-circle btn-secondary" />
